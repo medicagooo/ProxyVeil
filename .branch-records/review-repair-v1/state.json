@@ -3,7 +3,8 @@
     "two-axis review of initial source",
     "regressions reproduced and repaired",
     "engine, UI and extracted packages pass",
-    "published SHA verified remotely"
+    "published SHA verified remotely",
+    "All remote main ancestors use requested author and committer email; application trees unchanged"
   ],
   "evidence": [
     "docs/review-0.1.1.md",
@@ -23,7 +24,10 @@
   "constraints": [
     "Windows / PowerShell 7; offline isolated tests",
     "No live privacy configuration mutations",
-    "Push only to git@github.com:medicagooo/ProxyVeil.git without force"
+    "Author and committer: medicagooo <medicago.19@outlook.com>; repository-local default",
+    "Identity correction only: replace origin/main with explicit lease at ",
+    "2c9abf2d83bafc5f54a2c6111ba0d91ca9bcb1a5",
+    "; no other remote refs changed"
   ],
-  "next": "Commit reviewed 0.1.1 and this declaration; push refs/heads/1010-review-repair to origin refs/heads/main without force; verify remote SHA equals HEAD. Reconcile pending before retry."
+  "next": "Rebuild the two published commits and identity declaration with corrected identity; replace local review ref by compare-and-swap; push origin/main with exact old-SHA lease; verify remote SHA and all ancestry emails"
 }

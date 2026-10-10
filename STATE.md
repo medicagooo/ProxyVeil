@@ -4,13 +4,13 @@
 
 用户授权创建 D:/proj/ProxyVeil，将 FlClash 隐私脚本扩为 Windows/PowerShell 7 应用。首版为 FlClash + Edge，支持 TUN/Proxy、普通权限/管理员入口、可选 DNS/WebRTC/代理内 IPv6、磨砂窗口、逐项进度、修复及还原。保留国内直连、订阅与节点选择。
 
-首版交付终点为本地源码及两个便携 ZIP。2026-10-10 用户追加授权 review、bug repair 和 push 到 git@github.com:medicagooo/ProxyVeil.git；本次修复版本 0.1.1，拟首次推送远端 main，无 force。未授权自动修复当前电脑或创建 GitHub Release。配置测试使用 work/ 隔离夹具与模拟策略；原生注册表类型测试仅写随机临时键并清理，未修改 Edge 策略。不禁用物理网卡，不维护系统防火墙，不覆盖 Chrome/Firefox，不承诺所有应用 DNS 无泄露。
+首版交付终点为本地源码及两个便携 ZIP。2026-10-10 用户追加授权 review、bug repair 和 push 到 git@github.com:medicagooo/ProxyVeil.git；修复版本 0.1.1 已推送。用户随后要求纠正提交邮箱为 medicago.19@outlook.com；仅本次身份重写允许以原远端 SHA 为 lease 替换 main。未授权自动修复当前电脑或创建 GitHub Release。配置测试使用 work/ 隔离夹具与模拟策略；原生注册表类型测试仅写随机临时键并清理，未修改 Edge 策略。不禁用物理网卡，不维护系统防火墙，不覆盖 Chrome/Firefox，不承诺所有应用 DNS 无泄露。
 
 ## Repository and authoritative records
 
 - 仓库及唯一工作区：D:/proj/ProxyVeil；当前任务 review-repair-v1，分支 1010-review-repair；initial-v1 / 1010-initial-v1 保留首版历史。
 - 固定审查基线 b36d439f19c2cc0b7cbaa800d5cbe2f9c8f1a1e2；完整报告 docs/review-0.1.1.md。修复交付引用 refs/heads/1010-review-repair；SHA 查询 live Git，不由待提交文档自报。
-- 此 checkpoint 已完成修复验证，尚待登记、提交及推送；远端首次检查没有 heads。推送事件的 after 只表示意图；接续先查询远端 main SHA 与本地 HEAD，已经一致则不重复推送。无部署或 Release。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
+- 此 checkpoint 已核验初次发布：远端 main 为 2c9abf2d83bafc5f54a2c6111ba0d91ca9bcb1a5。当前准备重写两条已发布提交和身份登记提交，作者/提交者统一 medicagooo <medicago.19@outlook.com>。开始时工作区干净；此文档及登记是本次身份更正的待提交内容。推送事件的 after 只表示意图；接续先查询远端 main SHA 与本地 HEAD，已经一致则不重复推送。无部署或 Release。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
 - 需求权威：docs/spec-v1.md；决策：docs/adr/0001-desktop-and-recovery.md；边界与调用：docs/agents/domain.md；场景：docs/scenario.md。
 - tracker：docs/agents/issue-tracker.md；首版任务 .scratch/v1/spec.md、map.md、issues/01..05；业务登记 BRANCHES.md 与 .branch-records/initial-v1/、review-repair-v1/。
 - 工单于验收阶段补录；没有虚构实现前认领。全部 resolved 表示本地交付范围完成，不表示网络验收或 UAC 已测试。
@@ -53,7 +53,7 @@ WebRTC 写 HKCU Edge 策略，组织 HKLM 冲突跳过；部分策略不支持�
 
 ## Next executable action
 
-本次下一步：验证登记、提交修复，再登记 push 意图并提交；将 refs/heads/1010-review-repair 推到指定 origin 的 refs/heads/main，无 force；以 ls-remote 远端 SHA 等于本地 HEAD 作为完成条件。接续先核验实际状态；pending 事件可能表示已完成的 push，不凭意图判断成功，也不盲目重推。只读入口：
+本次下一步：提交身份更正登记，按登记重建作者/提交者，比较应用树，再执行 git push --force-with-lease=refs/heads/main:2c9abf2d83bafc5f54a2c6111ba0d91ca9bcb1a5 origin refs/heads/1010-review-repair:refs/heads/main；核验远端 SHA 等于 HEAD 且 main 所有祖先邮箱正确。若 lease 失败先检查远端，不扩大覆盖范围。接续先核验实际状态；pending 事件可能表示已完成的 push，不凭意图判断成功，也不盲目重推。只读入口：
 
 ```powershell
 Set-Location D:/proj/ProxyVeil

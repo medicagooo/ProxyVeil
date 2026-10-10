@@ -2,7 +2,11 @@
   "pending": [
     {
       "task": "review-repair-v1",
-      "event": "push-reviewed-main"
+      "event": "rewrite-identity"
+    },
+    {
+      "task": "review-repair-v1",
+      "event": "push-corrected-identity"
     }
   ],
   "changes": [
