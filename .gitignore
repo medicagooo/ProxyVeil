@@ -1,0 +1,6 @@
+dist/
+work/
+*.tmp
+*.log
+*.bak
+*.zip

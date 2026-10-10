@@ -1,0 +1,29 @@
+{
+  "next": "Local source and portable packages delivered; see STATE.md for read-only continuation and optional target-machine validation",
+  "integration": "unmerged",
+  "acceptance": [
+    "isolated engine and UI tests",
+    "Standard/Admin and TUN/Proxy",
+    "restore with conflict protection"
+  ],
+  "evidence": [
+    "docs/adr/0001-desktop-and-recovery.md",
+    "docs/validation/engine.json",
+    "docs/validation/ui-recovery.json",
+    "docs/validation/progress.json",
+    "docs/validation/packages.json",
+    "docs/validation/package-smoke.json",
+    "docs/review-v1.md",
+    "STATE.md"
+  ],
+  "constraints": [
+    "PowerShell 7 / Windows",
+    "Local implementation only",
+    "No live machine repair during tests"
+  ],
+  "status": "complete",
+  "requirements": [
+    "docs/spec-v1.md"
+  ],
+  "purpose": "ProxyVeil v1: FlClash privacy repair and restore"
+}
