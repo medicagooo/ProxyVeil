@@ -1,8 +1,9 @@
 #requires -Version 7.0
 [CmdletBinding()]
-param([ValidateSet('Standard','Administrator')][string]$Edition='Standard',[string]$TargetUserSid,[string]$StateDirectory,[string]$FixtureRoot,[switch]$RenderOnly,[string]$RenderPath,[ValidateSet('Idle','Settings','Completed')][string]$RenderState='Idle',[switch]$SmokeTest,[switch]$InjectProgressReadFault)
+param([ValidateSet('Standard','Administrator')][string]$Edition='Standard',[string]$TargetUserSid,[string]$StateDirectory,[string]$FixtureRoot,[switch]$RenderOnly,[string]$RenderPath,[ValidateSet('Idle','Settings','Completed')][string]$RenderState='Idle',[switch]$SmokeTest,[switch]$InjectProgressReadFault,[switch]$FailureSmokeTest)
 $ErrorActionPreference='Stop'
 if ($InjectProgressReadFault -and -not $FixtureRoot) { throw '故障注入仅允许隔离测试。' }
+if ($FailureSmokeTest -and -not $FixtureRoot) { throw '失败场景仅允许隔离测试。' }
 Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase
 Import-Module "$PSScriptRoot\ProxyVeil.Core.psm1" -Force
 if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'UI 需要 pwsh -STA。请使用项目启动入口。' }
@@ -17,7 +18,7 @@ $ui=@{}
 foreach ($name in @('ActionButton','SettingsButton','SettingsPanel','MinimizeButton','CloseButton','TitleBar','ModeLabel','EditionLabel','ModeBox','DnsCheck','RtcCheck','Ipv6Check','RestartCheck','InstallBox','ConfigBox','GroupBox','DetectButton','StatusTitle','StatusDetail','Checklist','Emblem','ResultNote','PolicyButton')) { $ui[$name]=$window.FindName($name) }
 $script:busy=$false; $script:worker=$null; $script:rows=@{}; $script:seen=0; $script:resultConsumed=$false
 $script:progressReadFaultPending=[bool]$InjectProgressReadFault
-$script:active=[bool](Get-PvActiveSnapshot $StateDirectory)
+$script:active=Test-Path -LiteralPath (Join-Path $StateDirectory 'active.json')
 $settingsPath=Join-Path $StateDirectory 'settings.json'
 $script:timer=[Windows.Threading.DispatcherTimer]::new(); $script:timer.Interval=[TimeSpan]::FromMilliseconds(200)
 $ui.EditionLabel.Text=if ($Edition -eq 'Administrator') { '管理员版' } else { '普通权限版' }
@@ -61,6 +62,9 @@ function Start-PvWork {
     if ($script:busy) { return }
     $items=@(); if ($ui.DnsCheck.IsChecked) { $items+='DNS' }; if ($ui.RtcCheck.IsChecked) { $items+='WebRTC' }; if ($ui.Ipv6Check.IsChecked) { $items+='IPv6' }
     if (-not $script:active -and -not $items.Count) { $ui.StatusDetail.Text='请在设置中至少选择一项。'; $ui.SettingsPanel.Visibility='Visible'; return }
+    # Preparation and process launch share the UI failure boundary; no worker starts
+    # until request/settings are saved. An unreadable snapshot stays available for recovery.
+    try {
     $null=New-Item -ItemType Directory -Path $StateDirectory -Force
     $run=Join-Path $StateDirectory ('run-'+[guid]::NewGuid().ToString('N')); $null=New-Item -ItemType Directory -Path $run
     $script:runDirectory=$run; $script:progress=Join-Path $run 'progress.jsonl'; $script:resultPath=Join-Path $run 'result.json'
@@ -71,7 +75,6 @@ function Start-PvWork {
     $ui.SettingsPanel.Visibility='Collapsed'; $ui.Emblem.Visibility='Collapsed'; $ui.ResultNote.Visibility='Collapsed'
     $ui.StatusTitle.Text=if ($script:active) { '正在还原' } else { '正在检查并修复' }; $ui.StatusDetail.Text='每一项都先检查，再保存与修改。'
     Set-PvBusy $true
-    try {
         $psi=[Diagnostics.ProcessStartInfo]::new(); $psi.FileName=(Get-Process -Id $PID).Path; $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true
         foreach ($arg in @('-NoProfile','-NonInteractive','-File',"$PSScriptRoot\Invoke-Worker.ps1",'-RequestPath',(Join-Path $run 'request.json'),'-ProgressPath',$script:progress,'-ResultPath',$script:resultPath)) { $psi.ArgumentList.Add($arg) }
         if ($FixtureRoot) { $psi.ArgumentList.Add('-FixtureRoot'); $psi.ArgumentList.Add($FixtureRoot) }
@@ -181,6 +184,19 @@ function Save-PvWindowImage([string]$Path) {
     if ($colors.Count -lt 32) { throw '窗口渲染为空，停止生成验证记录。' }
     $encoder=[Windows.Media.Imaging.PngBitmapEncoder]::new(); $encoder.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($bitmap))
     $file=[IO.File]::Create($Path); try { $encoder.Save($file) } finally { $file.Dispose() }
+}
+if ($FailureSmokeTest) {
+    $null=[Windows.Interop.WindowInteropHelper]::new($window).EnsureHandle()
+    $ui.ActionButton.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
+    $deadline=(Get-Date).AddSeconds(15)
+    while ($script:busy -and (Get-Date) -lt $deadline) {
+        $frame=[Windows.Threading.DispatcherFrame]::new(); $pump=[Windows.Threading.DispatcherTimer]::new(); $pump.Interval=[TimeSpan]::FromMilliseconds(40)
+        $pump.Add_Tick({ $frame.Continue=$false; $pump.Stop() }.GetNewClosure()); $pump.Start(); [Windows.Threading.Dispatcher]::PushFrame($frame)
+    }
+    if ($script:busy -or -not $ui.ActionButton.IsEnabled -or $script:worker) { throw '失败后窗口没有恢复可操作状态。' }
+    if ((Test-Path -LiteralPath (Join-Path $StateDirectory 'active.json')) -and $ui.ActionButton.Content -ne '还原上次修改') { throw '损坏快照的还原入口丢失。' }
+    if ($ui.StatusTitle.Text -notin @('无法启动修复','本次操作未完成','读取结果失败')) { throw '窗口没有显示失败结果。' }
+    $window.Close(); 'PASS: UI failure handled'; return
 }
 if ($RenderOnly -or $SmokeTest) {
     if (-not $FixtureRoot) { throw '窗口测试要求隔离 FixtureRoot。' }

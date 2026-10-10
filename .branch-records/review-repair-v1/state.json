@@ -1,0 +1,29 @@
+{
+  "acceptance": [
+    "two-axis review of initial source",
+    "regressions reproduced and repaired",
+    "engine, UI and extracted packages pass",
+    "published SHA verified remotely"
+  ],
+  "evidence": [
+    "docs/review-0.1.1.md",
+    "docs/validation/engine.json",
+    "docs/validation/review-regressions.json",
+    "docs/validation/registry.json",
+    "docs/validation/ui-failure.json",
+    "docs/validation/package-smoke.json",
+    "STATE.md"
+  ],
+  "purpose": "Review, repair and publish ProxyVeil v1",
+  "requirements": [
+    "docs/spec-v1.md"
+  ],
+  "status": "active",
+  "integration": "unmerged",
+  "constraints": [
+    "Windows / PowerShell 7; offline isolated tests",
+    "No live privacy configuration mutations",
+    "Push only to git@github.com:medicagooo/ProxyVeil.git without force"
+  ],
+  "next": "Commit reviewed 0.1.1 and this declaration; push refs/heads/1010-review-repair to origin refs/heads/main without force; verify remote SHA equals HEAD. Reconcile pending before retry."
+}

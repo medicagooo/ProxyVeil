@@ -13,3 +13,5 @@
 - [AliDNS API reference](https://static-aliyun-doc.oss-cn-hangzhou.aliyuncs.com/download%2Fpdf%2F171662%2FAPI_Reference_intl_en-US.pdf)：223.5.5.5 与 223.6.6.6 的 DoH 引导地址。
 
 旧脚本来源：当前任务 outputs/Set-FlClashPrivacy.ps1，仅继承块 YAML 编辑及路径探测函数。选择性修复、后台 UI、权限分版、快照冲突保护与 Proxy 模式为本项目实现。
+
+2026-10-10 恢复类型补充：核对 [.NET RegistryKey 源码](https://raw.githubusercontent.com/dotnet/runtime/main/src/libraries/Microsoft.Win32.Registry/src/Microsoft/Win32/RegistryKey.cs)。SetValue 的 MultiString 要求 string[]，Binary/None 要求 byte[]；GetValue 支持 DoNotExpandEnvironmentNames 保存 ExpandString 原文。实现见 Core/Get-PvRegistryValue、Set-PvRegistryValue，原生临时键验证见 docs/validation/registry.json。

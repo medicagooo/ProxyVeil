@@ -2,7 +2,7 @@
 
 Windows / PowerShell 7 / WPF。开发与构建离线运行。执行 `pwsh -NoProfile -File scripts/Test.ps1`，UI 验证执行 `pwsh -NoProfile -STA -File scripts/Test-UI.ps1`。
 
-修复只能由用户点击或明确调用 Repair 发起；测试使用隔离目录和模拟策略存储。真实机器只读检查。原始订阅及备份含凭据，保存在用户本地状态目录，禁止提交。
+修复只能由用户点击或明确调用 Repair 发起；配置测试使用隔离目录和模拟策略存储。Test-Registry.ps1 仅写随机 HKCU Software/ProxyVeil.Test-* 临时键并清理，用于原生类型还原验证；真实 FlClash/Edge 配置只读检查。原始订阅及备份含凭据，保存在用户本地状态目录，禁止提交。
 
 ## Agent skills
 

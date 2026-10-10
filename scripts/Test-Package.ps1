@@ -1,13 +1,14 @@
 #requires -Version 7.0
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
+$version=(Get-Content -LiteralPath "$root\VERSION" -Raw).Trim()
 Import-Module "$root\src\ProxyVeil.Core.psm1" -Force
 . "$root\tests\Fixtures.ps1"
 $suite=Join-Path $root ('work\unpack-'+[guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $suite -Force
 $results=@()
 foreach ($edition in @('Standard','Administrator')) {
-    $name="ProxyVeil-0.1.0-$edition"
+    $name="ProxyVeil-$version-$edition"
     $zip=Join-Path $root "dist\$name.zip"
     $dir=Join-Path $suite $edition
     [IO.Compression.ZipFile]::ExtractToDirectory($zip,$dir)

@@ -10,7 +10,10 @@ try {
     exit 0
 } catch {
     $active=$false
-    try { $active=[bool](Get-PvActiveSnapshot $request.StateDirectory) } catch {}
+    try {
+        $state=if ($request.StateDirectory) { $request.StateDirectory } else { Get-PvDefaultStateDirectory }
+        $active=Test-Path -LiteralPath (Join-Path $state 'active.json')
+    } catch {}
     Save-PvJson $ResultPath @{status='Failed';active=$active;message=$_.Exception.Message;items=@()}
     exit 1
 }

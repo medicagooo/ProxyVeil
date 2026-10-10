@@ -1,0 +1,11 @@
+{
+  "scenarios": [
+    "blocked-directory",
+    "blocked-settings",
+    "corrupt-snapshot"
+  ],
+  "result": "passed",
+  "at": "2026-10-10T16:24:02.3117255-04:00",
+  "scope": "actual WPF action event; local worker where applicable",
+  "liveConfigurationModified": false
+}

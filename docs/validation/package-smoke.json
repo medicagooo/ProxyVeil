@@ -1,19 +1,19 @@
 {
+  "scope": "Extracted portable UI -> worker -> repair -> restore",
+  "liveConfigurationModified": false,
   "results": [
     {
       "repairRestore": "passed",
       "edition": "Standard",
-      "sha256": "0A4A30C9961B36730CA4D44B697D202FF59BF55D93FF28C355A442F8F1C3CE9D",
-      "realUacTest": false
+      "realUacTest": false,
+      "sha256": "BAFF62ADCD0105199355C24D83F6235B8808BA74A894431B7FBE365D3520EB7F"
     },
     {
       "repairRestore": "passed",
       "edition": "Administrator",
-      "sha256": "B57E19FEDE6B7A9B187718E488CE80A0D3204A5F20F2D1802763B40E0FB5FB6F",
-      "realUacTest": false
+      "realUacTest": false,
+      "sha256": "7C8166ACF239B8B68081E6E587D33B6C795BEFA6CF53372D949FB730BECD5A36"
     }
   ],
-  "scope": "Extracted portable UI -> worker -> repair -> restore",
-  "at": "2026-10-10T16:07:20.7198430-04:00",
-  "liveConfigurationModified": false
+  "at": "2026-10-10T16:24:18.9532525-04:00"
 }

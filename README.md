@@ -2,6 +2,8 @@
 
 FlClash 隐私配置助手，PowerShell 7 原生 Windows 窗口。首版支持 Edge、TUN 和系统代理；保留既有分流、订阅与节点选择。
 
+当前版本 0.1.1。此版修复 Proxy 规则缩进与既有 DoH 规则保护、策略数组冲突判断、WebRTC 独立选择，以及目录/快照错误导致的窗口失败。源码审查记录见 `docs/review-0.1.1.md`。
+
 ## 启动
 
 需要 Windows 与 PowerShell 7。双击 `ProxyVeil.cmd` 启动普通权限版，双击 `ProxyVeil.Admin.cmd` 启动管理员版。同一项目两入口；便携包按版本分开。管理员入口请求当前用户 UAC，其他用户授权会被拒绝。
@@ -49,7 +51,9 @@ Proxy 模式的浏览器 DNS 保护首版覆盖 Edge，其他应用的系统 DNS
 
 ```powershell
 pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Test.ps1
+pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Test-Review.ps1
 pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Test-UI.ps1
+pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Test-UI-Failure.ps1
 pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Build.ps1
 pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Test-Package.ps1
 ```

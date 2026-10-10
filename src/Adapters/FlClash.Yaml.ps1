@@ -261,3 +261,87 @@ function Write-AtomicBytes([string]$Path,[byte[]]$Bytes) {
         [IO.File]::Move($temp,$Path,$true)
     } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp } }
 }
+
+# FlClash conversion is owned here; the core calls it before snapshot mutations.
+function New-PvConfiguration {
+    param($Context, [ValidateSet('TUN','Proxy')][string]$Mode, [string[]]$Items)
+    $text = $Context.Text
+    $targets = @{}
+    if ('WebRTC' -in $Items) {
+        $targets.WebRtcLocalhostIpHandling = @{Exists=$true;Value='disable_non_proxied_udp';Type='String'}
+        $targets.WebRtcRespectOsRoutingTableEnabled = @{Exists=$true;Value=1;Type='DWord'}
+        $targets.WebRtcIPHandlingUrl = @{Exists=$true;Value='[{"handling":"disable_non_proxied_udp","url":"*"}]';Type='String'}
+    }
+    # Edge-only repair does not parse, select groups from, or rewrite FlClash YAML.
+    if ('DNS' -notin $Items -and 'IPv6' -notin $Items) {
+        return @{Profile=$text;Preferences=(ConvertTo-Json -InputObject $Context.Outer -Depth 100 -Compress);Policies=$targets}
+    }
+    if ($text -match '(?m)^---\s*$|^\.\.\.\s*$|^\s*["''](?:dns|tun|rules|proxy-groups)["'']\s*:|^\s*(?:[\w-]+:\s*|-\s*)[&*][\w-]+') { throw '复杂 YAML 或多文档配置需要手动编辑，未修改。' }
+    $inner = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Inner -Depth 100) -AsHashtable
+    if ('DNS' -in $Items) {
+        foreach ($v in @(@('enable','true'),@('respect-rules','true'))) { $text = Set-YamlField $text dns $v[0] @($v[1]) }
+        $urls = @((ConvertTo-YamlString "https://1.1.1.1/dns-query#$($Context.Group)"),(ConvertTo-YamlString "https://8.8.8.8/dns-query#$($Context.Group)"))
+        $text = Set-YamlField $text dns nameserver $urls -List
+        foreach ($key in @('nameserver-policy','fallback','direct-nameserver')) { $text = Set-YamlField $text dns $key @($(if ($key -eq 'nameserver-policy') { '{}' } else { '[]' })) }
+        $bootstrap=@('"https://223.5.5.5/dns-query#DIRECT"','"https://223.6.6.6/dns-query#DIRECT"')
+        $text = Set-YamlField $text dns 'default-nameserver' $bootstrap -List
+        $text = Set-YamlField $text dns 'proxy-server-nameserver' $bootstrap -List
+        $text = Set-YamlField $text dns 'proxy-server-nameserver-policy' @('{}')
+        $text = Set-YamlField $text dns 'prefer-h3' @('false')
+        $inner.overrideDns = $false
+        $inner.networkProps.appendSystemDns = $false
+        $inner.networkProps.systemProxy = ($Mode -eq 'Proxy')
+        $inner.patchClashConfig.tun.enable = ($Mode -eq 'TUN')
+        $text = Set-YamlField $text tun enable @($(if ($Mode -eq 'TUN') { 'true' } else { 'false' }))
+        if ($Mode -eq 'TUN') {
+            foreach ($key in @('auto-route','auto-detect-interface','strict-route')) { $text = Set-YamlField $text tun $key @('true') }
+            $text = Set-YamlField $text tun dns-hijack @('any:53','tcp://any:53') -List
+            $inner.patchClashConfig.tun['auto-route'] = $true
+            $inner.patchClashConfig.tun['strict-route'] = $true
+            $inner.patchClashConfig.tun['dns-hijack'] = @('any:53','tcp://any:53')
+            $targets.DnsOverHttpsMode = @{Exists=$true;Value='off';Type='String'}
+        } else {
+            if ($Context.Group.Contains(',')) { throw 'Proxy DNS 的代理组名称不能包含逗号，未修改。' }
+            $rules = Get-YamlSection $text rules
+            if (-not $rules -or $rules.Tail -notmatch '^(#.*)?$') { throw 'Proxy 模式需要块格式 rules。' }
+            $ruleIndent=$null
+            for ($i=$rules.Start+1;$i -lt $rules.End;$i++) {
+                if ($rules.Lines[$i] -match '^( *)-\s+') {
+                    if ($null -eq $ruleIndent) { $ruleIndent=$Matches[1] }
+                    elseif ($ruleIndent.Length -ne $Matches[1].Length) { throw 'rules 列表缩进不一致，未修改。' }
+                } elseif ($rules.Lines[$i] -notmatch '^\s*(?:#.*)?$') { throw '需要单行块格式 rules，未修改。' }
+            }
+            if ($null -eq $ruleIndent) { $ruleIndent='  ' }
+            $extra = @((ConvertTo-YamlString "IP-CIDR,1.1.1.1/32,$($Context.Group),no-resolve"),(ConvertTo-YamlString "IP-CIDR,8.8.8.8/32,$($Context.Group),no-resolve"))
+            $lines = [Collections.Generic.List[string]]::new()
+            $lines.AddRange([string[]]$rules.Lines)
+            $lines.InsertRange($rules.Start+1,[string[]]@($extra | ForEach-Object { "$ruleIndent- $_" }))
+            $text = ($lines -join "`n").TrimEnd() + "`n"
+            $targets.DnsOverHttpsMode = @{Exists=$true;Value='secure';Type='String'}
+            $targets.DnsOverHttpsTemplates = @{Exists=$true;Value='https://1.1.1.1/dns-query https://8.8.8.8/dns-query';Type='String'}
+        }
+    }
+    if ('IPv6' -in $Items) {
+        $inner.patchClashConfig.ipv6 = $false
+        $text = Set-YamlField $text dns ipv6 @('false')
+        $top = Get-YamlSection $text ipv6
+        if ($top) { $ls=[Collections.Generic.List[string]]::new(); $ls.AddRange([string[]]$top.Lines); $ls.RemoveRange($top.Start,$top.End-$top.Start); $ls.Insert($top.Start,'ipv6: false'); $text=($ls -join "`n").TrimEnd()+"`n" }
+        else { $text = "ipv6: false`n" + $text }
+    }
+    foreach ($section in @('proxies','proxy-groups','proxy-providers','rule-providers')) {
+        if ((Get-YamlSectionText $text $section) -cne (Get-YamlSectionText $Context.Text $section)) { throw "保护检查失败：$section" }
+    }
+    $originalRules = Get-YamlSectionText $Context.Text rules
+    $resultRules = Get-YamlSectionText $text rules
+    if ('DNS' -in $Items -and $Mode -eq 'Proxy') {
+        # Remove only this plan's prefix; identical pre-existing rules are user data.
+        $ruleLines=[Collections.Generic.List[string]]::new()
+        $ruleLines.AddRange([string[]]($resultRules -split "`n"))
+        $ruleLines.RemoveRange(1,$extra.Count)
+        $resultRules=$ruleLines -join "`n"
+    }
+    if ($resultRules -cne $originalRules) { throw '原有分流规则保护检查失败。' }
+    $outer = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Outer -Depth 100) -AsHashtable
+    $outer['flutter.config'] = ConvertTo-Json -InputObject $inner -Depth 100 -Compress
+    @{Profile=$text;Preferences=(ConvertTo-Json -InputObject $outer -Depth 100 -Compress);Policies=$targets}
+}

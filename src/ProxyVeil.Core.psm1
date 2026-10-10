@@ -71,7 +71,7 @@ function Get-PvRestoreFilePlan($File,[string]$Directory) {
 }
 
 function Get-PvContext {
-    param([string]$InstallPath, [string]$ConfigDirectory, [string]$ProxyGroup, [string]$FixtureRoot)
+    param([string]$InstallPath, [string]$ConfigDirectory, [string]$ProxyGroup, [string]$FixtureRoot, [switch]$SkipDnsGroup)
     if ($FixtureRoot) { $exe = Join-Path $FixtureRoot 'FlClash.exe'; $dir = Join-Path $FixtureRoot 'config' }
     else { $exe = Resolve-FlClashExecutable -Hint $InstallPath -Quiet; $dir = Resolve-FlClashConfigDirectory -Hint $ConfigDirectory -Exe $exe -Quiet }
     $prefs = Join-Path $dir 'shared_preferences.json'
@@ -87,78 +87,31 @@ function Get-PvContext {
     $profileHash=Get-PvHash $profile
     $text = [IO.File]::ReadAllText($profile)
     if ((Get-PvHash $profile) -ne $profileHash) { throw '读取期间配置改变，请等待订阅更新完成。' }
-    $group = if ($ProxyGroup) { Select-DnsProxyGroup $text $ProxyGroup } else { Select-DnsProxyGroup $text '' }
+    $group = if ($SkipDnsGroup) { '' } elseif ($ProxyGroup) { Select-DnsProxyGroup $text $ProxyGroup } else { Select-DnsProxyGroup $text '' }
     if ($group -match '[#&\r\n]') { throw '此代理组名称暂不支持 DNS URL 参数，请选择其他组。' }
     $mode = if ($inner.patchClashConfig.tun.ContainsKey('enable') -and $inner.patchClashConfig.tun.enable) { 'TUN' } else { 'Proxy' }
-    @{Exe=$exe;Directory=$dir;Preferences=$prefs;Profile=$profile;PreferencesHash=$preferencesHash;ProfileHash=$profileHash;Text=$text;Outer=$outer;Inner=$inner;Group=$group;Groups=@(Get-ProxyGroupNames $text);Mode=$mode}
+    $groups=@(if (-not $SkipDnsGroup) { Get-ProxyGroupNames $text })
+    @{Exe=$exe;Directory=$dir;Preferences=$prefs;Profile=$profile;PreferencesHash=$preferencesHash;ProfileHash=$profileHash;Text=$text;Outer=$outer;Inner=$inner;Group=$group;Groups=$groups;Mode=$mode}
 }
 
-function New-PvConfiguration {
-    param($Context, [ValidateSet('TUN','Proxy')][string]$Mode, [string[]]$Items)
-    $text = $Context.Text
-    if ($text -match '(?m)^---\s*$|^\.\.\.\s*$|^\s*["''](?:dns|tun|rules|proxy-groups)["'']\s*:|^\s*(?:[\w-]+:\s*|-\s*)[&*][\w-]+') { throw '复杂 YAML 或多文档配置需要手动编辑，未修改。' }
-    $inner = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Inner -Depth 100) -AsHashtable
-    $targets = @{}
-    if ('DNS' -in $Items) {
-        foreach ($v in @(@('enable','true'),@('respect-rules','true'))) { $text = Set-YamlField $text dns $v[0] @($v[1]) }
-        $urls = @((ConvertTo-YamlString "https://1.1.1.1/dns-query#$($Context.Group)"),(ConvertTo-YamlString "https://8.8.8.8/dns-query#$($Context.Group)"))
-        $text = Set-YamlField $text dns nameserver $urls -List
-        foreach ($key in @('nameserver-policy','fallback','direct-nameserver')) { $text = Set-YamlField $text dns $key @($(if ($key -eq 'nameserver-policy') { '{}' } else { '[]' })) }
-        $bootstrap=@('"https://223.5.5.5/dns-query#DIRECT"','"https://223.6.6.6/dns-query#DIRECT"')
-        $text = Set-YamlField $text dns 'default-nameserver' $bootstrap -List
-        $text = Set-YamlField $text dns 'proxy-server-nameserver' $bootstrap -List
-        $text = Set-YamlField $text dns 'proxy-server-nameserver-policy' @('{}')
-        $text = Set-YamlField $text dns 'prefer-h3' @('false')
-        $inner.overrideDns = $false
-        $inner.networkProps.appendSystemDns = $false
-        $inner.networkProps.systemProxy = ($Mode -eq 'Proxy')
-        $inner.patchClashConfig.tun.enable = ($Mode -eq 'TUN')
-        $text = Set-YamlField $text tun enable @($(if ($Mode -eq 'TUN') { 'true' } else { 'false' }))
-        if ($Mode -eq 'TUN') {
-            foreach ($key in @('auto-route','auto-detect-interface','strict-route')) { $text = Set-YamlField $text tun $key @('true') }
-            $text = Set-YamlField $text tun dns-hijack @('any:53','tcp://any:53') -List
-            $inner.patchClashConfig.tun['auto-route'] = $true
-            $inner.patchClashConfig.tun['strict-route'] = $true
-            $inner.patchClashConfig.tun['dns-hijack'] = @('any:53','tcp://any:53')
-            $targets.DnsOverHttpsMode = @{Exists=$true;Value='off';Type='String'}
-        } else {
-            $rules = Get-YamlSection $text rules
-            if (-not $rules -or $rules.Tail -notmatch '^(#.*)?$') { throw 'Proxy 模式需要块格式 rules。' }
-            $extra = @((ConvertTo-YamlString "IP-CIDR,1.1.1.1/32,$($Context.Group),no-resolve"),(ConvertTo-YamlString "IP-CIDR,8.8.8.8/32,$($Context.Group),no-resolve"))
-            $lines = [Collections.Generic.List[string]]::new()
-            $lines.AddRange([string[]]$rules.Lines)
-            $lines.InsertRange($rules.Start+1,[string[]]@($extra | ForEach-Object { "  - $_" }))
-            $text = ($lines -join "`n").TrimEnd() + "`n"
-            $targets.DnsOverHttpsMode = @{Exists=$true;Value='secure';Type='String'}
-            $targets.DnsOverHttpsTemplates = @{Exists=$true;Value='https://1.1.1.1/dns-query https://8.8.8.8/dns-query';Type='String'}
+function Get-PvRegistryValue($Key,[string]$Name) {
+    if ($Key -and $Name -in $Key.GetValueNames()) { return @{Exists=$true;Value=$Key.GetValue($Name,$null,[Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames);Type=$Key.GetValueKind($Name).ToString()} }
+    return @{Exists=$false;Value=$null;Type=$null}
+}
+function Set-PvRegistryValue($Key,[string]$Name,$Value) {
+    if ($Value.Exists) {
+        # JSON snapshots lose native array types; keep empty/single arrays intact through the pipeline.
+        $raw=switch ($Value.Type) {
+            DWord {[int]$Value.Value}
+            QWord {[long]$Value.Value}
+            MultiString {,[string[]]$Value.Value}
+            Binary {,[byte[]]$Value.Value}
+            None {,[byte[]]$Value.Value}
+            default {$Value.Value}
         }
-    }
-    if ('IPv6' -in $Items) {
-        $inner.patchClashConfig.ipv6 = $false
-        $text = Set-YamlField $text dns ipv6 @('false')
-        $top = Get-YamlSection $text ipv6
-        if ($top) { $ls=[Collections.Generic.List[string]]::new(); $ls.AddRange([string[]]$top.Lines); $ls.RemoveRange($top.Start,$top.End-$top.Start); $ls.Insert($top.Start,'ipv6: false'); $text=($ls -join "`n").TrimEnd()+"`n" }
-        else { $text = "ipv6: false`n" + $text }
-    }
-    if ('WebRTC' -in $Items) {
-        $targets.WebRtcLocalhostIpHandling = @{Exists=$true;Value='disable_non_proxied_udp';Type='String'}
-        $targets.WebRtcRespectOsRoutingTableEnabled = @{Exists=$true;Value=1;Type='DWord'}
-        $targets.WebRtcIPHandlingUrl = @{Exists=$true;Value='[{"handling":"disable_non_proxied_udp","url":"*"}]';Type='String'}
-    }
-    foreach ($section in @('proxies','proxy-groups','proxy-providers','rule-providers')) {
-        if ((Get-YamlSectionText $text $section) -cne (Get-YamlSectionText $Context.Text $section)) { throw "保护检查失败：$section" }
-    }
-    $originalRules = Get-YamlSectionText $Context.Text rules
-    $resultRules = Get-YamlSectionText $text rules
-    if ('DNS' -in $Items -and $Mode -eq 'Proxy') {
-        $resultRules = ($resultRules -split "`n" | Where-Object { $_ -notin @($extra | ForEach-Object { "  - $_" }) }) -join "`n"
-    }
-    if ($resultRules -cne $originalRules) { throw '原有分流规则保护检查失败。' }
-    $outer = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Outer -Depth 100) -AsHashtable
-    $outer['flutter.config'] = ConvertTo-Json -InputObject $inner -Depth 100 -Compress
-    @{Profile=$text;Preferences=(ConvertTo-Json -InputObject $outer -Depth 100 -Compress);Policies=$targets}
+        $Key.SetValue($Name,$raw,[Microsoft.Win32.RegistryValueKind]::$($Value.Type))
+    } else { $Key.DeleteValue($Name,$false) }
 }
-
 function Get-PvPolicy {
     param([string]$Name,[string]$FixtureRoot,[switch]$Machine)
     if ($Name -notin $script:PolicyNames) { throw '未知策略。' }
@@ -170,8 +123,7 @@ function Get-PvPolicy {
     $base=if ($Machine) { [Microsoft.Win32.Registry]::LocalMachine } else { [Microsoft.Win32.Registry]::CurrentUser }
     $key=$base.OpenSubKey('Software\Policies\Microsoft\Edge',$false)
     try {
-        if ($key -and $Name -in $key.GetValueNames()) { return @{Exists=$true;Value=$key.GetValue($Name);Type=$key.GetValueKind($Name).ToString()} }
-        return @{Exists=$false;Value=$null;Type=$null}
+        Get-PvRegistryValue $key $Name
     } finally { if ($key) { $key.Dispose() } }
 }
 function Set-PvPolicy {
@@ -185,17 +137,13 @@ function Set-PvPolicy {
     }
     $key=[Microsoft.Win32.Registry]::CurrentUser.CreateSubKey('Software\Policies\Microsoft\Edge',$true)
     try {
-        if ($Value.Exists) {
-            $raw=switch ($Value.Type) { DWord {[int]$Value.Value} QWord {[long]$Value.Value} default {$Value.Value} }
-            $key.SetValue($Name,$raw,[Microsoft.Win32.RegistryValueKind]::$($Value.Type))
-        }
-        else { $key.DeleteValue($Name,$false) }
+        Set-PvRegistryValue $key $Name $Value
     } finally { if ($key) { $key.Dispose() } }
 }
 function Test-PvPolicyEqual($A,$B) {
     if ([bool]$A.Exists -ne [bool]$B.Exists) { return $false }
     if (-not $A.Exists) { return $true }
-    $A.Type -ceq $B.Type -and [string]$A.Value -ceq [string]$B.Value
+    $A.Type -ceq $B.Type -and (ConvertTo-Json -InputObject $A.Value -Depth 100 -Compress) -ceq (ConvertTo-Json -InputObject $B.Value -Depth 100 -Compress)
 }
 function Send-PvProgress {
     param([string]$Path,[string]$Id,[string]$Label,[string]$Status,[string]$Detail)
@@ -300,7 +248,7 @@ function Invoke-PvOperation {
         if (-not $items.Count -or @($items | Where-Object { $_ -notin @('DNS','WebRTC','IPv6') }).Count) { throw '请选择有效的修复项目。' }
         if ($Request.Mode -notin @('TUN','Proxy')) { throw '请选择 TUN 或 Proxy 模式。' }
         Send-PvProgress $ProgressPath 'detect' '识别 FlClash' 'running' '读取安装位置与当前配置'
-        $c=Get-PvContext -InstallPath $Request.InstallPath -ConfigDirectory $Request.ConfigDirectory -ProxyGroup $Request.ProxyGroup -FixtureRoot $FixtureRoot
+        $c=Get-PvContext -InstallPath $Request.InstallPath -ConfigDirectory $Request.ConfigDirectory -ProxyGroup $Request.ProxyGroup -FixtureRoot $FixtureRoot -SkipDnsGroup:('DNS' -notin $items)
         $exe=$c.Exe
         if ('DNS' -in $items -and $Request.Mode -eq 'TUN' -and $Request.Edition -eq 'Standard' -and -not $FixtureRoot) {
             $svc=Get-Service -Name FlClashHelperService -ErrorAction SilentlyContinue
@@ -309,7 +257,7 @@ function Invoke-PvOperation {
         $changedFiles=('DNS' -in $items -or 'IPv6' -in $items)
         if ($changedFiles) {
             $resume=Stop-PvFlClash $c ([bool]$Request.Restart) $FixtureRoot
-            $c=Get-PvContext -InstallPath $c.Exe -ConfigDirectory $c.Directory -ProxyGroup $c.Group -FixtureRoot $FixtureRoot
+            $c=Get-PvContext -InstallPath $c.Exe -ConfigDirectory $c.Directory -ProxyGroup $c.Group -FixtureRoot $FixtureRoot -SkipDnsGroup:('DNS' -notin $items)
         }
         $plan=New-PvConfiguration $c $Request.Mode $items
         Send-PvProgress $ProgressPath 'detect' '识别 FlClash' 'applied' "$($Request.Mode) / 原有分流保留"

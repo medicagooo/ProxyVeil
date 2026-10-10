@@ -4,35 +4,36 @@
 
 用户授权创建 D:/proj/ProxyVeil，将 FlClash 隐私脚本扩为 Windows/PowerShell 7 应用。首版为 FlClash + Edge，支持 TUN/Proxy、普通权限/管理员入口、可选 DNS/WebRTC/代理内 IPv6、磨砂窗口、逐项进度、修复及还原。保留国内直连、订阅与节点选择。
 
-交付终点是本地可运行源码及两个便携 ZIP。未授权推送、远程发布或自动对当前电脑执行修复。所有变更性测试用 work/ 隔离夹具与模拟策略；真实 FlClash 只读识别。不禁用物理网卡，不维护系统防火墙，不覆盖 Chrome/Firefox，不承诺所有应用 DNS 无泄露。
+首版交付终点为本地源码及两个便携 ZIP。2026-10-10 用户追加授权 review、bug repair 和 push 到 git@github.com:medicagooo/ProxyVeil.git；本次修复版本 0.1.1，拟首次推送远端 main，无 force。未授权自动修复当前电脑或创建 GitHub Release。配置测试使用 work/ 隔离夹具与模拟策略；原生注册表类型测试仅写随机临时键并清理，未修改 Edge 策略。不禁用物理网卡，不维护系统防火墙，不覆盖 Chrome/Firefox，不承诺所有应用 DNS 无泄露。
 
 ## Repository and authoritative records
 
-- 仓库及唯一工作区：D:/proj/ProxyVeil；任务 initial-v1；分支 1010-initial-v1，用于首版实现。
-- 交付提交引用：refs/heads/1010-initial-v1；精确 SHA 用 `git -C D:/proj/ProxyVeil rev-parse refs/heads/1010-initial-v1` 获取。此记录写入首个任务提交；写入时源码与记录待提交，随后由最终 Git 状态检查确认。后续会话须查询 live HEAD/dirty，不沿用旧结论。
-- 无远程发布、无 main 集成、无部署。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
+- 仓库及唯一工作区：D:/proj/ProxyVeil；当前任务 review-repair-v1，分支 1010-review-repair；initial-v1 / 1010-initial-v1 保留首版历史。
+- 固定审查基线 b36d439f19c2cc0b7cbaa800d5cbe2f9c8f1a1e2；完整报告 docs/review-0.1.1.md。修复交付引用 refs/heads/1010-review-repair；SHA 查询 live Git，不由待提交文档自报。
+- 此 checkpoint 已完成修复验证，尚待登记、提交及推送；远端首次检查没有 heads。推送事件的 after 只表示意图；接续先查询远端 main SHA 与本地 HEAD，已经一致则不重复推送。无部署或 Release。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
 - 需求权威：docs/spec-v1.md；决策：docs/adr/0001-desktop-and-recovery.md；边界与调用：docs/agents/domain.md；场景：docs/scenario.md。
-- tracker：docs/agents/issue-tracker.md；任务 .scratch/v1/spec.md、map.md、issues/01..05；业务登记 BRANCHES.md 与 .branch-records/initial-v1/。
+- tracker：docs/agents/issue-tracker.md；首版任务 .scratch/v1/spec.md、map.md、issues/01..05；业务登记 BRANCHES.md 与 .branch-records/initial-v1/、review-repair-v1/。
 - 工单于验收阶段补录；没有虚构实现前认领。全部 resolved 表示本地交付范围完成，不表示网络验收或 UAC 已测试。
 
 ## Verified phase and artifacts
 
-第 6 阶段本地验收与交付；规格、设计、实现、自审、隔离验证与离线包完成；第 8 阶段复盘见 docs/retro.md。第 7 阶段发布不在范围。
+首版流程与复盘保留于 docs/retro.md。当前完成独立 Standards/Spec 审查、修复与离线验证，进入源码推送阶段。Standards 4 项（最严重 P2），Spec 2 项（最严重 P1），均已修复；补充回归记录见审查报告。
 
 验收证据：
 
-- docs/validation/engine.json：114 条断言，包含 PowerShell 解析、四种模式/权限组合、原规则保护、选择性修改、权限拒绝、异常回退、偏好合并、外部冲突、并发操作拒绝、部分还原续接、备份篡改拒绝及真实子进程 worker。
+- docs/validation/engine.json：117 条断言，包含 PowerShell 解析、四种模式/权限组合、原规则保护、选择性修改、权限拒绝、异常回退、偏好合并、外部冲突、并发操作拒绝、部分还原续接、备份篡改拒绝及真实子进程 worker。
+- docs/validation/review-regressions.json：7 个配置/还原场景；ui-failure.json：3 个实际窗口错误场景；registry.json：11 个原生类型快照往返，随机 HKCU Software/ProxyVeil.Test-* 临时键在 finally 清理。
 - docs/validation/ui-idle/settings/completed.png 及同名 JSON：离屏 UI，当前 Windows 11 的原生 Acrylic 调用被接受；离屏图不验证真实背景模糊。
 - docs/validation/ui-recovery.json 与 progress.json：一次读取故障恢复、真实 worker 追加时的并发共享读取。
 - docs/validation/package-smoke.json：普通与管理员包各自解压后执行窗口修复/还原；管理员测试用隔离入口，未触发实际 UAC。
-- dist/ProxyVeil-0.1.0-Standard.zip、dist/ProxyVeil-0.1.0-Administrator.zip；dist/manifest.json；不含运行时、订阅、快照或测试目录。
+- dist/ProxyVeil-0.1.1-Standard.zip、dist/ProxyVeil-0.1.1-Administrator.zip；dist/manifest.json；不含运行时、订阅、快照或测试目录。VERSION 为构建与包测试唯一版本源。
 - README.md 说明启动、修复边界、还原及网络复测；docs/research/platforms.md 保存官方依据与检索日期；docs/review-v1.md 保存自审结论。
 
 ## Locked decisions and compatibility
 
 PowerShell 7/WPF，源码与 ZIP 分发。启动器依次找 PATH、Program Files PowerShell 7、Codex 用户运行时；管理员版通过当前用户 UAC 启动。当前验收运行时 7.6.5；Windows 11 build 26300。最低运行时与其他 OS 版本未分别实机验证。
 
-安装地址可自动探测或手填；配置需 shared_preferences.json 的 flutter.config 字符串、数字 currentProfileId、patchClashConfig.tun/networkProps 与块式 YAML。FlClash 0.8.99 结构已核验，其他版本遇不兼容时拒绝修改。复杂 YAML/锚点/多文档需要手工处理。
+安装地址可自动探测或手填；配置需 shared_preferences.json 的 flutter.config 字符串、数字 currentProfileId、patchClashConfig.tun/networkProps。DNS/IPv6 修改需要受支持的块式 YAML；仅 WebRTC 不解析 YAML 或选择 DNS 组。FlClash 0.8.99 结构已核验，其他版本遇不兼容时拒绝修改。复杂 YAML/锚点/多文档的 DNS 修改需要手工处理。
 
 TUN DNS 使用 Mihomo 加密解析、严格路由及 UDP/TCP 53 接管；普通 TUN 要求 FlClashHelperService 已运行。Proxy 开系统代理、关 TUN，并设置 Edge secure DoH 和固定 DoH IP 的组路由；其他应用 DNS 需另验。节点引导走独立直连加密 DNS，避免代理解析循环。清空自定义解析策略可能影响内网站点。
 
@@ -52,15 +53,17 @@ WebRTC 写 HKCU Edge 策略，组织 HKLM 冲突跳过；部分策略不支持�
 
 ## Next executable action
 
-接续时先核验交付引用与工作区，再按最新授权选择任务。只读入口：
+本次下一步：验证登记、提交修复，再登记 push 意图并提交；将 refs/heads/1010-review-repair 推到指定 origin 的 refs/heads/main，无 force；以 ls-remote 远端 SHA 等于本地 HEAD 作为完成条件。接续先核验实际状态；pending 事件可能表示已完成的 push，不凭意图判断成功，也不盲目重推。只读入口：
 
 ```powershell
 Set-Location D:/proj/ProxyVeil
 git status --short
 if ($LASTEXITCODE -ne 0) { throw 'git status failed' }
-git rev-parse refs/heads/1010-initial-v1
+git rev-parse refs/heads/1010-review-repair
 if ($LASTEXITCODE -ne 0) { throw 'delivery ref missing' }
-Get-Content -LiteralPath docs/validation/engine.json,docs/validation/package-smoke.json,docs/validation/packages.json
+git ls-remote git@github.com:medicagooo/ProxyVeil.git refs/heads/main
+if ($LASTEXITCODE -ne 0) { throw 'remote query failed' }
+Get-Content -LiteralPath docs/validation/engine.json,docs/validation/registry.json,docs/validation/package-smoke.json,docs/validation/packages.json
 ```
 
 重建使用 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Build.ps1`，成功后 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Test-Package.ps1`。这会写隔离测试、验证记录与本地包，不修改当前 FlClash/Edge。实际修复必须由用户点击修复按钮或明确授权对应机器；包路径和 SHA 每次构建重新核对。

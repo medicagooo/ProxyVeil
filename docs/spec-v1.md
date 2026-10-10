@@ -2,6 +2,8 @@
 
 来源：2026-10-10 用户要求将既有 PowerShell 7 脚本扩为 D:\proj 项目。交付终点为本地可运行应用及离线包；不推送、不上线、不自动修复当前机器。
 
+2026-10-10 后续授权：审查、修复并推送源码至 git@github.com:medicagooo/ProxyVeil.git。该授权扩展源码交付，当前机器自动修复、GitHub Release 与部署仍不在范围。审查修复版本为 VERSION 指定的 0.1.1。
+
 范围：Windows、FlClash、Edge。自动查找运行进程、卸载信息、常用路径及快捷方式；失败允许填写安装目录和配置目录。设置选择 TUN/Proxy、DNS、WebRTC、代理内 IPv6、是否重启 FlClash，以及 DNS 使用的现有代理组。
 
 流程：Idle → Checking → Applying → Configured/Partial/Failed。逐项呈现 pending/running/applied/skipped/error，成功项打勾，跳过项单独标记。有活动快照时按钮为还原；Restore → Idle 或 Conflict。UI 工作期间保持响应，禁止重复修复与关闭。
