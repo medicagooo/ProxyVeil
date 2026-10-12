@@ -7,6 +7,14 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
+    },
+    {
+      "task": "local-development-v1",
+      "event": "merge-main-012"
+    },
+    {
+      "task": "local-development-v1",
+      "event": "push-main-012"
     }
   ],
   "changes": [
@@ -186,7 +194,5 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": [
-    "local-development-v1"
-  ]
+  "active": []
 }

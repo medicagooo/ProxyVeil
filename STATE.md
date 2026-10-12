@@ -8,8 +8,8 @@ Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与
 
 ## Repository and authoritative records
 
-- 唯一工作区 D:/proj/ProxyVeil。本轮使用 1012-local-development，登记 .branch-records/local-development-v1/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录将随当前任务提交。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
-- 本交接在提交前更新；此时本轮修复、文档和验收记录待提交，main 集成/push 待执行。计划快进 main，再正常 push 到 git@github.com:medicagooo/ProxyVeil.git refs/heads/main；最终是否发布和 SHA 由 live Git/远端决定，operation.after 仅为意图。不得仅为回填成功再提交或推送。
+- 唯一工作区 D:/proj/ProxyVeil。本轮使用 1012-local-development，登记 .branch-records/local-development-v1/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录已提交 4989bae38e77215c1f282ce1cd5cfe7a3cdd3755；其后仅有发布声明元数据。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
+- 本交接在提交前更新；此时本轮修复、文档和验收记录已提交；merge-main-012 与 push-main-012 已登记，main 集成/push 待执行。计划快进 main，再正常 push 到 git@github.com:medicagooo/ProxyVeil.git refs/heads/main；最终是否发布和 SHA 由 live Git/远端决定，operation.after 仅为意图。不得仅为回填成功再提交或推送。
 - 当前有效要求 docs/implementation-0.1.2.md；早期方案 docs/local-development-plan.md；原 Windows 规格 docs/spec-v1.md；架构 docs/adr/0001-desktop-and-recovery.md 与 0002-macos-flclash.md；调用/数据边界 docs/agents/domain.md；业务账本 BRANCHES.md。
 - 历史身份更正与 Windows/macOS 首版保留于旧记录和 docs/review-0.1.1.md。历史 pending 不得直接重试，需核对远端结果。无 Release 或部署。
 
@@ -44,7 +44,7 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 ## Next executable action
 
-先在 Windows 完成已声明的正常 main 推送并核对 SHA。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
+先在 Windows 核对已声明的正常 main 推送与 SHA；若 main 和远端已包含本次声明提交，操作已完成，不重跑，直接继续 Mac 验收。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
 
 本机复现：
 

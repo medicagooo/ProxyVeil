@@ -17,7 +17,7 @@
     "Both independent review axes addressed; Windows suites and packages pass",
     "Push verified main and provide reproducible Mac acceptance commands"
   ],
-  "status": "active",
+  "status": "complete",
   "integration": "unmerged",
   "evidence": [
     "STATE.md",
@@ -30,5 +30,7 @@
   ],
   "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
   "result": "Implementation and independent review fixes verified; 32 Python fixture tests, two Windows runtimes each 8 suites, rebuilt 0.1.2 packages passed. No live repair. Windows overall partial and Mac native pending.",
-  "next": "Commit final review repairs/evidence, predeclare fast-forward main integration and normal push, then verify remote SHA; user performs native Mac acceptance, Windows native gaps remain"
+  "next": "Execute declared merge-main-012 and push-main-012; verify live refs. If already successful, do not retry; user runs native Mac acceptance, Windows native environment gaps remain.",
+  "completedAt": "2026-10-12T14:53:41.7727452-04:00",
+  "testedCommit": "4989bae38e77215c1f282ce1cd5cfe7a3cdd3755"
 }
