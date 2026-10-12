@@ -23,6 +23,16 @@
     "selectedProfileVerified": true
   },
   "liveConfigurationModified": false,
-  "repairExecuted": false,
-  "message": "只读 inspect 已核对原生偏好域、flutter.config 类型、SQLite schema 与当前 profile；repair/restore 尚未执行。"
+  "liveConfigurationChangedDuringTest": true,
+  "liveConfigurationRestored": true,
+  "repairExecuted": true,
+  "restoreExecuted": true,
+  "runtimeRestart": "passed",
+  "network": {
+    "domesticHttps": "timeout",
+    "proxyHttps": "timeout",
+    "dnsAndIpv6": "not_confirmed_from_network",
+    "message": "两次 HTTPS 探测均超时；未将网络结果判定为通过。"
+  },
+  "message": "真实 repair/restore 与应用重启通过，快照已清除；配置当前已恢复。WebRTC 仍由 macOS 配置描述文件或 MDM 管理。"
 }

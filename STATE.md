@@ -16,10 +16,10 @@ Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与
 ## Verified work and evidence
 
 - 0.1.2 新增原生偏好后端：应用 bundle ID 定域，读取 flutter.config 字符串，SQLite schema 10 只读核对 profiles.id，修改原始 profile 与受管偏好。config.yaml、数据库、订阅及节点选择不写入。实际键/域/schema 在运行时核对，未知结构拒绝。
-- 原生偏好每次调用新 CoreFoundation 子进程，避免进程内缓存；值通过 UTF-8 管道，不进入 argv 或诊断。读取不同步；写同步后由独立进程读回。repair/restore 要求退出 FlClash。真实 CoreFoundation ABI/同步与应用重启待 Mac 验收。
+- 原生偏好每次调用新 CoreFoundation 子进程，避免进程内缓存；值通过 UTF-8 管道，不进入 argv 或诊断。读取不同步；写同步后由独立进程读回。repair/restore 要求退出 FlClash；本机真实写入、读回、恢复和应用重启均已通过。
 - schema 2 先保存 profile 字节和偏好 before/after，再写入；还原核对 bundle 域、配置目录、profile ID、备份哈希和受管漂移，合并保留无关偏好；部分成功保留快照供续接。旧 JSON 布局与 schema 1 还原保留，旧快照仍采用全文件冲突检查。
 - portable 16 场景与 preferences 16 场景通过；后者包含生成的 XML/binary plist、只读 SQLite、部分失败、偏好合并、类型漂移、损坏快照和子进程传输。docs/validation/macos-portable.json 与 macos-preferences.json；Windows 用 msvcrt，Mac 用 flock。fixture 成功不证明原生 Mac 行为。
-- 当前 Mac 原生只读验收已通过：FlClash 0.8.99 的 bundle 域为 `com.follow.clash`，`flutter.config` 为字符串，SQLite schema 为 10，当前 profile 与索引一致；未执行 repair/restore，真实配置未修改。证据见 docs/validation/macos-host.json。
+- 当前 Mac 原生验收已完成：FlClash 0.8.99 的 bundle 域为 `com.follow.clash`，`flutter.config` 为字符串，SQLite schema 为 10，当前 profile 与索引一致；TUN + DNS/IPv6 repair、应用重启、restore 均通过，最终配置已恢复。百度与 Google HTTPS 探测超时，网络结果不判定为通过。证据见 docs/validation/macos-host.json。
 - 双轴 review 与复查完成，发现的 YAML 引号键、bool/int 比较、未应用浏览器策略返回和偏好读缓存问题已修复；docs/review-0.1.2.md。IPv6 DNS、无缩进规则、组名注释等回归也已通过。
 - Windows 11 Pro N build 26300，PowerShell 7.6.5 和 7.6.6 各 8 项 suite 通过：核心 118 断言、review 7 场景、registry 11 往返、UI/故障/恢复、进度和两个解压包。docs/validation/windows-012.json 与 windows-012/ 各运行时记录；随机 HKCU Software/ProxyVeil.Test-* 已清理，剩余 0。
 - 强制 DWM 背景回退渲染及背景核对通过；已查看 idle 与 fallback 截图，控件可读。docs/validation/ui-opaque.png/json。它不能验证真实桌面 Acrylic 或 Windows 10。
@@ -37,15 +37,15 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 | 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
 |---|---|---|---|
-| 1 | 验收范围更新发布；待执行 | 已登记 merge-win11-scope/push-win11-scope；确认远端 main 未变化 | 正常快进与 push；远端 SHA 与本机 main 相同 |
-| 2 | Mac 原生只读验收已完成；repair/restore 待明确调用 | 原生域、键类型、SQLite schema 和 profile 对应关系已核实；FlClash 运行时仍需退出 | 由用户明确调用 repair/restore 后再做重启与网络验证；docs/validation/macos-acceptance.md |
+| 1 | 验收范围更新发布；已完成 | main 与远端已核对 | 远端 SHA 与本机 main 相同 |
+| 2 | Mac 原生 repair/restore 已完成；网络待可用节点 | 原生域、键类型、SQLite schema、profile 对应、真实写入/恢复和重启已核实；两次 HTTPS 探测超时 | 有可用节点后重测国内/代理/DNS；WebRTC 继续由 macOS 配置描述文件或 MDM 管理；docs/validation/macos-host.json |
 | 3 | Windows 真实桌面；未执行 | Windows 11 桌面观察 | Acrylic 与操作实测，追加证据；windows-012.md。Windows 10 单独验收按用户要求取消 |
 | 4 | Windows 真实 UAC/TUN/网络；未执行 | 测试用户、FlClash/节点、明确对应真实配置操作授权 | 实际启动提权、配置采用、国内/代理/DNS/WebRTC/IPv6复测与恢复，无凭据摘要 |
 | 5 | 其他代理/浏览器；延期 | 新需求 | 不在本轮启动 |
 
 ## Next executable action
 
-核对验收范围声明已推送；若 main 和远端已包含本次声明提交，操作已完成，不重跑。Mac 隔离测试和原生只读 inspect 已完成并记录。下一步需要用户明确调用 repair/restore，且先退出 FlClash；在此之前不得修改真实配置。Windows 10 不再需要 VM/ISO 或独立验收。
+Mac 隔离测试、原生 repair/restore 和应用重启已完成并记录；真实网络探测因节点/网络超时未通过，后续有可用节点时再重测。下一步是 Windows 真实桌面/UAC/TUN/网络验收。Windows 10 不再需要 VM/ISO 或独立验收。
 
 本机复现：
 
