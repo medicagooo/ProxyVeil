@@ -1,9 +1,10 @@
 #requires -Version 7.0
 [CmdletBinding()]
-param([ValidateSet('Standard','Administrator')][string]$Edition='Standard',[string]$TargetUserSid,[string]$StateDirectory,[string]$FixtureRoot,[switch]$RenderOnly,[string]$RenderPath,[ValidateSet('Idle','Settings','Completed')][string]$RenderState='Idle',[switch]$SmokeTest,[switch]$InjectProgressReadFault,[switch]$FailureSmokeTest)
+param([ValidateSet('Standard','Administrator')][string]$Edition='Standard',[string]$TargetUserSid,[string]$StateDirectory,[string]$FixtureRoot,[switch]$RenderOnly,[string]$RenderPath,[ValidateSet('Idle','Settings','Completed')][string]$RenderState='Idle',[switch]$SmokeTest,[switch]$InjectProgressReadFault,[switch]$FailureSmokeTest,[switch]$ForceOpaque)
 $ErrorActionPreference='Stop'
 if ($InjectProgressReadFault -and -not $FixtureRoot) { throw '故障注入仅允许隔离测试。' }
 if ($FailureSmokeTest -and -not $FixtureRoot) { throw '失败场景仅允许隔离测试。' }
+if ($ForceOpaque -and (-not $FixtureRoot -or (-not $RenderOnly -and -not $SmokeTest))) { throw '不透明回退注入仅允许隔离窗口测试。' }
 Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase
 Import-Module "$PSScriptRoot\ProxyVeil.Core.psm1" -Force
 if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'UI 需要 pwsh -STA。请使用项目启动入口。' }
@@ -142,7 +143,8 @@ $window.Add_SourceInitialized({
     if (-not ('ProxyVeilGlass' -as [type])) { Add-Type -TypeDefinition ([IO.File]::ReadAllText("$PSScriptRoot\UI\Glass.cs")) }
     $hwnd=[Windows.Interop.WindowInteropHelper]::new($window).Handle
     $source=[Windows.Interop.HwndSource]::FromHwnd($hwnd); $source.CompositionTarget.BackgroundColor=[Windows.Media.Colors]::Transparent
-    $script:glassApplied=[ProxyVeilGlass]::Apply($hwnd)
+    # Fixture coverage forces the same fallback used when DWM rejects Acrylic.
+    $script:glassApplied=if ($ForceOpaque) { $false } else { [ProxyVeilGlass]::Apply($hwnd) }
     if (-not $script:glassApplied) { $window.Background=[Windows.Media.BrushConverter]::new().ConvertFromString('#E6E9F1F7') }
 })
 $savedSettings=$null
@@ -215,7 +217,7 @@ if ($RenderOnly -or $SmokeTest) {
     }
     if ($RenderPath) {
         Save-PvWindowImage $RenderPath
-        Save-PvJson ([IO.Path]::ChangeExtension($RenderPath,'.json')) @{fixture=$true;state=$RenderState;nativeAcrylicAccepted=$script:glassApplied;width=$window.Width;height=$window.Height;actualNetworkTest=$false}
+        Save-PvJson ([IO.Path]::ChangeExtension($RenderPath,'.json')) @{fixture=$true;state=$RenderState;nativeAcrylicAccepted=$script:glassApplied;forcedOpaque=[bool]$ForceOpaque;background=$window.Background.ToString();width=$window.Width;height=$window.Height;actualNetworkTest=$false}
     }
     if ($SmokeTest) {
         $ui.ActionButton.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))

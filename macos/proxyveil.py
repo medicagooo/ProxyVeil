@@ -16,10 +16,13 @@ import os
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
 from typing import Any, Iterable
+
+from preferences import NativePreferences, PreferenceError, bundle_domain, merge_restore, profile_index
 
 
 APP_SUPPORT = Path.home() / "Library" / "Application Support"
@@ -31,8 +34,7 @@ GENERATED_RULES = (
 )
 
 
-class ProxyVeilError(RuntimeError):
-    pass
+ProxyVeilError = PreferenceError
 
 
 def sha256(path: Path) -> str:
@@ -135,11 +137,11 @@ def candidate_config_dirs(executable: Path | None) -> Iterable[Path]:
 def resolve_config(hint: str | None, executable: Path | None) -> Path:
     if hint:
         path = expand_path(hint)
-        if path and (path / PREFERENCE_FILE).is_file():
+        if path and ((path / PREFERENCE_FILE).is_file() or ((path / 'database.sqlite').is_file() and (path / 'profiles').is_dir())):
             return path
-        raise ProxyVeilError("ConfigDirectory 必须包含 shared_preferences.json。")
+        raise ProxyVeilError("ConfigDirectory 必须包含 JSON 偏好或 SQLite/profile 布局。")
     for path in candidate_config_dirs(executable):
-        if (path / PREFERENCE_FILE).is_file():
+        if (path / PREFERENCE_FILE).is_file() or ((path / 'database.sqlite').is_file() and (path / 'profiles').is_dir()):
             return path
     raise ProxyVeilError("未找到 FlClash 配置目录，请使用 --config-directory。")
 
@@ -191,6 +193,15 @@ def set_yaml_field(text: str, section_name: str, field: str, values: list[str], 
             indent = min(indent, len(match.group(1))) if indent is not None else len(match.group(1))
     indent = indent or 2
     padding = " " * indent
+    seen = set()
+    for line in body:
+        match = re.match(rf'^{re.escape(padding)}([\w-]+)\s*:', line)
+        if match:
+            if match.group(1) in seen:
+                raise ProxyVeilError(f'重复 YAML 字段：{section_name}.{match.group(1)}')
+            seen.add(match.group(1))
+        if re.match(rf'''^{re.escape(padding)}(?:<<\s*:|["'&*!])''', line):
+            raise ProxyVeilError(f'{section_name} 包含复杂映射键，未修改。')
     key_re = re.compile(rf"^{re.escape(padding)}{re.escape(field)}\s*:")
     starts = [i for i, line in enumerate(body) if key_re.match(line)]
     if len(starts) > 1:
@@ -225,16 +236,36 @@ def yaml_scalar(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
+def read_yaml_scalar(raw: str) -> str:
+    if raw.startswith('"'):
+        match = re.fullmatch(r'("(?:[^"\\]|\\.)*")\s*(?:#.*)?', raw)
+        if not match:
+            raise ProxyVeilError('不支持的 YAML 双引号标量。')
+        try:
+            return json.loads(match.group(1))
+        except ValueError as exc:
+            raise ProxyVeilError('不支持的 YAML 双引号转义。') from exc
+    if raw.startswith("'"):
+        match = re.fullmatch(r"('(?:[^']|'')*')\s*(?:#.*)?", raw)
+        if not match:
+            raise ProxyVeilError('不支持的 YAML 单引号标量。')
+        return match.group(1)[1:-1].replace("''", "'")
+    raw = re.sub(r'\s+#.*$', '', raw).strip()
+    if not raw or raw[0] in '[{&*!>|':
+        raise ProxyVeilError('不支持的 YAML 标量。')
+    return raw
+
+
 def proxy_groups(text: str) -> list[str]:
     section = find_section(text, "proxy-groups")
-    if not section or section[3]:
+    if not section or (section[3] and not section[3].startswith('#')):
         raise ProxyVeilError("需要块格式的 proxy-groups。")
     lines, start, end, _ = section
     names: list[str] = []
     for line in lines[start + 1 : end]:
         match = re.match(r"^\s*(?:-\s+)?name:\s*(.+?)\s*$", line)
         if match:
-            raw = match.group(1).strip().strip('"\'')
+            raw = read_yaml_scalar(match.group(1).strip())
             names.append(raw)
     if not names:
         raise ProxyVeilError("未检测到代理组名称。")
@@ -243,13 +274,16 @@ def proxy_groups(text: str) -> list[str]:
 
 def select_group(text: str, requested: str | None) -> str:
     names = proxy_groups(text)
+    if any(',' in name or '#' in name or '\n' in name or '\r' in name for name in names) or len(names) != len(set(names)):
+        raise ProxyVeilError('代理组名称含分隔符或重复，无法安全生成 DNS 路由。')
     if requested:
         if requested not in names or requested in {"DIRECT", "REJECT", "PASS"}:
             raise ProxyVeilError("指定代理组不存在或不是代理组。")
         return requested
     rules = section_text(text, "rules")
     for line in rules.splitlines():
-        match = re.match(r"^\s*-\s*(?:MATCH|FINAL),(.+?)\s*$", line)
+        item = re.match(r'^\s*-\s*(.+?)\s*$', line)
+        match = re.fullmatch(r'(?:MATCH|FINAL),(.+)', read_yaml_scalar(item.group(1))) if item else None
         if match and match.group(1) in names:
             return match.group(1)
     usable = [name for name in names if name not in {"DIRECT", "REJECT", "PASS"}]
@@ -260,12 +294,12 @@ def select_group(text: str, requested: str | None) -> str:
 
 def insert_proxy_rules(text: str, group: str) -> str:
     section = find_section(text, "rules")
-    if not section or section[3]:
+    if not section or (section[3] and not section[3].startswith('#')):
         raise ProxyVeilError("Proxy 模式需要块格式 rules。")
     lines, start, end, _ = section
     indent = "  "
     for line in lines[start + 1 : end]:
-        match = re.match(r"^( +)-\s+", line)
+        match = re.match(r"^( *)-\s+", line)
         if match:
             indent = match.group(1)
             break
@@ -276,11 +310,27 @@ def insert_proxy_rules(text: str, group: str) -> str:
     return "\n".join(lines[:start + 1] + body + lines[end:]).rstrip("\n") + "\n"
 
 
-def context(config_dir: Path) -> dict[str, Any]:
+def native_store(args, executable, *, writing=False):
+    domain = bundle_domain(executable)
+    requested = getattr(args, 'preferences_domain', None)
+    if requested and requested != domain:
+        raise ProxyVeilError("偏好域与应用 bundle 标识不一致。")
+    if writing:
+        running = subprocess.run(['/usr/bin/pgrep', '-x', 'FlClash'], capture_output=True, check=False)
+        if running.returncode != 1:
+            raise ProxyVeilError("请完全退出 FlClash 后执行 repair/restore。")
+    return NativePreferences(domain)
+
+
+def context(config_dir: Path, store=None) -> dict[str, Any]:
     preferences = config_dir / PREFERENCE_FILE
     try:
-        preferences_bytes = preferences.read_bytes()
-        outer = json.loads(preferences_bytes.decode("utf-8"))
+        if store is None:
+            preferences_bytes = preferences.read_bytes()
+            outer = json.loads(preferences_bytes.decode("utf-8"))
+        else:
+            outer = {'flutter.config': store.read()}
+            preferences_bytes = json_bytes(outer)
     except (OSError, UnicodeDecodeError, ValueError) as exc:
         raise ProxyVeilError(f"无法读取 JSON：{preferences.name}") from exc
     if not isinstance(outer, dict) or not isinstance(outer.get("flutter.config"), str):
@@ -289,13 +339,15 @@ def context(config_dir: Path) -> dict[str, Any]:
         inner = json.loads(outer["flutter.config"])
     except ValueError as exc:
         raise ProxyVeilError("无法解析 FlClash 内部偏好。") from exc
-    if not isinstance(inner, dict) or not str(inner.get("currentProfileId", "")).isdigit():
+    if not isinstance(inner, dict) or type(inner.get("currentProfileId")) is not int or inner['currentProfileId'] < 0:
         raise ProxyVeilError("请先在 FlClash 选择一个配置。")
     if not isinstance(inner.get("networkProps"), dict) or not isinstance(inner.get("patchClashConfig"), dict):
         raise ProxyVeilError("FlClash 偏好版本不兼容，未修改。")
     if not isinstance(inner["patchClashConfig"].get("tun"), dict):
         raise ProxyVeilError("FlClash TUN 偏好结构不兼容，未修改。")
     profile = config_dir / "profiles" / f"{inner['currentProfileId']}.yaml"
+    if profile.is_symlink() or profile.resolve().parent != (config_dir.resolve() / 'profiles'):
+        raise ProxyVeilError("profile 路径越出配置目录，未修改。")
     if not profile.is_file():
         raise ProxyVeilError("找不到当前 FlClash 配置 YAML。")
     try:
@@ -303,11 +355,16 @@ def context(config_dir: Path) -> dict[str, Any]:
         profile_text = profile_bytes.decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         raise ProxyVeilError("当前 FlClash 配置 YAML 不可读取。") from exc
-    return {"preferences": preferences, "profile": profile, "outer": outer, "inner": inner, "profile_text": profile_text, "preferences_hash": hashlib.sha256(preferences_bytes).hexdigest(), "profile_hash": hashlib.sha256(profile_bytes).hexdigest()}
+    schema = profile_index(config_dir, inner['currentProfileId']) if store else None
+    return {"preferences": preferences, "profile": profile, "outer": outer, "inner": inner, "profile_text": profile_text, "preferences_hash": hashlib.sha256(preferences_bytes).hexdigest(), "profile_hash": hashlib.sha256(profile_bytes).hexdigest(), 'store': store, 'databaseSchema': schema}
 
 
 def plan(ctx: dict[str, Any], mode: str, items: list[str], group: str | None) -> tuple[bytes, bytes, str | None, dict[str, str]]:
     text = ctx["profile_text"]
+    if re.search(r'^(?:---|\.\.\.)\s*(?:#.*)?$', text, re.MULTILINE) or text.startswith('\ufeff'):
+        raise ProxyVeilError('不支持带文档标记或 BOM 的 YAML，未修改。')
+    if re.search(r'(?:^\s*<<\s*:|:\s+[&*][\w-]+|^\s*-\s+[&*][\w-]+)', text, re.MULTILINE):
+        raise ProxyVeilError('不支持 YAML 锚点或合并键，未修改。')
     original_sections = {name: section_text(text, name) for name in ("proxies", "proxy-groups", "proxy-providers", "rule-providers")}
     inner = json.loads(json.dumps(ctx["inner"]))
     outer = json.loads(json.dumps(ctx["outer"]))
@@ -342,6 +399,7 @@ def plan(ctx: dict[str, Any], mode: str, items: list[str], group: str | None) ->
     if "IPv6" in items:
         inner.setdefault("patchClashConfig", {})["ipv6"] = False
         text = set_top_level_scalar(text, "ipv6", "false")
+        text = set_yaml_field(text, 'dns', 'ipv6', ['false'])
     for name, original in original_sections.items():
         if section_text(text, name) != original:
             raise ProxyVeilError(f"保护检查失败：{name}")
@@ -393,8 +451,9 @@ def operation_lock(state: Path):
 def inspect(args: argparse.Namespace) -> dict[str, Any]:
     executable = resolve_app(args.install_path)
     config = resolve_config(args.config_directory, executable)
-    ctx = context(config)
-    return {"status": "Inspected", "installPath": str(executable) if executable else None, "configDirectory": str(config), "profile": str(ctx["profile"]), "webRtc": "unsupported-on-macos", "active": (STATE_DIR / "active.json").exists()}
+    store = None if (config / PREFERENCE_FILE).is_file() else native_store(args, executable)
+    ctx = context(config, store)
+    return {"status": "Inspected", "installPath": str(executable) if executable else None, "configDirectory": str(config), "profile": str(ctx["profile"]), 'preferencesDomain': store.domain if store else None, 'preferencesKey': 'flutter.config', 'preferencesType': 'string', 'databaseSchema': ctx['databaseSchema'], "webRtc": "unsupported-on-macos", "active": (STATE_DIR / "active.json").exists()}
 
 
 def repair(args: argparse.Namespace) -> dict[str, Any]:
@@ -407,8 +466,11 @@ def repair(args: argparse.Namespace) -> dict[str, Any]:
         return {"status": "Partial", "items": [{"id": "WebRTC", "status": "skipped", "detail": "macOS 不使用 Windows Edge 注册表策略，请通过配置描述文件管理。"}], "active": (STATE_DIR / "active.json").exists()}
     executable = resolve_app(args.install_path)
     config = resolve_config(args.config_directory, executable)
-    ctx = context(config)
+    store = None if (config / PREFERENCE_FILE).is_file() else native_store(args, executable, writing=True)
+    ctx = context(config, store)
     file_plan, preferences_plan, selected_group, policies = plan(ctx, args.mode, [i for i in args.items if i != "WebRTC"], args.proxy_group)
+    if store:
+        return repair_native(args, config, ctx, file_plan, preferences_plan, selected_group)
     with operation_lock(STATE_DIR):
         if (STATE_DIR / "active.json").exists():
             raise ProxyVeilError("已有快照，请先 restore；不会覆盖最初备份。")
@@ -442,12 +504,120 @@ def repair(args: argparse.Namespace) -> dict[str, Any]:
             raise
 
 
-def restore(_: argparse.Namespace) -> dict[str, Any]:
+def repair_native(args, config, ctx, file_plan, preferences_plan, selected_group):
+    """Persist both resource backups before writing; retain partial recovery.
+
+    schema 2 stores one profile file and one preference key. SQLite and applied
+    config.yaml stay outside the write set. restore_native accepts before/after
+    resource states and merges unrelated inner preferences. schema 1 remains
+    readable by restore for existing JSON snapshots.
+    """
+    store = ctx['store']
+    before = ctx['outer']['flutter.config']
+    after = json.loads(preferences_plan)['flutter.config']
+    with operation_lock(STATE_DIR):
+        if (STATE_DIR / 'active.json').exists():
+            raise ProxyVeilError("已有快照，请先 restore；不会覆盖最初备份。")
+        if sha256(ctx['profile']) != ctx['profile_hash'] or store.read() != before:
+            raise ProxyVeilError("配置在检查后发生改变，停止写入。")
+        profile_index(config, ctx['inner']['currentProfileId'])
+        ident = f'{time.time_ns():x}'
+        profile_backup = STATE_DIR / f'{ident}-profile.bak'
+        pref_backup = STATE_DIR / f'{ident}-preferences.bak'
+        shutil.copyfile(ctx['profile'], profile_backup)
+        atomic_bytes(pref_backup, json_bytes({'before': before, 'after': after}))
+        for backup in (profile_backup, pref_backup):
+            secure_file(backup)
+        if sha256(profile_backup) != ctx['profile_hash']:
+            raise ProxyVeilError('备份期间 profile 发生改变，停止写入。')
+        manifest = {'schema': 2, 'platform': 'macos', 'id': ident, 'mode': args.mode, 'items': args.items,
+                    'configDirectory': str(config.resolve()), 'domain': store.domain, 'key': 'flutter.config',
+                    'profileId': ctx['inner']['currentProfileId'], 'beforeHash': ctx['profile_hash'],
+                    'afterHash': hashlib.sha256(file_plan).hexdigest(), 'preferencesBackupHash': sha256(pref_backup)}
+        active = STATE_DIR / 'active.json'
+        atomic_bytes(active, json_bytes(manifest))
+        secure_file(active)
+        try:
+            if sha256(ctx['profile']) != manifest['beforeHash'] or store.read() != before:
+                raise ProxyVeilError('备份后配置发生改变，停止写入。')
+            atomic_bytes(ctx['profile'], file_plan)
+            if sha256(ctx['profile']) != manifest['afterHash']:
+                raise ProxyVeilError('profile 读回失败。')
+            if store.read() != before:
+                raise ProxyVeilError('偏好在写入前发生改变，停止写入。')
+            store.write(after)
+            if store.read() != after:
+                raise ProxyVeilError('原生偏好读回失败。')
+        except Exception:
+            # Each resource rolls back independently; failure on one must not
+            # prevent recovery of the other. Keep the manifest for retry.
+            with contextlib.suppress(Exception):
+                current = store.read()
+                if current == after:
+                    store.write(before)
+            with contextlib.suppress(Exception):
+                if sha256(ctx['profile']) == manifest['afterHash']:
+                    atomic_bytes(ctx['profile'], profile_backup.read_bytes())
+            raise
+        return {'status': 'Partial' if 'WebRTC' in args.items else 'Configured', 'active': True, 'group': selected_group,
+                'items': [{'id': item, 'status': 'skipped' if item == 'WebRTC' else 'applied'} for item in args.items],
+                'browserDns': 'not_configured_on_macos'}
+
+
+def restore_native(args, manifest):
+    if manifest.get('platform') != 'macos' or not isinstance(manifest.get('id'), str) or not re.fullmatch('[0-9a-f]+', manifest['id']):
+        raise ProxyVeilError('快照格式无效。')
+    if type(manifest.get('profileId')) is not int or manifest['profileId'] < 0 or manifest.get('key') != 'flutter.config':
+        raise ProxyVeilError('快照目标无效。')
+    if not all(valid_hash(manifest.get(key)) for key in ('beforeHash', 'afterHash', 'preferencesBackupHash')):
+        raise ProxyVeilError('快照哈希无效。')
+    config = expand_path(args.config_directory)
+    if config is None or str(config) != manifest.get('configDirectory'):
+        raise ProxyVeilError('还原新布局需 --config-directory 匹配快照目录。')
+    store = native_store(args, resolve_app(args.install_path), writing=True)
+    if store.domain != manifest.get('domain'):
+        raise ProxyVeilError('快照偏好域与应用不一致。')
+    profile = config / 'profiles' / f"{manifest['profileId']}.yaml"
+    if profile.is_symlink() or profile.resolve().parent != config / 'profiles':
+        raise ProxyVeilError('快照 profile 路径无效。')
+    profile_index(config, manifest['profileId'])
+    profile_backup = STATE_DIR / f"{manifest['id']}-profile.bak"
+    pref_backup = STATE_DIR / f"{manifest['id']}-preferences.bak"
+    for backup, expected in ((profile_backup, manifest['beforeHash']), (pref_backup, manifest['preferencesBackupHash'])):
+        if backup.is_symlink() or not backup.is_file() or sha256(backup) != expected:
+            raise ProxyVeilError('快照备份缺失或校验失败，已停止还原。')
+    original = profile_backup.read_bytes()
+    prefs = load_json(pref_backup)
+    if not isinstance(prefs, dict) or set(prefs) != {'before', 'after'} or not all(isinstance(v, str) for v in prefs.values()):
+        raise ProxyVeilError('偏好备份无效。')
+    current_hash = sha256(profile)
+    if current_hash not in {manifest['beforeHash'], manifest['afterHash']}:
+        raise ProxyVeilError('profile 已被外部修改，快照已保留。')
+    current = store.read()
+    restored = merge_restore(prefs['before'], prefs['after'], current)
+    if sha256(profile) != current_hash or store.read() != current:
+        raise ProxyVeilError('还原检查后配置发生改变，快照已保留。')
+    atomic_bytes(profile, original)
+    if sha256(profile) != manifest['beforeHash']:
+        raise ProxyVeilError('profile 还原读回失败。')
+    if store.read() != current:
+        raise ProxyVeilError('偏好在还原前发生改变，快照已保留。')
+    store.write(restored)
+    if store.read() != restored:
+        raise ProxyVeilError('偏好还原读回失败。')
+    atomic_bytes(STATE_DIR / f"history-{manifest['id']}.json", json_bytes(manifest))
+    (STATE_DIR / 'active.json').unlink()
+    return {'status': 'Restored', 'active': False}
+
+
+def restore(args: argparse.Namespace) -> dict[str, Any]:
     active = STATE_DIR / "active.json"
     if not active.is_file():
         raise ProxyVeilError("没有可还原的快照。")
     with operation_lock(STATE_DIR):
         manifest = load_json(active)
+        if isinstance(manifest, dict) and manifest.get('schema') == 2:
+            return restore_native(args, manifest)
         if not isinstance(manifest, dict) or manifest.get("schema") != 1 or manifest.get("platform") != "macos" or not isinstance(manifest.get("files"), list) or not isinstance(manifest.get("id"), str) or not re.fullmatch(r"[0-9a-f]+", manifest["id"]):
             raise ProxyVeilError("快照格式或平台不受支持。")
         try:
@@ -500,6 +670,7 @@ def parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--install-path")
     common.add_argument("--config-directory")
+    common.add_argument('--preferences-domain', help='Must match the installed FlClash bundle identifier')
     common.add_argument("--state-directory", default=str(STATE_DIR))
     root = argparse.ArgumentParser(prog="proxyveil-macos", description="ProxyVeil macOS FlClash adapter")
     sub = root.add_subparsers(dest="command", required=True)
@@ -523,8 +694,9 @@ def main(argv: list[str] | None = None) -> int:
         result = inspect(args) if args.command == "inspect" else repair(args) if args.command == "repair" else restore(args)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
-    except ProxyVeilError as exc:
-        print(json.dumps({"status": "Failed", "message": str(exc), "active": (STATE_DIR / "active.json").exists()}, ensure_ascii=False, indent=2))
+    except (ProxyVeilError, OSError) as exc:
+        message = str(exc) if isinstance(exc, ProxyVeilError) else '文件或系统操作失败；保留快照后重试。'
+        print(json.dumps({"status": "Failed", "message": message, "active": (STATE_DIR / "active.json").exists()}, ensure_ascii=False, indent=2))
         return 2
 
 

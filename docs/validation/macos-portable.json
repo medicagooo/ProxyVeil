@@ -1,9 +1,9 @@
 {
-  "at": "2026-10-12T18:23:15.734492+00:00",
+  "at": "2026-10-12T18:41:14.303543+00:00",
   "result": "passed",
   "platform": "win32",
   "python": "3.12.14",
-  "tests": 12,
+  "tests": 14,
   "skipped": 0,
   "failures": 0,
   "errors": 0,
@@ -11,10 +11,11 @@
   "lockBackend": "msvcrt",
   "macOSFlockExercised": false,
   "nativeHostAcceptance": "not_executed",
-  "adapterSha256": "3477cd94fe4b2679d8949171c6e7d97979a06277cea4c633fc2ce0524c569f86",
+  "adapterSha256": "99c5e624d9c1030b43b5120d9b7d78e01f1fe383f980cbaee5feaa0ecadcd2c2",
   "liveConfigurationModified": false,
   "scenarios": [
     "test_external_drift_preserves_files_and_snapshot",
+    "test_flush_left_rules_and_quoted_group_comments",
     "test_inspect_is_read_only",
     "test_interrupted_restore_can_resume",
     "test_mid_write_failure_rolls_back_and_remains_recoverable",
@@ -25,6 +26,7 @@
     "test_production_cli_rejects_other_platforms_without_writes",
     "test_repeated_repair_preserves_first_snapshot",
     "test_tun_and_proxy_roundtrip_preserve_routing_and_preferences",
-    "test_webrtc_only_skips_without_state"
+    "test_webrtc_only_skips_without_state",
+    "test_yaml_complex_documents_and_comma_groups_rejected_before_write"
   ]
 }

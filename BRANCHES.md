@@ -23,9 +23,18 @@
       "before": "Top-level fcntl import prevented Windows from loading the macOS adapter or running its recovery tests",
       "after": "Platform lock imports occur on use; Windows fixture tests exercise the same repair/restore functions using a native msvcrt lock; macOS retains flock",
       "reason": "Keep follow-up development on the current computer where practical",
-      "affected": ["macOS adapter developers", "macos/proxyveil.py operation_lock/main", "isolated file recovery tests"],
+      "affected": [
+        "macOS adapter developers",
+        "macos/proxyveil.py operation_lock/main",
+        "isolated file recovery tests"
+      ],
       "rules": "Production CLI remains macOS-only; no live settings or database writes; fixture success does not establish macOS native or network acceptance; new-layout adapter remains planned",
-      "evidence": ["macos/proxyveil.py", "scripts/Test-macOS-Portable.py", "docs/validation/macos-portable.json", "docs/local-development-plan.md"]
+      "evidence": [
+        "macos/proxyveil.py",
+        "scripts/Test-macOS-Portable.py",
+        "docs/validation/macos-portable.json",
+        "docs/local-development-plan.md"
+      ]
     },
     {
       "status": "implemented",
@@ -45,7 +54,7 @@
       "domain": "desktop privacy",
       "id": "privacy-v1",
       "implementedAt": "2026-10-10T16:05:22.4086128-04:00",
-      "integratedAt": "2026-10-13T00:51:06+08:00",
+      "integratedAt": "2026-10-12T12:51:06-04:00",
       "before": "CLI script",
       "reason": "Reuse privacy configuration on other Windows machines through an application instead of a standalone script",
       "affected": [
@@ -91,7 +100,7 @@
       "request": "request-macos-review-push",
       "date": "2026-10-13",
       "status": "implemented",
-      "implementedAt": "2026-10-13T00:00:00+08:00",
+      "implementedAt": "2026-10-12T12:00:00-04:00",
       "integratedAt": null,
       "deployedAt": null,
       "domain": "desktop privacy",
@@ -148,5 +157,7 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": []
+  "active": [
+    "local-development-v1"
+  ]
 }

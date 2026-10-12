@@ -23,6 +23,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "macos" / "proxyveil.py"
+sys.path.insert(0, str(CLI.parent))
 
 
 def load_module(name: str, path: Path):
@@ -184,6 +185,26 @@ class PortableAdapterTests(unittest.TestCase):
             pv.resolve_config(str(unsupported), None)
         self.assertEqual(config_yaml.read_text(encoding="utf-8"), "currentProfileId: 1\n")
         self.assertFalse(self.state.exists())
+
+    def test_yaml_complex_documents_and_comma_groups_rejected_before_write(self):
+        original = self.profile.read_text()
+        for text in (original + '\n---\ndns:\n  enable: true\n', original.replace('name: Proxy', 'name: Proxy,bad'), original.replace('dns:\n', 'dns:\n  <<: *fixture\n'), original.replace('dns:\n', 'dns: &fixture\n')):
+            with self.subTest(text=text[:30]):
+                self.profile.write_text(text)
+                with self.assertRaises(pv.ProxyVeilError):
+                    pv.repair(self.args())
+                self.assertEqual(self.profile.read_text(), text)
+                self.assertFalse(self.state.exists())
+
+    def test_flush_left_rules_and_quoted_group_comments(self):
+        text = self.profile.read_text().replace('name: Proxy', 'name: "Proxy" # fixture').replace('  - DOMAIN-SUFFIX', '- DOMAIN-SUFFIX').replace('  - MATCH,Proxy', '- "MATCH,Proxy" # fixture')
+        self.profile.write_text(text)
+        pv.repair(self.args())
+        changed = self.profile.read_text()
+        self.assertIn('\nrules:\n- "IP-CIDR,1.1.1.1/32,Proxy,no-resolve"', changed)
+        self.assertIn('- "MATCH,Proxy" # fixture', changed)
+        pv.restore(self.args('restore'))
+        self.assertEqual(self.profile.read_text(), text)
 
     @unittest.skipIf(sys.platform == "darwin", "macOS allows its production CLI")
     def test_production_cli_rejects_other_platforms_without_writes(self):
