@@ -1,0 +1,24 @@
+{
+  "purpose": "Implement, review, repair and publish the macOS FlClash MVP",
+  "status": "active",
+  "integration": "unmerged",
+  "requirements": ["docs/adr/0002-macos-flclash.md", "README.md"],
+  "constraints": [
+    "macOS 12+; Python 3 standard library; offline fixture tests",
+    "Repair and restore require explicit user commands",
+    "No sudo, physical interface, firewall or system DNS mutation",
+    "WebRTC is reported as skipped on macOS"
+  ],
+  "acceptance": [
+    "isolated inspect/repair/restore test",
+    "external drift and backup integrity conflict protection",
+    "remote main SHA verified after push"
+  ],
+  "evidence": [
+    "macos/proxyveil.py",
+    "scripts/Test-macOS.py",
+    "docs/validation/macos.json",
+    "STATE.md"
+  ],
+  "next": "Commit reviewed macOS MVP, push main, and verify remote SHA"
+}

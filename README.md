@@ -1,6 +1,6 @@
 # ProxyVeil
 
-FlClash 隐私配置助手，PowerShell 7 原生 Windows 窗口。首版支持 Edge、TUN 和系统代理；保留既有分流、订阅与节点选择。
+FlClash 隐私配置助手。Windows 使用 PowerShell 7/WPF；macOS 提供独立的 Python CLI MVP。支持 Edge（Windows）、TUN 和系统代理；保留既有分流、订阅与节点选择。
 
 当前版本 0.1.1。此版修复 Proxy 规则缩进与既有 DoH 规则保护、策略数组冲突判断、WebRTC 独立选择，以及目录/快照错误导致的窗口失败。源码审查记录见 `docs/review-0.1.1.md`。
 
@@ -16,6 +16,16 @@ PowerShell 入口：
 pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Launch.ps1
 pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Launch.ps1 -Edition Administrator
 ```
+
+macOS 12+ 可使用 FlClash 的 Intel 或 Apple Silicon 版本。macOS 入口只在用户明确调用 `repair` 时写配置，默认使用 `~/Library/Application Support/ProxyVeil` 保存快照：
+
+```sh
+./scripts/Launch-macOS.sh inspect
+./scripts/Launch-macOS.sh repair --mode Proxy --items DNS IPv6 --proxy-group Proxy
+./scripts/Launch-macOS.sh restore
+```
+
+macOS MVP 复用 FlClash 的 `shared_preferences.json` 与 `profiles/<currentProfileId>.yaml` 契约，支持 DNS、TUN/Proxy 模式和 FlClash IPv6 设置。它使用文件锁、原子替换和外部变化检查；不运行 `sudo`，不修改物理网卡、系统防火墙或系统 DNS。Windows Edge 注册表 WebRTC 策略在 macOS 显示为跳过，需要配置描述文件或 MDM 管理。详见 [macOS 说明](macos/README.md) 和 [ADR 0002](docs/adr/0002-macos-flclash.md)。
 
 打开设置，核对自动找到的安装位置与配置目录。未找到时填写 FlClash.exe 或安装目录，以及含 shared_preferences.json 的配置目录。选择连接方式、修复项目与 DNS 代理组。组内应已选择可用代理节点；此应用保留节点选择，不判断节点所在地。
 
@@ -56,6 +66,9 @@ pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Test-UI.ps1
 pwsh -NoProfile -STA -File D:\proj\ProxyVeil\scripts\Test-UI-Failure.ps1
 pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Build.ps1
 pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Test-Package.ps1
+
+# macOS (offline, isolated fixture)
+python3 scripts/Test-macOS.py
 ```
 
 测试使用 `work/` 下的隔离配置与模拟策略，不修改本机 FlClash/Edge。构建离线生成普通权限版和管理员版 ZIP，不包含 PowerShell 运行时。验证证据见 `docs/validation/`，规格见 `docs/spec-v1.md`，执行状态见 `STATE.md`。

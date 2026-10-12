@@ -68,6 +68,35 @@
         "FlClash YAML",
         "Edge policy snapshot"
       ]
+    },
+    {
+      "id": "macos-flclash-mvp",
+      "request": "request-macos-review-push",
+      "date": "2026-10-13",
+      "status": "implemented",
+      "implementedAt": "2026-10-13T00:00:00+08:00",
+      "integratedAt": null,
+      "deployedAt": null,
+      "domain": "desktop privacy",
+      "business": "Support FlClash configuration repair and recovery on macOS",
+      "reason": "Extend ProxyVeil to macOS while keeping Windows implementation stable",
+      "before": "Windows-only PowerShell/WPF application",
+      "after": "Explicit macOS Python adapter for FlClash DNS, TUN/Proxy, IPv6, snapshots and conflict-safe restore; WebRTC reported as skipped",
+      "affected": [
+        "macOS desktop user",
+        "FlClash shared_preferences.json",
+        "FlClash profile YAML",
+        "local recovery snapshots"
+      ],
+      "rules": "Repair and restore require explicit commands; no sudo, physical interface, firewall or system DNS changes; Windows Edge registry policy is not used on macOS",
+      "evidence": [
+        "macos/proxyveil.py",
+        "macos/README.md",
+        "docs/adr/0002-macos-flclash.md",
+        "scripts/Test-macOS.py",
+        "docs/validation/macos.json",
+        "STATE.md"
+      ]
     }
   ],
   "records": [
@@ -80,6 +109,11 @@
       "state": ".branch-records/review-repair-v1/state.json",
       "id": "review-repair-v1",
       "events": ".branch-records/review-repair-v1/events.jsonl"
+    },
+    {
+      "id": "macos-support-v1",
+      "events": ".branch-records/macos-support-v1/events.jsonl",
+      "state": ".branch-records/macos-support-v1/state.json"
     }
   ],
   "read": [
@@ -88,6 +122,6 @@
   "schema": 1,
   "timezone": "America/Halifax",
   "active": [
-    "review-repair-v1"
+    "macos-support-v1"
   ]
 }

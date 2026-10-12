@@ -1,5 +1,8 @@
+.DS_Store
 dist/
 work/
+__pycache__/
+*.pyc
 *.tmp
 *.log
 *.bak

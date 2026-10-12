@@ -1,0 +1,8 @@
+{
+  "result": "passed",
+  "command": "python3 scripts/Test-macOS.py",
+  "scope": "isolated FlClash fixture; inspect, Proxy DNS/IPv6 repair, WebRTC skip, restore, external drift conflict",
+  "liveConfigurationModified": false,
+  "platform": "macOS",
+  "testedAt": "2026-10-13"
+}
