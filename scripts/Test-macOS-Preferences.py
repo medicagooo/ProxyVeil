@@ -11,12 +11,13 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'macos'))
 import proxyveil as pv
-from preferences import PlistPreferences, profile_index, merge_restore
+from preferences import PlistPreferences, NativePreferences, profile_index, merge_restore
 
 spec = importlib.util.spec_from_file_location('fixtures', ROOT / 'scripts' / 'Test-macOS.py')
 fixtures = importlib.util.module_from_spec(spec)
@@ -174,6 +175,14 @@ class PreferenceTests(unittest.TestCase):
         with self.assertRaisesRegex(pv.ProxyVeilError, '日志'):
             profile_index(self.config, 1)
         Path(str(self.db) + '-wal').unlink()
+        with closing(sqlite3.connect(self.db)) as db:
+            db.execute('PRAGMA user_version=999')
+        try:
+            with self.assertRaisesRegex(pv.ProxyVeilError, 'schema'):
+                pv.repair(self.args())
+            self.assertFalse(self.state.exists())
+        finally:
+            self.db.write_bytes(self.db_before)
 
     def test_missing_or_nonstring_preference_rejected(self):
         for value in ({}, {'flutter.config': 4}):
@@ -195,6 +204,45 @@ class PreferenceTests(unittest.TestCase):
         altered = {**old, 'unmanaged': 'tampered'}
         with self.assertRaises(pv.ProxyVeilError):
             merge_restore(self.old, json.dumps(altered), self.old)
+
+    def test_boolean_numeric_type_drift_refused(self):
+        pv.repair(self.args())
+        repaired = self.store.read()
+        profile = self.profile.read_bytes()
+        for path, value in ((('currentProfileId',), True), (('currentProfileId',), 1.0), (('patchClashConfig', 'ipv6'), 0), (('networkProps', 'appendSystemDns'), 1)):
+            changed = json.loads(repaired)
+            parent = changed
+            for name in path[:-1]:
+                parent = parent[name]
+            parent[path[-1]] = value
+            self.store.write(json.dumps(changed))
+            with self.assertRaises(pv.ProxyVeilError):
+                pv.restore(self.args('restore'))
+            self.assertEqual(self.profile.read_bytes(), profile)
+        self.store.write(repaired)
+        pv.restore(self.args('restore'))
+
+    def test_native_transport_fresh_reads_and_pipe_only_values(self):
+        with patch('preferences.sys.platform', 'darwin'):
+            native = NativePreferences('com.fixture.FlClash')
+        calls = []
+        def worker(argv, **options):
+            calls.append((argv, options))
+            if argv[-2] == '--read':
+                return SimpleNamespace(returncode=0, stdout=json.dumps({'status': 'ok', 'value': 'first' if len(calls) == 1 else 'external-change'}))
+            return SimpleNamespace(returncode=0, stdout='{"status":"ok"}')
+        secret = 'fixture-private-value'
+        with patch('preferences.subprocess.run', side_effect=worker):
+            self.assertEqual(native.read(), 'first')
+            self.assertEqual(native.read(), 'external-change')
+            native.write(secret)
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(all(secret not in ' '.join(argv) for argv, _ in calls))
+        self.assertEqual(json.loads(calls[-1][1]['input']), secret)
+        with patch('preferences.subprocess.run', return_value=SimpleNamespace(returncode=2, stdout=secret, stderr=secret)):
+            with self.assertRaises(pv.ProxyVeilError) as caught:
+                native.read()
+        self.assertNotIn(secret, str(caught.exception))
 
 
 if __name__ == '__main__':

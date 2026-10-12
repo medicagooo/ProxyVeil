@@ -1,7 +1,7 @@
 """Preference storage for the CLI and generated plist recovery fixtures.
 
 NativePreferences owns only flutter.config in the bundle's current-user,
-any-host domain. It never edits a plist on disk or passes values to a process.
+any-host domain. It never edits a plist on disk or places values in process arguments.
 See docs/agents/domain.md for callers and recovery constraints.
 """
 from __future__ import annotations
@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import plistlib
 import sqlite3
+import subprocess
 import sys
 
 
@@ -66,7 +67,7 @@ class PlistPreferences:
         self.path.write_bytes(plistlib.dumps(outer, fmt=fmt))
 
 
-class NativePreferences:
+class _CoreFoundationPreferences:
     def __init__(self, domain: str):
         if sys.platform != "darwin":
             raise PreferenceError("原生偏好仅支持 macOS。")
@@ -130,6 +131,43 @@ class NativePreferences:
                 raise PreferenceError("原生偏好同步失败；快照已保留。")
 
 
+class NativePreferences:
+    """Use a fresh CF client for each operation to avoid process-local caches.
+
+    The domain is the only application argument. Values travel through pipes;
+    neither the CLI nor helper diagnostics print them. A failed write exits its
+    CF client, leaving the durable manifest to reconcile before/after on retry.
+    """
+
+    def __init__(self, domain: str):
+        if sys.platform != 'darwin':
+            raise PreferenceError('原生偏好仅支持 macOS。')
+        self.domain = domain
+
+    def _request(self, action: str, value=None):
+        try:
+            result = subprocess.run([sys.executable, str(Path(__file__).resolve()), action, self.domain],
+                                    input=json.dumps(value, ensure_ascii=False) if action == '--write' else None,
+                                    capture_output=True, text=True, encoding='utf-8', timeout=15, check=False)
+            if result.returncode:
+                raise PreferenceError('原生偏好操作失败；核对键类型、访问权限和本地快照。')
+            payload = json.loads(result.stdout)
+            if not isinstance(payload, dict) or payload.get('status') != 'ok':
+                raise ValueError()
+            if action == '--read':
+                if not isinstance(payload.get('value'), str):
+                    raise ValueError()
+                return payload['value']
+        except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
+            raise PreferenceError('原生偏好子进程未正常完成；快照已保留。') from exc
+
+    def read(self) -> str:
+        return self._request('--read')
+
+    def write(self, value: str) -> None:
+        self._request('--write', value)
+
+
 def bundle_domain(executable: Path | None) -> str:
     if executable is None:
         raise PreferenceError("新布局需要 --install-path 指向 FlClash.app。")
@@ -155,7 +193,7 @@ def merge_restore(before: str, after: str, current: str) -> str:
         old, expected, now = (json.loads(v) for v in (before, after, current))
         if not all(isinstance(v, dict) for v in (old, expected, now)):
             raise ValueError()
-        if old.get('currentProfileId') != expected.get('currentProfileId') or now.get('currentProfileId') != old.get('currentProfileId'):
+        if not all(type(obj.get('currentProfileId')) is int for obj in (old, expected, now)) or old['currentProfileId'] != expected['currentProfileId'] or now['currentProfileId'] != old['currentProfileId']:
             raise PreferenceError("当前 profile 已切换，停止还原。")
         old_unmanaged, after_unmanaged = (json.loads(v) for v in (before, after))
         for obj in (old_unmanaged, after_unmanaged):
@@ -169,6 +207,8 @@ def merge_restore(before: str, after: str, current: str) -> str:
         if old_unmanaged != after_unmanaged:
             raise PreferenceError('偏好备份包含非受管字段修改。')
         sentinel = object()
+        def same(left, right):
+            return type(left) is type(right) and left == right
         def leaf(obj, path):
             for part in path:
                 if not isinstance(obj, dict):
@@ -177,10 +217,10 @@ def merge_restore(before: str, after: str, current: str) -> str:
             return obj
         for path in MANAGED:
             previous, written = leaf(old, path), leaf(expected, path)
-            if previous == written:
+            if same(previous, written):
                 continue
             actual = leaf(now, path)
-            if actual != previous and actual != written:
+            if not same(actual, previous) and not same(actual, written):
                 raise PreferenceError("受管偏好被外部修改，快照已保留。")
             parent = now
             for part in path[:-1]:
@@ -192,3 +232,29 @@ def merge_restore(before: str, after: str, current: str) -> str:
         return json.dumps(now, ensure_ascii=False, separators=(',', ':'))
     except (ValueError, TypeError, KeyError) as exc:
         raise PreferenceError("恢复偏好格式无效。") from exc
+
+
+def _helper_main():
+    # Only the parent consumes this pipe. Failure output intentionally omits
+    # exception details, since preference strings can contain credentials.
+    try:
+        if len(sys.argv) != 3 or sys.argv[1] not in ('--read', '--write'):
+            raise PreferenceError('Invalid internal operation')
+        client = _CoreFoundationPreferences(sys.argv[2])
+        if sys.argv[1] == '--read':
+            result = {'status': 'ok', 'value': client.read()}
+        else:
+            value = json.load(sys.stdin)
+            if not isinstance(value, str):
+                raise PreferenceError('Expected a string')
+            client.write(value)
+            result = {'status': 'ok'}
+        print(json.dumps(result, ensure_ascii=False))
+        return 0
+    except Exception:
+        print('{"status":"failed"}')
+        return 2
+
+
+if __name__ == '__main__':
+    raise SystemExit(_helper_main())

@@ -1,0 +1,19 @@
+{
+  "scope": "Extracted portable UI -> worker -> repair -> restore",
+  "at": "2026-10-12T14:44:54.8057434-04:00",
+  "liveConfigurationModified": false,
+  "results": [
+    {
+      "realUacTest": false,
+      "repairRestore": "passed",
+      "sha256": "C4FDCEDF9DC4287DFE9B18B7ED7BB8079BE089A92D7308C44907E39510C5EAA2",
+      "edition": "Standard"
+    },
+    {
+      "realUacTest": false,
+      "repairRestore": "passed",
+      "sha256": "618B38DB57834AD9CB7EA14BEBA28648C955D45D90D7DB73533AA264EDE86EF1",
+      "edition": "Administrator"
+    }
+  ]
+}

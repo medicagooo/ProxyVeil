@@ -10,8 +10,12 @@ reads only the specified domain; copied objects must be released.
 [CFPreferencesSetValue](https://developer.apple.com/documentation/corefoundation/cfpreferencessetvalue(_:_:_:_:_:))
 sets the specified key in that domain.
 [CFPreferencesSynchronize](https://developer.apple.com/documentation/corefoundation/cfpreferencessynchronize(_:_:_:))
-writes pending changes and reads persistent data. Therefore inspect never calls
-Synchronize. Writes synchronize and verify the returned preference string.
+writes pending changes and reads persistent data.
+[CFPreferencesAppSynchronize](https://developer.apple.com/documentation/corefoundation/cfpreferencesappsynchronize(_:))
+describes per-process caches after the first read. Each native operation uses a
+fresh child process; the domain alone is in argv, while values travel through
+captured pipes. Reads never synchronize. Writes synchronize, exit the client,
+and are verified with a new client reading persistent preferences.
 The implementation uses current user and any host, with explicit CFString type
 checks; no global-domain fallback is used.
 

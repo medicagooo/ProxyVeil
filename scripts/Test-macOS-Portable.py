@@ -206,6 +206,22 @@ class PortableAdapterTests(unittest.TestCase):
         pv.restore(self.args('restore'))
         self.assertEqual(self.profile.read_text(), text)
 
+    def test_quoted_top_keys_refused_before_duplicate_write(self):
+        original = self.profile.read_text()
+        for key in ('dns', 'tun', 'ipv6'):
+            for quote in ('"', "'"):
+                changed = original.replace(key + ':', quote + key + quote + ':')
+                self.profile.write_text(changed)
+                with self.assertRaises(pv.ProxyVeilError):
+                    pv.repair(self.args())
+                self.assertEqual(self.profile.read_text(), changed)
+                self.assertFalse(self.state.exists())
+
+    def test_legacy_proxy_response_has_no_browser_policy_claim(self):
+        result = pv.repair(self.args())
+        self.assertEqual(result['policies'], {})
+        self.assertEqual(result['browserDns'], 'not_configured_on_macos')
+
     @unittest.skipIf(sys.platform == "darwin", "macOS allows its production CLI")
     def test_production_cli_rejects_other_platforms_without_writes(self):
         for action in ("inspect", "repair", "restore"):

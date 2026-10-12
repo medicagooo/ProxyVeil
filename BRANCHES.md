@@ -123,6 +123,35 @@
         "docs/validation/macos.json",
         "STATE.md"
       ]
+    },
+    {
+      "affected": [
+        "Mac CLI users",
+        "macos/proxyveil.py context/repair_native/restore_native",
+        "preferences.py native helper and merge_restore"
+      ],
+      "evidence": [
+        "STATE.md",
+        "docs/review-0.1.2.md",
+        "docs/validation/windows-012.json",
+        "docs/validation/packages.json",
+        "docs/validation/macos-portable.json",
+        "docs/validation/macos-preferences.json",
+        "docs/validation/macos-acceptance.md"
+      ],
+      "deployedAt": null,
+      "request": "request-implement-review-push",
+      "after": "Installed bundle domain and typed key validated; read-only schema-10 profile index; native preference and YAML repair with schema-2 partial recovery; schema-1 retained",
+      "business": "Support native preferences/profile layout with managed-field recovery",
+      "id": "native-preference-recovery-012",
+      "date": "2026-10-12",
+      "domain": "macOS FlClash configuration recovery",
+      "reason": "Execute Windows-hosted development plan before native Mac acceptance",
+      "rules": "Quit FlClash; explicit repair only; SQLite/config.yaml never written; unrelated preferences retained; managed drift refused; Mac ABI/network and Windows native gaps pending",
+      "implementedAt": "2026-10-12T14:51:02.6335665-04:00",
+      "integratedAt": null,
+      "status": "implemented",
+      "before": "New macOS layout rejected; legacy restore only understood whole JSON files"
     }
   ],
   "records": [

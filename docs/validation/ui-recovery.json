@@ -1,7 +1,7 @@
 {
-  "liveConfigurationModified": false,
   "fault": "single injected progress IOException",
-  "at": "2026-10-12T14:06:43.3726885-04:00",
   "result": "passed",
-  "scope": "UI remains busy and consumes final worker result"
+  "scope": "UI remains busy and consumes final worker result",
+  "at": "2026-10-12T14:44:33.1472738-04:00",
+  "liveConfigurationModified": false
 }

@@ -1,9 +1,11 @@
 # Mac 后续验收
 
-本轮在 Windows 开发，原生 CoreFoundation、macOS flock、FlClash 重启及网络未验收。先更新 main 并记录实际提交：
+本轮在 Windows 开发，原生 CoreFoundation、macOS flock、FlClash 重启及网络未验收。在 Mac 的 ProxyVeil 仓库目录检查工作区，保留本机未提交修改；工作区干净后更新 main 并记录实际提交：
 
 ```sh
-git pull --ff-only
+git status --short
+git switch main
+git pull --ff-only origin main
 git rev-parse HEAD
 python3 scripts/Test-macOS.py
 python3 scripts/Test-macOS-Portable.py

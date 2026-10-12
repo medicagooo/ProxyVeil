@@ -361,6 +361,8 @@ def context(config_dir: Path, store=None) -> dict[str, Any]:
 
 def plan(ctx: dict[str, Any], mode: str, items: list[str], group: str | None) -> tuple[bytes, bytes, str | None, dict[str, str]]:
     text = ctx["profile_text"]
+    if re.search(r'''^["'][^\n]+["']\s*:''', text, re.MULTILINE):
+        raise ProxyVeilError('不支持带引号的 YAML 顶层键，未修改。')
     if re.search(r'^(?:---|\.\.\.)\s*(?:#.*)?$', text, re.MULTILINE) or text.startswith('\ufeff'):
         raise ProxyVeilError('不支持带文档标记或 BOM 的 YAML，未修改。')
     if re.search(r'(?:^\s*<<\s*:|:\s+[&*][\w-]+|^\s*-\s+[&*][\w-]+)', text, re.MULTILINE):
@@ -394,8 +396,6 @@ def plan(ctx: dict[str, Any], mode: str, items: list[str], group: str | None) ->
             text = set_yaml_field(text, "tun", "dns-hijack", ["any:53", "tcp://any:53"], as_list=True)
         else:
             text = insert_proxy_rules(text, selected_group)
-            policies["DnsOverHttpsMode"] = "secure"
-            policies["DnsOverHttpsTemplates"] = "https://1.1.1.1/dns-query https://8.8.8.8/dns-query"
     if "IPv6" in items:
         inner.setdefault("patchClashConfig", {})["ipv6"] = False
         text = set_top_level_scalar(text, "ipv6", "false")
@@ -494,7 +494,7 @@ def repair(args: argparse.Namespace) -> dict[str, Any]:
                 atomic_bytes(path, payload)
                 if sha256(path) != record["afterHash"]:
                     raise ProxyVeilError("配置读回失败。")
-            return {"status": "Partial" if "WebRTC" in args.items else "Configured", "active": True, "group": selected_group, "policies": policies, "items": [{"id": i, "status": "skipped" if i == "WebRTC" else "applied", "detail": "macOS 不支持 Windows Edge 注册表策略。" if i == "WebRTC" else "已写入并读回。"} for i in args.items]}
+            return {"status": "Partial" if "WebRTC" in args.items else "Configured", "active": True, "group": selected_group, "policies": policies, 'browserDns': 'not_configured_on_macos', "items": [{"id": i, "status": "skipped" if i == "WebRTC" else "applied", "detail": "macOS 不支持 Windows Edge 注册表策略。" if i == "WebRTC" else "已写入并读回。"} for i in args.items]}
         except Exception:
             with contextlib.suppress(Exception):
                 for record in manifest["files"]:
@@ -590,6 +590,12 @@ def restore_native(args, manifest):
     prefs = load_json(pref_backup)
     if not isinstance(prefs, dict) or set(prefs) != {'before', 'after'} or not all(isinstance(v, str) for v in prefs.values()):
         raise ProxyVeilError('偏好备份无效。')
+    try:
+        original_preferences = json.loads(prefs['before'])
+        if type(original_preferences.get('currentProfileId')) is not int or original_preferences['currentProfileId'] != manifest['profileId']:
+            raise ProxyVeilError('偏好备份与快照 profile 不一致。')
+    except (ValueError, AttributeError) as exc:
+        raise ProxyVeilError('偏好备份无效。') from exc
     current_hash = sha256(profile)
     if current_hash not in {manifest['beforeHash'], manifest['afterHash']}:
         raise ProxyVeilError('profile 已被外部修改，快照已保留。')

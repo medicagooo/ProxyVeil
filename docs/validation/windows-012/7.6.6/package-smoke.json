@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "edition": "Standard",
+      "realUacTest": false,
+      "sha256": "C4FDCEDF9DC4287DFE9B18B7ED7BB8079BE089A92D7308C44907E39510C5EAA2",
+      "repairRestore": "passed"
+    },
+    {
+      "edition": "Administrator",
+      "realUacTest": false,
+      "sha256": "618B38DB57834AD9CB7EA14BEBA28648C955D45D90D7DB73533AA264EDE86EF1",
+      "repairRestore": "passed"
+    }
+  ],
+  "liveConfigurationModified": false,
+  "scope": "Extracted portable UI -> worker -> repair -> restore",
+  "at": "2026-10-12T14:45:08.0711067-04:00"
+}

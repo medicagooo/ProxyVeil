@@ -1,7 +1,7 @@
 {
-  "at": "2026-10-12T18:37:43.304821+00:00",
+  "at": "2026-10-12T18:52:09.098676+00:00",
   "result": "passed",
-  "tests": 14,
+  "tests": 16,
   "failures": 0,
   "errors": 0,
   "platform": "win32",
@@ -9,7 +9,7 @@
   "nativeCFPreferences": "not_executed",
   "liveConfigurationModified": false,
   "sourceHashes": {
-    "proxyveil.py": "49fcc54e54327790ed3964cf69ab5b350509324447147e636237b66819c0b992",
-    "preferences.py": "50beb579a9caaa0e2c0597b0139616615d04e101a8ae73605dcbf93619e9b6ac"
+    "proxyveil.py": "53d3e72865e5dbe3debaaac928af39c075fd70ef8173a40a84354fe5d1074437",
+    "preferences.py": "cb33467c09806051a26259610707794facee96684db7dd65dc6abd9a1d4c0f2f"
   }
 }

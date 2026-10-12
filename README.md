@@ -2,7 +2,7 @@
 
 FlClash 隐私配置助手。Windows 使用 PowerShell 7/WPF；macOS 提供独立的 Python CLI MVP。支持 Edge（Windows）、TUN 和系统代理；保留既有分流、订阅与节点选择。
 
-当前版本 0.1.1。此版修复 Proxy 规则缩进与既有 DoH 规则保护、策略数组冲突判断、WebRTC 独立选择，以及目录/快照错误导致的窗口失败。源码审查记录见 `docs/review-0.1.1.md`。
+当前版本 0.1.2。新增 macOS 原生偏好/profile 布局适配和受管字段恢复，保留旧 JSON 快照；修复 macOS IPv6 DNS 与 YAML 规则解析问题。Windows 新增隔离界面回退验收。Mac 原生验收步骤见 [macos-acceptance.md](docs/validation/macos-acceptance.md)，Windows 本轮证据见 [windows-012.json](docs/validation/windows-012.json)。旧版审查记录保留在 `docs/review-0.1.1.md`。
 
 ## 启动
 

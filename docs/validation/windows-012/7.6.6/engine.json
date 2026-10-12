@@ -1,0 +1,8 @@
+{
+  "scope": "isolated fixture engine, parser and worker",
+  "fixtureDirectory": "D:\\proj\\ProxyVeil\\work\\tests-4466e3454295459d883c8a39a1bc54e5",
+  "at": "2026-10-12T14:43:55.2446365-04:00",
+  "assertions": 118,
+  "liveConfigurationModified": false,
+  "result": "passed"
+}

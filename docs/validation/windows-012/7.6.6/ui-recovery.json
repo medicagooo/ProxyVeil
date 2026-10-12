@@ -1,0 +1,7 @@
+{
+  "fault": "single injected progress IOException",
+  "result": "passed",
+  "scope": "UI remains busy and consumes final worker result",
+  "at": "2026-10-12T14:44:33.1472738-04:00",
+  "liveConfigurationModified": false
+}

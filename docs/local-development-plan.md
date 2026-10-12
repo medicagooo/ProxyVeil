@@ -4,6 +4,8 @@
 
 ## 当前已完成
 
+后续实施已推进到 0.1.2；当前有效要求见 [implementation-0.1.2.md](implementation-0.1.2.md)，新布局已实现，原生 Mac 验收步骤见 [macos-acceptance.md](validation/macos-acceptance.md)。以下保留本方案制定时的起点和执行顺序，完成情况以 STATE.md 及本轮验证记录为准。
+
 已将 macOS 适配器的 fcntl 导入移入实际锁路径。Windows 测试用 msvcrt 原生锁调用同一组 context、plan、repair、restore 函数，macOS 保留 flock。生产 CLI 仍只接受 macOS，没有新增绕过平台检查的参数。
 
 `scripts/Test-macOS-Portable.py` 在临时目录生成夹具，已通过 12 个场景：只读检查与计划、TUN/Proxy 修复和字节还原、WebRTC 跳过、重复修复拒绝、外部变化、备份缺失及篡改、修复回退、还原中断续接、跨进程互斥，以及 Windows 生产入口拒绝。结果见 `docs/validation/macos-portable.json`。Python 使用本机已有的 3.12.14，无新增依赖。
@@ -31,7 +33,7 @@ Windows 核心 117 条断言与 WPF 修复/还原 UI 回归通过。已有双 Po
 
 恢复记录需保存偏好键原有存在性、类型、受管字段和 profile 原始字节。写入多个资源时按已完成项恢复，外部受管字段漂移停止覆盖，保留快照供续接；其他偏好字段合并保留。继续支持原有 JSON 布局和已有快照，不以一次性转换替代向后兼容。
 
-本轮范围是测试基础、存储研究与执行方案。新布局的 inspect/repair/restore 尚未实现。没有修改真实 FlClash/Edge 配置、SQLite、系统虚拟化设置；没有部署、推送或 Release。
+制定本方案时，新布局的 inspect/repair/restore 尚未实现。后续实施采用 bundle 标识确定偏好域，运行时核对键类型/profile/SQLite schema，再允许显式 repair；实际原生同步与重启仍待 Mac 验收。没有修改真实 FlClash/Edge 配置、SQLite或系统虚拟化设置。
 
 ## 本机命令与下一步
 

@@ -2,6 +2,7 @@
   "purpose": "Implement local preference adapters, review and repair, validate Windows, and push main for subsequent Mac acceptance",
   "requirements": [
     "STATE.md",
+    "docs/implementation-0.1.2.md",
     "docs/adr/0002-macos-flclash.md"
   ],
   "constraints": [
@@ -20,14 +21,14 @@
   "integration": "unmerged",
   "evidence": [
     "STATE.md",
-    "docs/local-development-plan.md",
-    "docs/research/local-development.md",
+    "docs/review-0.1.2.md",
+    "docs/validation/windows-012.json",
+    "docs/validation/packages.json",
     "docs/validation/macos-portable.json",
-    "docs/validation/engine.json",
-    "docs/validation/ui.json"
+    "docs/validation/macos-preferences.json",
+    "docs/validation/macos-acceptance.md"
   ],
   "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
-  "completedAt": "2026-10-12T14:23:14-04:00",
-  "result": "Local development foundation and sourced plan complete; 12 portable tests plus Windows core/UI pass. NSUserDefaults/new-layout implementation and native acceptance remain future work",
-  "next": "Implement preference storage interface and guarded new-layout context, then review and run acceptance"
+  "result": "Implementation and independent review fixes verified; 32 Python fixture tests, two Windows runtimes each 8 suites, rebuilt 0.1.2 packages passed. No live repair. Windows overall partial and Mac native pending.",
+  "next": "Commit final review repairs/evidence, predeclare fast-forward main integration and normal push, then verify remote SHA; user performs native Mac acceptance, Windows native gaps remain"
 }

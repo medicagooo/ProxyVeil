@@ -1,0 +1,47 @@
+{
+  "liveConfigurationModified": false,
+  "macOSNativeAcceptance": "User will execute docs/validation/macos-acceptance.md",
+  "status": "partial",
+  "packages": [
+    {
+      "sha256": "C4FDCEDF9DC4287DFE9B18B7ED7BB8079BE089A92D7308C44907E39510C5EAA2",
+      "path": "dist/ProxyVeil-0.1.2-Standard.zip",
+      "edition": "Standard",
+      "bytes": 28480
+    },
+    {
+      "sha256": "618B38DB57834AD9CB7EA14BEBA28648C955D45D90D7DB73533AA264EDE86EF1",
+      "path": "dist/ProxyVeil-0.1.2-Administrator.zip",
+      "edition": "Administrator",
+      "bytes": 28595
+    }
+  ],
+  "registryTestKeysRemaining": 0,
+  "runtimes": [
+    {
+      "evidence": "docs/validation/windows-012/7.6.5",
+      "suites": 8,
+      "result": "passed",
+      "runtime": "C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "powerShell": "7.6.5"
+    },
+    {
+      "evidence": "docs/validation/windows-012/7.6.6",
+      "suites": 8,
+      "result": "passed",
+      "runtime": "C:/Users/medic/AppData/Local/Microsoft/WindowsApps/pwsh.exe",
+      "powerShell": "7.6.6"
+    }
+  ],
+  "version": "0.1.2",
+  "fallback": "Forced DWM fallback rendered and background checked on Windows 11",
+  "build": "26300",
+  "outstanding": [
+    "Windows 10 native host",
+    "Manual desktop Acrylic and interaction",
+    "Real UAC/TUN and network acceptance"
+  ],
+  "at": "2026-10-12T14:45:08.6802735-04:00",
+  "os": "Microsoft Windows 11 Pro N",
+  "automatedResult": "passed"
+}

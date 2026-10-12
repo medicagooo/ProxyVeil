@@ -2,80 +2,62 @@
 
 ## Objective and scope
 
-用户授权创建 D:/proj/ProxyVeil，将 FlClash 隐私脚本扩为 Windows/PowerShell 7 应用；2026-10-13 追加 macOS + FlClash MVP。Windows 首版为 FlClash + Edge，支持 TUN/Proxy、普通权限/管理员入口、可选 DNS/WebRTC/代理内 IPv6、磨砂窗口、逐项进度、修复及还原。macOS MVP 提供显式 Python CLI，支持 FlClash DNS、TUN/Proxy、IPv6、快照与冲突安全还原；WebRTC 报告为跳过。保留国内直连、订阅与节点选择。
+Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与管理员入口，TUN/Proxy，可选 DNS/WebRTC/FlClash IPv6，显式修复和可恢复快照；保留国内直连、订阅与节点选择。macOS 使用独立 Python CLI，显式 inspect/repair/restore，WebRTC 与浏览器 DoH 不配置。
 
-首版交付终点为本地源码及两个便携 ZIP。2026-10-10 用户追加授权 review、bug repair 和 push 到 git@github.com:medicagooo/ProxyVeil.git；修复版本 0.1.1 已推送。用户随后要求纠正提交邮箱为 medicago.19@outlook.com；仅本次身份重写允许以原远端 SHA 为 lease 替换 main。未授权自动修复当前电脑或创建 GitHub Release。配置测试使用 work/ 隔离夹具与模拟策略；原生注册表类型测试仅写随机临时键并清理，未修改 Edge 策略。不禁用物理网卡，不维护系统防火墙，不覆盖 Chrome/Firefox，不承诺所有应用 DNS 无泄露。
+2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；用户随后在 Mac 做原生验收。本轮实现、审查修复和当前 Windows 自动验收已完成。Windows 10、真实桌面、UAC/TUN/网络仍缺环境或明确目标操作授权，整体 Windows 验收为 partial。未授权自动修复本机真实配置、部署或 GitHub Release。
 
 ## Repository and authoritative records
 
-- 仓库及唯一工作区：D:/proj/ProxyVeil；当前分支 1012-local-development，当前执行记录 .branch-records/local-development-v1/。本轮起点为 Windows 回归提交 59bd396951fe48cfaf06ecde26c5defffb883155，开始时工作区干净；分支声明提交 c10f79ff597bc29600105c17daa4489faf886a5d 在 main，随后创建任务分支。本轮代码与方案在任务分支本地提交，尚未集成 main 或推送；最终 HEAD 与脏状态以 live Git 核对。review-repair-v1、initial-v1、macos-support-v1 和 windows-stage2 保留历史。
-- 固定审查基线 b36d439f19c2cc0b7cbaa800d5cbe2f9c8f1a1e2；完整 Windows 报告 docs/review-0.1.1.md。Windows 身份更正已完成；本次 macOS 变更直接在 main 上提交，推送前仍查询 live Git，不由待提交文档自报。无部署或 Release。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
-- 需求权威：docs/spec-v1.md；Windows 决策：docs/adr/0001-desktop-and-recovery.md；macOS 决策：docs/adr/0002-macos-flclash.md；边界与调用：docs/agents/domain.md；场景：docs/scenario.md。
-- tracker：docs/agents/issue-tracker.md；首版任务 .scratch/v1/spec.md、map.md、issues/01..05；业务登记 BRANCHES.md 与 .branch-records/initial-v1/、review-repair-v1/。
-- 工单于验收阶段补录；没有虚构实现前认领。全部 resolved 表示本地交付范围完成，不表示网络验收或 UAC 已测试。
+- 唯一工作区 D:/proj/ProxyVeil。本轮使用 1012-local-development，登记 .branch-records/local-development-v1/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录将随当前任务提交。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
+- 本交接在提交前更新；此时本轮修复、文档和验收记录待提交，main 集成/push 待执行。计划快进 main，再正常 push 到 git@github.com:medicagooo/ProxyVeil.git refs/heads/main；最终是否发布和 SHA 由 live Git/远端决定，operation.after 仅为意图。不得仅为回填成功再提交或推送。
+- 当前有效要求 docs/implementation-0.1.2.md；早期方案 docs/local-development-plan.md；原 Windows 规格 docs/spec-v1.md；架构 docs/adr/0001-desktop-and-recovery.md 与 0002-macos-flclash.md；调用/数据边界 docs/agents/domain.md；业务账本 BRANCHES.md。
+- 历史身份更正与 Windows/macOS 首版保留于旧记录和 docs/review-0.1.1.md。历史 pending 不得直接重试，需核对远端结果。无 Release 或部署。
 
-## Verified phase and artifacts
+## Verified work and evidence
 
-首版流程与复盘保留于 docs/retro.md。Windows 版本已完成独立 Standards/Spec 审查、修复与离线验证。2026-10-13 完成 macOS MVP 的代码审查、隔离验证和当前 Mac 只读实测；补充记录见 `docs/validation/macos.json` 与 `docs/validation/macos-host.json`。
+- 0.1.2 新增原生偏好后端：应用 bundle ID 定域，读取 flutter.config 字符串，SQLite schema 10 只读核对 profiles.id，修改原始 profile 与受管偏好。config.yaml、数据库、订阅及节点选择不写入。实际键/域/schema 在运行时核对，未知结构拒绝。
+- 原生偏好每次调用新 CoreFoundation 子进程，避免进程内缓存；值通过 UTF-8 管道，不进入 argv 或诊断。读取不同步；写同步后由独立进程读回。repair/restore 要求退出 FlClash。真实 CoreFoundation ABI/同步与应用重启待 Mac 验收。
+- schema 2 先保存 profile 字节和偏好 before/after，再写入；还原核对 bundle 域、配置目录、profile ID、备份哈希和受管漂移，合并保留无关偏好；部分成功保留快照供续接。旧 JSON 布局与 schema 1 还原保留，旧快照仍采用全文件冲突检查。
+- portable 16 场景与 preferences 16 场景通过；后者包含生成的 XML/binary plist、只读 SQLite、部分失败、偏好合并、类型漂移、损坏快照和子进程传输。docs/validation/macos-portable.json 与 macos-preferences.json；Windows 用 msvcrt，Mac 用 flock。fixture 成功不证明原生 Mac 行为。
+- 双轴 review 与复查完成，发现的 YAML 引号键、bool/int 比较、未应用浏览器策略返回和偏好读缓存问题已修复；docs/review-0.1.2.md。IPv6 DNS、无缩进规则、组名注释等回归也已通过。
+- Windows 11 Pro N build 26300，PowerShell 7.6.5 和 7.6.6 各 8 项 suite 通过：核心 118 断言、review 7 场景、registry 11 往返、UI/故障/恢复、进度和两个解压包。docs/validation/windows-012.json 与 windows-012/ 各运行时记录；随机 HKCU Software/ProxyVeil.Test-* 已清理，剩余 0。
+- 强制 DWM 背景回退渲染及背景核对通过；已查看 idle 与 fallback 截图，控件可读。docs/validation/ui-opaque.png/json。它不能验证真实桌面 Acrylic 或 Windows 10。
+- dist/ProxyVeil-0.1.2-Standard.zip 与 Administrator.zip 本机离线重建，两个运行时包测试均通过。大小与 SHA-256 在 docs/validation/packages.json、windows-012.json；dist 忽略且没有上传。两个包不含 Mac CLI、运行时、订阅、状态或备份；Mac 从仓库使用 macos/ 与 scripts/Launch-macOS.sh。
 
-2026-10-12（UTC-04:00）在当前 Windows 11 主机完成第二阶段本地回归：PowerShell 7.6.5 与 7.6.6 各通过 8 项测试。两个便携包内源码与当前源码一致，未重建 ZIP；结果及各运行时证据见 `docs/validation/windows-stage2.json` 与 `docs/validation/windows-stage2/`。真实配置未修改，阶段整体仍为 partial。本次没有推送、部署或 Release。登记预检查发现 macos-support-v1 的 completed/merged 不符合现有 schema，已按既有完成及发布证据改为 complete/verified，校验通过。
+## Locked constraints
 
-同日用户要求继续执行并尽量在本机开发。本轮完成 Windows 上的 macOS 测试基础与 [后续方案](docs/local-development-plan.md)：fcntl 延迟导入，Windows 夹具用 msvcrt 原生锁，macOS 保留 flock，生产 CLI 仍只接受 macOS。12 个 portable 场景、Windows 核心 117 条断言和 WPF UI 修复/还原通过。没有实现新偏好布局的生产修复；方案将此开发列为下一步。
+Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机测试，无新依赖。生产 Mac CLI 拒绝非 macOS，夹具后端没有生产 CLI 参数。配置与注册表测试严格隔离；真实 FlClash/Edge 只读检查，修复必须由用户点击或明确调用 Repair。当前执行用户非管理员。
 
-验收证据：
+备份含凭据，Windows 状态默认 %LOCALAPPDATA%/ProxyVeil，Mac 默认 ~/Library/Application Support/ProxyVeil；禁止提交、输出、打包原始订阅或备份。Native helper 错误不包含原值。SQLite 不迁移不写入；待验收的实际版本不得从源码推断。
 
-- docs/validation/engine.json：117 条断言，包含 PowerShell 解析、四种模式/权限组合、原规则保护、选择性修改、权限拒绝、异常回退、偏好合并、外部冲突、并发操作拒绝、部分还原续接、备份篡改拒绝及真实子进程 worker。
-- docs/validation/review-regressions.json：7 个配置/还原场景；ui-failure.json：3 个实际窗口错误场景；registry.json：11 个原生类型快照往返，随机 HKCU Software/ProxyVeil.Test-* 临时键在 finally 清理。
-- docs/validation/ui-idle/settings/completed.png 及同名 JSON：离屏 UI，当前 Windows 11 的原生 Acrylic 调用被接受；离屏图不验证真实背景模糊。
-- docs/validation/ui-recovery.json 与 progress.json：一次读取故障恢复、真实 worker 追加时的并发共享读取。
-- docs/validation/package-smoke.json：普通与管理员包各自解压后执行窗口修复/还原；管理员测试用隔离入口，未触发实际 UAC。
-- dist/ProxyVeil-0.1.1-Standard.zip、dist/ProxyVeil-0.1.1-Administrator.zip；dist/manifest.json；不含运行时、订阅、快照或测试目录。VERSION 为构建与包测试唯一版本源。
-- macos/proxyveil.py、scripts/Launch-macOS.sh、macos/README.md；macOS 不依赖第三方 Python 包，快照默认位于 `~/Library/Application Support/ProxyVeil`，隔离验证见 docs/validation/macos.json。
-- docs/validation/macos-host.json：当前 Mac 为 macOS 27.0.1、FlClash 0.8.99；隔离回归通过，真实配置使用 config.yaml/SQLite 布局，inspect 安全拒绝，未执行 repair。
-- docs/validation/windows-stage2.md、docs/validation/windows-stage2.json：Windows 11 的双运行时回归、UI 与包测试已通过；Windows 10、手工桌面 UI 和真实网络/UAC/TUN 待验收，整体状态 partial。
-- scripts/Test-macOS-Portable.py 与 docs/validation/macos-portable.json：Windows/Python 3.12.14 的 12 个隔离场景，覆盖文件恢复、跨进程锁及生产平台拒绝；不代表 macOS flock、原生偏好、权限或网络验收。docs/research/local-development.md 保存固定源码、存储事实与本机 VM 就绪情况。
-- README.md 说明启动、修复边界、还原及网络复测；docs/research/platforms.md 保存官方依据与检索日期；docs/review-v1.md 保存自审结论。
-
-## Locked decisions and compatibility
-
-PowerShell 7/WPF，源码与 ZIP 分发。Windows 启动器依次找 PATH、Program Files PowerShell 7、Codex 用户运行时；管理员版通过当前用户 UAC 启动。macOS 使用系统 Python 3 与 `scripts/Launch-macOS.sh`，不运行 sudo。当前 Windows 验收运行时为 7.6.5 与 7.6.6，系统为 Windows 11 Pro N build 26300；macOS CLI 在 Apple Silicon 上通过隔离测试。最低运行时与其他 OS 版本未分别实机验证。
-
-安装地址可自动探测或手填；配置需 shared_preferences.json 的 flutter.config 字符串、数字 currentProfileId、patchClashConfig.tun/networkProps。DNS/IPv6 修改需要受支持的块式 YAML；仅 WebRTC 不解析 YAML 或选择 DNS 组。FlClash 0.8.99 结构已核验，其他版本遇不兼容时拒绝修改。复杂 YAML/锚点/多文档的 DNS 修改需要手工处理。
-
-Mac 实测的 FlClash 0.8.99 使用 `config.yaml`、`database.sqlite` 与 `profiles/*.yaml`，不满足上述 shared_preferences.json 契约。后续源码核查表明，config.yaml 是已应用的核心配置，应用偏好通过 SharedPreferences 保存，macOS 使用 NSUserDefaults；SQLite 保存 profile、订阅及节点选择数据。适配应优先覆盖偏好存储和原始 profile，数据库仅只读核验。目标 Mac 的应用域、实际键与缓存/重启行为尚未核验；当前生产仍安全拒绝新布局。
-
-TUN DNS 使用 Mihomo 加密解析、严格路由及 UDP/TCP 53 接管；普通 TUN 要求 FlClashHelperService 已运行。Proxy 开系统代理、关 TUN，并设置 Edge secure DoH 和固定 DoH IP 的组路由；其他应用 DNS 需另验。节点引导走独立直连加密 DNS，避免代理解析循环。清空自定义解析策略可能影响内网站点。
-
-WebRTC 写 HKCU Edge 策略，组织 HKLM 冲突跳过；部分策略不支持微软账号配置文件，重启后查 edge://policy。IPv6 选项只关闭 FlClash IPv6 与 IPv6 解析。只勾 WebRTC 不停止或改写 FlClash 文件。
-
-macOS 不写 Windows 注册表，也不宣称可通过普通用户 plist 修改 Edge WebRTC；WebRTC 选项返回 skipped，并提示使用配置描述文件或 MDM。macOS 快照使用 flock、原子替换和 before/after SHA-256；外部漂移时保留快照并拒绝还原。
-
-快照位于 %LOCALAPPDATA%/ProxyVeil，先写 manifest 再修改，记录原始文件及策略类型/存在性。外部 YAML 或受管字段漂移停止覆盖，偏好无关字段合并保留；再次修复须先还原。快照可含凭据，禁止提交、输出或打包。恢复中断接受记录的 before/after，生产修改不经夹具路径。
+普通版不主动提权，管理员版必须当前用户 UAC，不接管 ACL/机器策略。Windows Edge 需重启后核验 edge://policy。TUN 与系统网络由 FlClash 权限和节点决定；不修改物理网卡、防火墙，不承诺所有应用无 DNS 泄漏。Mac Proxy 仅配置 FlClash resolver/路由。
 
 ## Remaining work
 
-| 优先级 | 项目/状态 | 前置与阻塞 | 就绪与结果 | 验证 |
-|---|---|---|---|---|
-| 1 | NSUserDefaults/profile 布局适配；本机测试基础完成，适配待执行 | 固定源码已核实；需目标 Mac 只读确认偏好域/键，原生写入最后验证 | 本机可先做生成夹具、存储接口和恢复测试；生产新布局仍拒绝 | docs/local-development-plan.md；docs/validation/macos-portable.json |
-| 2 | Windows 第二阶段；本地回归完成，兼容性验收待补 | 需要 Windows 10 测试机或 VM 与手工桌面检查 | Windows 11 + PowerShell 7.6.5/7.6.6 全部自动回归通过；整体 partial | docs/validation/windows-stage2.json |
-| 3 | 真实网络/UAC/TUN 权限验收；后续，未执行 | 一次性 Windows/macOS 用户或 VM、FlClash 与可用节点 | 可在兼容布局和目标环境就绪后执行 | README 复测清单；保存无凭据结果 |
-| 4 | 新代理、其他浏览器；延期 | 新需求与适配规格 | 不启动；保持现有范围 | 新工单和 fixture |
-
-当前本机测试基础已完成。新布局的原生偏好域和键仍需目标机只读确认；Windows 10 验收等待 VM 环境。本机的偏好夹具和接口开发可先推进。真实连接、代理组节点可用性、组织策略和用户账户类型由目标机决定，不能从夹具推断。
+| 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
+|---|---|---|---|
+| 1 | 本轮 main 集成及发布；本交接写入时待执行 | 提交修复/记录，登记 merge/push，确认远端 main 未变化 | 正常快进与 push；ls-remote SHA 与本机 main 相同，最终报告 exact SHA |
+| 2 | Mac 原生验收；交给用户，尚未执行 | Mac、FlClash、Python，干净工作区更新 main；实际偏好域/类型/schema 尚待核实 | 先隔离测试和只读 inspect，再明确 repair/restore，重启及网络验证；docs/validation/macos-acceptance.md |
+| 3 | Windows 10 与桌面；未执行 | 当前未确认可用 VM/ISO，已向用户询问但未得到环境信息 | 启动/回退/操作与 suites 实机通过，追加 OS/运行时证据；windows-012.md |
+| 4 | Windows 真实 UAC/TUN/网络；未执行 | 测试用户、FlClash/节点、明确对应真实配置操作授权 | 实际启动提权、配置采用、国内/代理/DNS/WebRTC/IPv6复测与恢复，无凭据摘要 |
+| 5 | 其他代理/浏览器；延期 | 新需求 | 不在本轮启动 |
 
 ## Next executable action
 
-继续在当前 Windows 工作区和 1012-local-development 分支执行。先核对下列测试与固定源码，再从 `macos/proxyveil.py/context` 和 `plan` 的偏好读写边界引入存储接口及生成的 XML/binary plist 夹具，验证 JSON 布局兼容与受管字段合并。依据 `work/flclash-contract/lib/common/preferences.dart`、`lib/common/constant.dart`、`lib/models/config.dart` 和 `lib/database/profiles.dart`；忽略目录丢失时从 docs/research/local-development.md 的固定链接重新读取。实际 Mac 域/键确认前，不启用新布局生产 repair。Windows 10 VM 等待环境时不阻塞本机开发。
+先在 Windows 完成已声明的正常 main 推送并核对 SHA。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
+
+本机复现：
 
 ```powershell
 Set-Location D:/proj/ProxyVeil
 git status --short
-if ($LASTEXITCODE -ne 0) { throw 'git status failed' }
+if ($LASTEXITCODE -ne 0) { throw 'status failed' }
 & 'C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' -X utf8 scripts/Test-macOS-Portable.py
-if ($LASTEXITCODE -ne 0) { throw 'portable fixture test failed' }
+if ($LASTEXITCODE -ne 0) { throw 'portable failed' }
+& 'C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' -X utf8 scripts/Test-macOS-Preferences.py
+if ($LASTEXITCODE -ne 0) { throw 'preferences failed' }
 pwsh -NoProfile -File scripts/Validate-Registry.ps1
-if ($LASTEXITCODE -ne 0) { throw 'registry validation failed' }
-Get-Content -LiteralPath docs/local-development-plan.md,docs/research/local-development.md
+if ($LASTEXITCODE -ne 0) { throw 'registry failed' }
 ```
 
-重建使用 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Build.ps1`，成功后 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Test-Package.ps1`。这会写隔离测试、验证记录与本地包，不修改当前 FlClash/Edge。实际修复必须由用户点击修复按钮或明确授权对应机器；包路径和 SHA 每次构建重新核对。
+完整 Windows 自动验收入口 scripts/Test-WindowsAcceptance.ps1 -PowerShellPaths <已安装PowerShell7路径列表>，会写本地夹具、报告和 ZIP，不修改真实配置。仅在源码改变或发现未解决问题时重新执行。
