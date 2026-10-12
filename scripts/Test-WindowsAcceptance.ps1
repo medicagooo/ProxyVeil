@@ -4,13 +4,13 @@ param([Parameter(Mandatory)][string[]]$PowerShellPaths)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $results=@()
-$reports=@('engine','review-regressions','registry','ui','ui-recovery','ui-failure','progress','host-report')
+$reports=@('engine','review-regressions','registry','ui','ui-recovery','ui-failure','progress','host-report','i18n')
 foreach ($runtime in $PowerShellPaths) {
     $version=& $runtime -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
     if ($LASTEXITCODE -ne 0) { throw "Cannot query runtime: $runtime" }
     $destination=Join-Path $root "docs/validation/windows-012/$version"
     $null=New-Item -ItemType Directory -Path $destination -Force
-    foreach ($suite in @('Test','Test-Review','Test-Registry','Test-UI','Test-UI-Recovery','Test-UI-Failure','Test-Progress','Test-HostReport')) {
+    foreach ($suite in @('Test','Test-Review','Test-Registry','Test-UI','Test-UI-Recovery','Test-UI-Failure','Test-Progress','Test-HostReport','Test-I18n')) {
         & $runtime -NoProfile -STA -File (Join-Path $PSScriptRoot "$suite.ps1")
         if ($LASTEXITCODE -ne 0) { throw "$suite failed on $version" }
     }

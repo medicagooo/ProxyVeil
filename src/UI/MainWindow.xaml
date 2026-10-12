@@ -15,25 +15,25 @@
   <Grid.RowDefinitions><RowDefinition Height="46"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid x:Name="TitleBar">
    <TextBlock Text="ProxyVeil" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
-   <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="MinimizeButton" Content="−" Padding="12,3" Margin="0,0,8,0" ToolTip="最小化" AutomationProperties.Name="最小化"/><Button x:Name="CloseButton" Content="×" Padding="12,3" ToolTip="关闭" AutomationProperties.Name="关闭"/></StackPanel>
+   <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="MinimizeButton" Content="−" Padding="12,3" Margin="0,0,8,0" ToolTip="{DynamicResource Text.UI.Minimize}" AutomationProperties.Name="{DynamicResource Text.UI.Minimize}"/><Button x:Name="CloseButton" Content="×" Padding="12,3" ToolTip="{DynamicResource Text.UI.Close}" AutomationProperties.Name="{DynamicResource Text.UI.Close}"/></StackPanel>
   </Grid>
   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,6,-10,0" Padding="0,0,10,0">
   <StackPanel>
-   <Grid Margin="0,15,0,21"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="收好你的网络出口" FontSize="28" FontWeight="SemiBold"/><TextBlock Text="配合 FlClash 修复浏览器与 DNS 的隐私设置" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/></StackPanel><Button x:Name="SettingsButton" Grid.Column="1" Content="设置" VerticalAlignment="Top" Margin="8,3,0,0"/></Grid>
-   <Border Background="#60FFFFFF" CornerRadius="8" Padding="13,10" Margin="0,0,0,20"><Grid><TextBlock x:Name="ModeLabel" Text="TUN 模式" FontWeight="SemiBold"/><TextBlock x:Name="EditionLabel" Text="普通权限版" HorizontalAlignment="Right" Foreground="{StaticResource Muted}"/></Grid></Border>
+   <Grid Margin="0,15,0,21"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Text.UI.Description}" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/></StackPanel><Button x:Name="SettingsButton" Grid.Column="1" Content="{DynamicResource Text.UI.Settings}" VerticalAlignment="Top" Margin="8,3,0,0"/></Grid>
+   <Border Background="#60FFFFFF" CornerRadius="8" Padding="13,10" Margin="0,0,0,20"><Grid><TextBlock x:Name="ModeLabel" Text="{DynamicResource Text.UI.DefaultMode}" FontWeight="SemiBold"/><TextBlock x:Name="EditionLabel" Text="{DynamicResource Text.UI.Standard}" HorizontalAlignment="Right" Foreground="{StaticResource Muted}"/></Grid></Border>
    <Border x:Name="SettingsPanel" Visibility="Collapsed" Background="#6AFFFFFF" BorderBrush="#A0FFFFFF" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,20">
     <StackPanel>
-     <TextBlock Text="连接方式" FontWeight="SemiBold"/><ComboBox x:Name="ModeBox" SelectedIndex="0"><ComboBoxItem Content="TUN"/><ComboBoxItem Content="Proxy"/></ComboBox>
-     <TextBlock Text="修复项目" FontWeight="SemiBold" Margin="0,3,0,13"/>
-     <CheckBox x:Name="DnsCheck" Content="DNS 泄露防护" IsChecked="True"/>
-     <CheckBox x:Name="RtcCheck" Content="Edge WebRTC 防护" IsChecked="True"/>
-     <CheckBox x:Name="Ipv6Check" Content="关闭 FlClash 内的 IPv6" IsChecked="True"/>
-     <CheckBox x:Name="RestartCheck" Content="修改配置时自动重启 FlClash" IsChecked="True"/>
-     <TextBlock Text="FlClash 安装目录或 FlClash.exe"/><TextBox x:Name="InstallBox" ToolTip="自动探测失败时填写完整路径"/>
-     <TextBlock Text="配置目录"/><TextBox x:Name="ConfigBox" ToolTip="包含 shared_preferences.json 的目录"/>
-     <TextBlock Text="DNS 使用的代理组"/><ComboBox x:Name="GroupBox" IsEditable="True"/>
-     <Button x:Name="DetectButton" Content="重新探测" HorizontalAlignment="Left"/>
-     <TextBlock Text="保留原有分流。Proxy 的 DNS 防护覆盖 Edge；其他应用需单独检查。" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,12,0,0"/>
+     <TextBlock Text="{DynamicResource Text.UI.Connection}" FontWeight="SemiBold"/><ComboBox x:Name="ModeBox" SelectedIndex="0"><ComboBoxItem Content="TUN"/><ComboBoxItem Content="Proxy"/></ComboBox>
+     <TextBlock Text="{DynamicResource Text.UI.Items}" FontWeight="SemiBold" Margin="0,3,0,13"/>
+     <CheckBox x:Name="DnsCheck" Content="{DynamicResource Text.Item.DNS}" IsChecked="True"/>
+     <CheckBox x:Name="RtcCheck" Content="{DynamicResource Text.Item.WebRTC}" IsChecked="True"/>
+     <CheckBox x:Name="Ipv6Check" Content="{DynamicResource Text.UI.DisableIPv6}" IsChecked="True"/>
+     <CheckBox x:Name="RestartCheck" Content="{DynamicResource Text.UI.AutoRestart}" IsChecked="True"/>
+     <TextBlock Text="{DynamicResource Text.UI.InstallPath}"/><TextBox x:Name="InstallBox" ToolTip="{DynamicResource Text.UI.InstallHint}"/>
+     <TextBlock Text="{DynamicResource Text.UI.ConfigDirectory}"/><TextBox x:Name="ConfigBox" ToolTip="{DynamicResource Text.UI.ConfigHint}"/>
+     <TextBlock Text="{DynamicResource Text.UI.DnsGroup}"/><ComboBox x:Name="GroupBox" IsEditable="True"/>
+     <Button x:Name="DetectButton" Content="{DynamicResource Text.UI.Redetect}" HorizontalAlignment="Left"/>
+     <TextBlock Text="{DynamicResource Text.UI.ScopeNote}" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,12,0,0"/>
     </StackPanel>
    </Border>
    <Grid x:Name="Emblem" Height="106" Margin="0,0,0,18">
@@ -41,15 +41,15 @@
     <Ellipse Width="76" Height="76" Fill="#55C8DEF7" Stroke="#8EFFFFFF" StrokeThickness="1"/>
     <Path Data="M 0,0 L 19,7 L 19,23 C 19,34 8,41 0,45 C -8,41 -19,34 -19,23 L -19,7 Z" Stroke="#235EE8" StrokeThickness="2.2" Fill="#55FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"/>
    </Grid>
-   <TextBlock x:Name="StatusTitle" Text="准备检查隐私设置" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" Margin="0,0,0,9"/>
-   <TextBlock x:Name="StatusDetail" Text="选择修复项目后开始。修改前自动保存还原快照。" TextWrapping="Wrap" TextAlignment="Center" Foreground="{StaticResource Muted}" Margin="8,0,8,24"/>
+   <TextBlock x:Name="StatusTitle" Text="{DynamicResource Text.UI.Ready}" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" Margin="0,0,0,9"/>
+   <TextBlock x:Name="StatusDetail" Text="{DynamicResource Text.UI.ReadyNote}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{StaticResource Muted}" Margin="8,0,8,24"/>
    <StackPanel x:Name="Checklist"/>
-   <Border x:Name="ResultNote" Visibility="Collapsed" Background="#55FFFFFF" CornerRadius="8" Padding="12" Margin="0,12,0,14"><TextBlock Text="配置完成后，重启 Edge 并复测 WebRTC 与 DNS。国内直连站点显示本地出口属于分流结果。" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12"/></Border>
+   <Border x:Name="ResultNote" Visibility="Collapsed" Background="#55FFFFFF" CornerRadius="8" Padding="12" Margin="0,12,0,14"><TextBlock Text="{DynamicResource Text.UI.ResultNote}" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12"/></Border>
   </StackPanel>
   </ScrollViewer>
   <StackPanel Grid.Row="2" Margin="0,18,0,0">
-   <Button x:Name="ActionButton" Content="检查并修复" Background="#235EE8" Foreground="White" BorderThickness="0" Padding="18,15" FontSize="16" FontWeight="SemiBold"/>
-   <Grid Margin="0,14,0,0"><TextBlock Text="配置留在本机" Foreground="{StaticResource Muted}" FontSize="12"/><Button x:Name="PolicyButton" Content="检查 Edge 策略" FontSize="12" Padding="0" Background="Transparent" BorderThickness="0" Foreground="#235EE8" HorizontalAlignment="Right"/></Grid>
+   <Button x:Name="ActionButton" Content="{DynamicResource Text.UI.Repair}" Background="#235EE8" Foreground="White" BorderThickness="0" Padding="18,15" FontSize="16" FontWeight="SemiBold"/>
+   <Grid Margin="0,14,0,0"><TextBlock Text="{DynamicResource Text.UI.LocalPrivacy}" Foreground="{StaticResource Muted}" FontSize="12"/><Button x:Name="PolicyButton" Content="{DynamicResource Text.UI.Policy}" FontSize="12" Padding="0" Background="Transparent" BorderThickness="0" Foreground="#235EE8" HorizontalAlignment="Right"/></Grid>
   </StackPanel>
  </Grid></Border>
 </Window>

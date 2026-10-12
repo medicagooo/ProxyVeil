@@ -1,6 +1,7 @@
 #requires -Version 7.0
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\Localization.ps1"
 . "$PSScriptRoot\Adapters\FlClash.Yaml.ps1"
 . "$PSScriptRoot\Progress.ps1"
 $script:PolicyNames = @('WebRtcLocalhostIpHandling','WebRtcRespectOsRoutingTableEnabled','WebRtcIPHandlingUrl','DnsOverHttpsMode','DnsOverHttpsTemplates')
@@ -15,7 +16,7 @@ function Test-PvAdministrator {
 function Get-PvDefaultStateDirectory { Join-Path $env:LOCALAPPDATA 'ProxyVeil' }
 function Read-PvJson([string]$Path) {
     try { ConvertFrom-Json -InputObject ([IO.File]::ReadAllText($Path)) -AsHashtable }
-    catch { throw "JSON 文件不可读取或格式不支持：$([IO.Path]::GetFileName($Path))" }
+    catch { throw (Get-PvText 'Error.JsonRead' -Arguments @(([IO.Path]::GetFileName($Path)))) }
 }
 function Save-PvJson([string]$Path, $Value) { Write-AtomicText $Path (ConvertTo-Json -InputObject $Value -Depth 100) }
 function Get-PvHash([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash }
@@ -49,18 +50,18 @@ function Get-PvPreferenceFields($Before,[string]$AfterJson) {
     return ,$fields
 }
 function Get-PvRestoreFilePlan($File,[string]$Directory) {
-    if (-not (Test-Path -LiteralPath $File.path -PathType Leaf)) { throw '还原目标文件不存在。' }
+    if (-not (Test-Path -LiteralPath $File.path -PathType Leaf)) { throw (Get-PvText 'Error.RestoreFileMissing') }
     $hash=Get-PvHash $File.path
     if ($hash -in @($File.beforeHash,$File.afterHash)) { return @{hash=$hash;merge=$false;text=$null} }
-    if (-not $File.Contains('fields')) { throw "还原冲突：$([IO.Path]::GetFileName($File.path)) 已被外部修改。快照已保留。" }
+    if (-not $File.Contains('fields')) { throw (Get-PvText 'Error.RestoreFileConflict' -Arguments @(([IO.Path]::GetFileName($File.path)))) }
     $outer=Read-PvJson $File.path
-    try { $inner=ConvertFrom-Json -InputObject $outer['flutter.config'] -AsHashtable } catch { throw '还原冲突：偏好格式改变。' }
+    try { $inner=ConvertFrom-Json -InputObject $outer['flutter.config'] -AsHashtable } catch { throw (Get-PvText 'Error.PreferenceFormatConflict') }
     foreach ($field in $File.fields) {
         $current=Get-PvOwnedField $inner $field.path
-        if (-not (Test-PvFieldEqual $current $field.before) -and -not (Test-PvFieldEqual $current $field.after)) { throw "还原冲突：受管偏好 $($field.path) 已被外部修改。" }
+        if (-not (Test-PvFieldEqual $current $field.before) -and -not (Test-PvFieldEqual $current $field.after)) { throw (Get-PvText 'Error.ManagedPreferenceConflict' -Arguments @($field.path)) }
         $parts=$field.path.Split('.'); $node=$inner
         for ($i=0;$i -lt $parts.Length-1;$i++) {
-            if (-not $node.Contains($parts[$i]) -or $node[$parts[$i]] -isnot [Collections.IDictionary]) { throw '还原冲突：偏好层级改变。' }
+            if (-not $node.Contains($parts[$i]) -or $node[$parts[$i]] -isnot [Collections.IDictionary]) { throw (Get-PvText 'Error.PreferenceHierarchyConflict') }
             $node=$node[$parts[$i]]
         }
         $key=$parts[-1]
@@ -77,18 +78,18 @@ function Get-PvContext {
     $prefs = Join-Path $dir 'shared_preferences.json'
     $preferencesHash=Get-PvHash $prefs
     $outer = Read-PvJson $prefs
-    if ((Get-PvHash $prefs) -ne $preferencesHash) { throw '读取期间偏好改变，请等待 FlClash 保存完成。' }
-    if (-not $outer.ContainsKey('flutter.config') -or $outer['flutter.config'] -isnot [string]) { throw '无法识别 FlClash 偏好结构。' }
-    try { $inner = ConvertFrom-Json -InputObject $outer['flutter.config'] -AsHashtable } catch { throw '无法解析 FlClash 内部偏好。' }
-    if (-not $inner.ContainsKey('currentProfileId') -or [string]$inner.currentProfileId -notmatch '^\d+$') { throw '请先在 FlClash 选择一个配置。' }
-    if (-not $inner.ContainsKey('patchClashConfig') -or $inner.patchClashConfig -isnot [Collections.IDictionary] -or -not $inner.patchClashConfig.ContainsKey('tun') -or $inner.patchClashConfig.tun -isnot [Collections.IDictionary] -or -not $inner.ContainsKey('networkProps') -or $inner.networkProps -isnot [Collections.IDictionary]) { throw 'FlClash 偏好版本不兼容，未修改。' }
+    if ((Get-PvHash $prefs) -ne $preferencesHash) { throw (Get-PvText 'Error.PreferenceReadDrift') }
+    if (-not $outer.ContainsKey('flutter.config') -or $outer['flutter.config'] -isnot [string]) { throw (Get-PvText 'Error.PreferenceStructure') }
+    try { $inner = ConvertFrom-Json -InputObject $outer['flutter.config'] -AsHashtable } catch { throw (Get-PvText 'Error.PreferenceParse') }
+    if (-not $inner.ContainsKey('currentProfileId') -or [string]$inner.currentProfileId -notmatch '^\d+$') { throw (Get-PvText 'Error.NoProfile') }
+    if (-not $inner.ContainsKey('patchClashConfig') -or $inner.patchClashConfig -isnot [Collections.IDictionary] -or -not $inner.patchClashConfig.ContainsKey('tun') -or $inner.patchClashConfig.tun -isnot [Collections.IDictionary] -or -not $inner.ContainsKey('networkProps') -or $inner.networkProps -isnot [Collections.IDictionary]) { throw (Get-PvText 'Error.PreferenceVersion') }
     $profile = Join-Path $dir "profiles\$($inner.currentProfileId).yaml"
-    if (-not (Test-Path -LiteralPath $profile -PathType Leaf)) { throw '找不到已选配置的 YAML 文件。' }
+    if (-not (Test-Path -LiteralPath $profile -PathType Leaf)) { throw (Get-PvText 'Error.ProfileMissing') }
     $profileHash=Get-PvHash $profile
     $text = [IO.File]::ReadAllText($profile)
-    if ((Get-PvHash $profile) -ne $profileHash) { throw '读取期间配置改变，请等待订阅更新完成。' }
+    if ((Get-PvHash $profile) -ne $profileHash) { throw (Get-PvText 'Error.ProfileReadDrift') }
     $group = if ($SkipDnsGroup) { '' } elseif ($ProxyGroup) { Select-DnsProxyGroup $text $ProxyGroup } else { Select-DnsProxyGroup $text '' }
-    if ($group -match '[#&\r\n]') { throw '此代理组名称暂不支持 DNS URL 参数，请选择其他组。' }
+    if ($group -match '[#&\r\n]') { throw (Get-PvText 'Error.GroupUrl') }
     $mode = if ($inner.patchClashConfig.tun.ContainsKey('enable') -and $inner.patchClashConfig.tun.enable) { 'TUN' } else { 'Proxy' }
     $groups=@(if (-not $SkipDnsGroup) { Get-ProxyGroupNames $text })
     @{Exe=$exe;Directory=$dir;Preferences=$prefs;Profile=$profile;PreferencesHash=$preferencesHash;ProfileHash=$profileHash;Text=$text;Outer=$outer;Inner=$inner;Group=$group;Groups=$groups;Mode=$mode}
@@ -114,7 +115,7 @@ function Set-PvRegistryValue($Key,[string]$Name,$Value) {
 }
 function Get-PvPolicy {
     param([string]$Name,[string]$FixtureRoot,[switch]$Machine)
-    if ($Name -notin $script:PolicyNames) { throw '未知策略。' }
+    if ($Name -notin $script:PolicyNames) { throw (Get-PvText 'Error.UnknownPolicy') }
     if ($FixtureRoot) {
         $store=Read-PvJson (Join-Path $FixtureRoot 'registry.json'); $side=if ($Machine) { 'machine' } else { 'user' }
         if ($store[$side].ContainsKey($Name)) { return $store[$side][$Name] }
@@ -128,10 +129,10 @@ function Get-PvPolicy {
 }
 function Set-PvPolicy {
     param([string]$Name,$Value,[string]$FixtureRoot)
-    if ($Name -notin $script:PolicyNames) { throw '未知策略。' }
+    if ($Name -notin $script:PolicyNames) { throw (Get-PvText 'Error.UnknownPolicy') }
     if ($FixtureRoot) {
         $path=Join-Path $FixtureRoot 'registry.json'; $store=Read-PvJson $path
-        if ($store.ContainsKey('deny') -and $Name -in $store.deny) { throw [UnauthorizedAccessException]::new('策略写入权限不足') }
+        if ($store.ContainsKey('deny') -and $Name -in $store.deny) { throw [UnauthorizedAccessException]::new((Get-PvText 'Error.PolicyPermission')) }
         if ($Value.Exists) { $store.user[$Name]=$Value } else { $store.user.Remove($Name) }
         Save-PvJson $path $store; return
     }
@@ -171,7 +172,7 @@ function Get-PvActiveSnapshot([string]$StateDirectory) {
 function Stop-PvFlClash($Context,[bool]$Restart,[string]$FixtureRoot) {
     if ($FixtureRoot) { return $false }
     $matches=@(Get-Process -Name FlClash -ErrorAction SilentlyContinue | Where-Object { try { $_.Path -ieq $Context.Exe } catch { $false } })
-    if ($matches.Count -and -not $Restart) { throw '请先退出 FlClash，或打开自动重启设置，避免运行中的软件覆盖配置。' }
+    if ($matches.Count -and -not $Restart) { throw (Get-PvText 'Error.FlClashRunning') }
     foreach ($process in $matches) { Stop-Process -Id $process.Id -ErrorAction Stop; $process.WaitForExit(5000) | Out-Null }
     $matches.Count -gt 0
 }
@@ -181,78 +182,78 @@ function Start-PvFlClash([string]$Exe,[string]$FixtureRoot) {
 
 # Repair and Restore share a durable write-ahead manifest. After records are persisted
 # before each mutation; recovery accepts either recorded Before or After after interruption.
-function Invoke-PvOperation {
+function Invoke-PvOperationCore {
     [CmdletBinding()]
     param([Collections.IDictionary]$Request,[string]$ProgressPath,[string]$FixtureRoot)
     $stateDir=[string]$Request.StateDirectory
     if (-not $stateDir) { $stateDir=Get-PvDefaultStateDirectory }
     $sid=Get-PvIdentity
-    if ($Request.Contains('TargetUserSid') -and $Request.TargetUserSid -and $Request.TargetUserSid -ne $sid) { throw '请使用原用户的管理员授权，其他用户的 UAC 不支持接管。' }
-    if ($Request.Edition -notin @('Standard','Administrator')) { throw '未知权限版本。' }
-    if ($Request.Edition -eq 'Administrator' -and -not $FixtureRoot -and -not (Test-PvAdministrator)) { throw '管理员版未获得管理员权限，请通过管理员入口启动。' }
-    if ($Request.Action -notin @('Inspect','Repair','Restore')) { throw '未知操作。' }
+    if ($Request.Contains('TargetUserSid') -and $Request.TargetUserSid -and $Request.TargetUserSid -ne $sid) { throw (Get-PvText 'Error.WrongUser') }
+    if ($Request.Edition -notin @('Standard','Administrator')) { throw (Get-PvText 'Error.UnknownEdition') }
+    if ($Request.Edition -eq 'Administrator' -and -not $FixtureRoot -and -not (Test-PvAdministrator)) { throw (Get-PvText 'Error.NotElevated') }
+    if ($Request.Action -notin @('Inspect','Repair','Restore')) { throw (Get-PvText 'Error.UnknownAction') }
     if ($Request.Action -eq 'Inspect') {
         $c=Get-PvContext -InstallPath $Request.InstallPath -ConfigDirectory $Request.ConfigDirectory -ProxyGroup $Request.ProxyGroup -FixtureRoot $FixtureRoot
         return @{status='Inspected';installPath=$c.Exe;configDirectory=$c.Directory;mode=$c.Mode;groups=$c.Groups;group=$c.Group;administrator=(Test-PvAdministrator);active=[bool](Get-PvActiveSnapshot $stateDir)}
     }
     Initialize-PvState $stateDir $FixtureRoot
     $lockPath=Join-Path $stateDir 'operation.lock'
-    try { $lock=[IO.File]::Open($lockPath,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None) } catch { throw '已有操作正在执行。' }
+    try { $lock=[IO.File]::Open($lockPath,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None) } catch { throw (Get-PvText 'Error.OperationBusy') }
     $resume=$false; $exe=''; $manifest=$null
     try {
         if ($Request.Action -eq 'Restore') {
             $manifest=Get-PvActiveSnapshot $stateDir
-            if (-not $manifest) { throw '没有可还原的快照。' }
-            if ($manifest.sid -ne $sid) { throw '快照属于其他用户。' }
-            Send-PvProgress $ProgressPath 'restore-check' '检查还原快照' 'running' '核对文件与策略是否有外部改动'
+            if (-not $manifest) { throw (Get-PvText 'Error.NoSnapshot') }
+            if ($manifest.sid -ne $sid) { throw (Get-PvText 'Error.SnapshotUser') }
+            Send-PvProgress $ProgressPath 'restore-check' (Get-PvText 'Progress.RestoreCheck') 'running' (Get-PvText 'Progress.CheckExternalChanges')
             foreach ($f in $manifest.files) {
-                if ($f.path -notin @($manifest.profile,$manifest.preferences)) { throw '快照包含无效目标。' }
-                if ($f.backup -notmatch ('^'+[regex]::Escape($manifest.id)+'-(?:profile|preferences)\.bak$')) { throw '快照备份路径无效。' }
+                if ($f.path -notin @($manifest.profile,$manifest.preferences)) { throw (Get-PvText 'Error.SnapshotTarget') }
+                if ($f.backup -notmatch ('^'+[regex]::Escape($manifest.id)+'-(?:profile|preferences)\.bak$')) { throw (Get-PvText 'Error.SnapshotBackupPath') }
                 $null=Get-PvRestoreFilePlan $f $stateDir
-                if ((Get-PvHash (Join-Path $stateDir $f.backup)) -ne $f.beforeHash) { throw '快照备份校验失败。' }
+                if ((Get-PvHash (Join-Path $stateDir $f.backup)) -ne $f.beforeHash) { throw (Get-PvText 'Error.SnapshotBackupHash') }
             }
             foreach ($p in $manifest.policies) {
                 $current=Get-PvPolicy $p.name $FixtureRoot
-                if (-not (Test-PvPolicyEqual $current $p.after) -and -not (Test-PvPolicyEqual $current $p.before)) { throw "还原冲突：策略 $($p.name) 已被外部修改。" }
+                if (-not (Test-PvPolicyEqual $current $p.after) -and -not (Test-PvPolicyEqual $current $p.before)) { throw (Get-PvText 'Error.PolicyConflict' -Arguments @($p.name)) }
             }
             $exe=$manifest.exe
             if ($manifest.files.Count) { $resume=Stop-PvFlClash @{Exe=$exe} ([bool]$Request.Restart) $FixtureRoot }
-            Send-PvProgress $ProgressPath 'restore-check' '检查还原快照' 'applied' '原值校验通过'
+            Send-PvProgress $ProgressPath 'restore-check' (Get-PvText 'Progress.RestoreCheck') 'applied' (Get-PvText 'Progress.OriginalVerified')
             foreach ($f in $manifest.files) {
-                Send-PvProgress $ProgressPath 'restore-files' '还原 FlClash 配置' 'running' '恢复原始字节'
+                Send-PvProgress $ProgressPath 'restore-files' (Get-PvText 'Progress.RestoreFiles') 'running' (Get-PvText 'Progress.RestoreBytes')
                 $filePlan=Get-PvRestoreFilePlan $f $stateDir
-                if ((Get-PvHash $f.path) -ne $filePlan.hash) { throw '暂停软件后发现配置改变，停止还原。' }
+                if ((Get-PvHash $f.path) -ne $filePlan.hash) { throw (Get-PvText 'Error.RestoreDrift') }
                 if ($filePlan.merge) {
                     Write-AtomicText $f.path $filePlan.text
-                    if ((Get-PvHash $f.path) -ne (Get-PvTextHash $filePlan.text)) { throw '偏好合并读回失败。' }
+                    if ((Get-PvHash $f.path) -ne (Get-PvTextHash $filePlan.text)) { throw (Get-PvText 'Error.PreferenceMergeReadback') }
                 } else {
                     Write-AtomicBytes $f.path ([IO.File]::ReadAllBytes((Join-Path $stateDir $f.backup)))
-                    if ((Get-PvHash $f.path) -ne $f.beforeHash) { throw '文件还原读回失败。' }
+                    if ((Get-PvHash $f.path) -ne $f.beforeHash) { throw (Get-PvText 'Error.FileRestoreReadback') }
                 }
             }
-            Send-PvProgress $ProgressPath 'restore-files' '还原 FlClash 配置' 'applied' '原配置已恢复'
+            Send-PvProgress $ProgressPath 'restore-files' (Get-PvText 'Progress.RestoreFiles') 'applied' (Get-PvText 'Progress.ConfigurationRestored')
             foreach ($p in $manifest.policies) {
                 $current=Get-PvPolicy $p.name $FixtureRoot
-                if (-not (Test-PvPolicyEqual $current $p.after) -and -not (Test-PvPolicyEqual $current $p.before)) { throw "策略 $($p.name) 在还原期间改变，停止还原。" }
+                if (-not (Test-PvPolicyEqual $current $p.after) -and -not (Test-PvPolicyEqual $current $p.before)) { throw (Get-PvText 'Error.PolicyRestoreDrift' -Arguments @($p.name)) }
                 Set-PvPolicy $p.name $p.before $FixtureRoot
-                if (-not (Test-PvPolicyEqual (Get-PvPolicy $p.name $FixtureRoot) $p.before)) { throw '策略还原读回失败。' }
+                if (-not (Test-PvPolicyEqual (Get-PvPolicy $p.name $FixtureRoot) $p.before)) { throw (Get-PvText 'Error.PolicyRestoreReadback') }
             }
-            Send-PvProgress $ProgressPath 'restore-policies' '还原 Edge 策略' 'applied' '重启 Edge 后生效'
+            Send-PvProgress $ProgressPath 'restore-policies' (Get-PvText 'Progress.RestorePolicies') 'applied' (Get-PvText 'Progress.EdgeRestartRequired')
             $manifest.status='restored'; $manifest.restoredAt=(Get-Date).ToString('o')
             Save-PvJson (Join-Path $stateDir "history-$($manifest.id).json") $manifest
             Remove-Item -LiteralPath (Join-Path $stateDir 'active.json')
-            return @{status='Restored';active=$false;message='已还原。请重启 Edge。';items=@()}
+            return @{status='Restored';active=$false;message=(Get-PvText 'Result.Restored');items=@()}
         }
-        if (Get-PvActiveSnapshot $stateDir) { throw '已有快照，请先还原；不会覆盖最初的备份。' }
+        if (Get-PvActiveSnapshot $stateDir) { throw (Get-PvText 'Error.SnapshotExists') }
         $items=@($Request.Items | Select-Object -Unique)
-        if (-not $items.Count -or @($items | Where-Object { $_ -notin @('DNS','WebRTC','IPv6') }).Count) { throw '请选择有效的修复项目。' }
-        if ($Request.Mode -notin @('TUN','Proxy')) { throw '请选择 TUN 或 Proxy 模式。' }
-        Send-PvProgress $ProgressPath 'detect' '识别 FlClash' 'running' '读取安装位置与当前配置'
+        if (-not $items.Count -or @($items | Where-Object { $_ -notin @('DNS','WebRTC','IPv6') }).Count) { throw (Get-PvText 'Error.InvalidItems') }
+        if ($Request.Mode -notin @('TUN','Proxy')) { throw (Get-PvText 'Error.InvalidMode') }
+        Send-PvProgress $ProgressPath 'detect' (Get-PvText 'Progress.Detect') 'running' (Get-PvText 'Progress.ReadContext')
         $c=Get-PvContext -InstallPath $Request.InstallPath -ConfigDirectory $Request.ConfigDirectory -ProxyGroup $Request.ProxyGroup -FixtureRoot $FixtureRoot -SkipDnsGroup:('DNS' -notin $items)
         $exe=$c.Exe
         if ('DNS' -in $items -and $Request.Mode -eq 'TUN' -and $Request.Edition -eq 'Standard' -and -not $FixtureRoot) {
             $svc=Get-Service -Name FlClashHelperService -ErrorAction SilentlyContinue
-            if (-not $svc -or $svc.Status -ne 'Running') { throw '普通权限 TUN 需要运行中的 FlClashHelperService；先在 FlClash 安装服务，或使用管理员版。' }
+            if (-not $svc -or $svc.Status -ne 'Running') { throw (Get-PvText 'Error.TunService') }
         }
         $changedFiles=('DNS' -in $items -or 'IPv6' -in $items)
         if ($changedFiles) {
@@ -260,54 +261,54 @@ function Invoke-PvOperation {
             $c=Get-PvContext -InstallPath $c.Exe -ConfigDirectory $c.Directory -ProxyGroup $c.Group -FixtureRoot $FixtureRoot -SkipDnsGroup:('DNS' -notin $items)
         }
         $plan=New-PvConfiguration $c $Request.Mode $items
-        Send-PvProgress $ProgressPath 'detect' '识别 FlClash' 'applied' "$($Request.Mode) / 原有分流保留"
+        Send-PvProgress $ProgressPath 'detect' (Get-PvText 'Progress.Detect') 'applied' (Get-PvText 'Progress.RoutingPreserved' -Arguments @($Request.Mode))
         $id=[guid]::NewGuid().ToString('N')
         $manifest=@{schema=1;id=$id;sid=$sid;createdAt=(Get-Date).ToString('o');status='applying';mode=$Request.Mode;edition=$Request.Edition;exe=$exe;profile=$c.Profile;preferences=$c.Preferences;files=@();policies=@();items=$items}
         Save-PvManifest $manifest $stateDir
         $results=[Collections.Generic.List[object]]::new()
         try {
             if ($changedFiles) {
-                Send-PvProgress $ProgressPath 'config' '备份并修改 FlClash' 'running' '加密解析、模式与选择项'
+                Send-PvProgress $ProgressPath 'config' (Get-PvText 'Progress.BackupConfigure') 'running' (Get-PvText 'Progress.ConfigureItems')
                 foreach ($f in @(@{path=$c.Profile;text=$plan.Profile;name='profile'},@{path=$c.Preferences;text=$plan.Preferences;name='preferences'})) {
                     $baseline=if ($f.name -eq 'profile') { $c.ProfileHash } else { $c.PreferencesHash }
                     if ($FixtureRoot -and $Request.Contains('Fault') -and $Request.Fault -eq 'drift-before-backup') { [IO.File]::AppendAllText($f.path,"`n# external drift") }
-                    if ((Get-PvHash $f.path) -ne $baseline) { throw '配置在检查后发生改变，停止写入。' }
+                    if ((Get-PvHash $f.path) -ne $baseline) { throw (Get-PvText 'Error.ConfigurationCheckDrift') }
                     $record=@{path=$f.path;backup="$id-$($f.name).bak";beforeHash=$baseline;afterHash=(Get-PvTextHash $f.text)}
                     if ($f.name -eq 'preferences') { $record.fields=Get-PvPreferenceFields $c.Inner $f.text }
                     [IO.File]::Copy($f.path,(Join-Path $stateDir $record.backup),$false)
-                    if ((Get-PvHash (Join-Path $stateDir $record.backup)) -ne $baseline) { throw '备份过程中配置发生改变。' }
+                    if ((Get-PvHash (Join-Path $stateDir $record.backup)) -ne $baseline) { throw (Get-PvText 'Error.BackupDrift') }
                     $manifest.files+=@($record); Save-PvManifest $manifest $stateDir
-                    if ($FixtureRoot -and $Request.Contains('Fault') -and $Request.Fault -eq $f.name) { throw '隔离故障：配置写入失败' }
-                    if ((Get-PvHash $f.path) -ne $record.beforeHash) { throw '配置在备份后发生改变，停止写入。' }
+                    if ($FixtureRoot -and $Request.Contains('Fault') -and $Request.Fault -eq $f.name) { throw (Get-PvText 'Test.ConfigurationWriteFault') }
+                    if ((Get-PvHash $f.path) -ne $record.beforeHash) { throw (Get-PvText 'Error.ConfigurationBackupDrift') }
                     Write-AtomicText $f.path $f.text
-                    if ((Get-PvHash $f.path) -ne $record.afterHash) { throw '配置读回失败。' }
+                    if ((Get-PvHash $f.path) -ne $record.afterHash) { throw (Get-PvText 'Error.ConfigurationReadback') }
                 }
-                Send-PvProgress $ProgressPath 'config' '备份并修改 FlClash' 'applied' '配置已写入并读回'
+                Send-PvProgress $ProgressPath 'config' (Get-PvText 'Progress.BackupConfigure') 'applied' (Get-PvText 'Progress.ConfigurationWritten')
             }
             foreach ($item in $items) {
-                $label=switch ($item) { DNS {'DNS 泄露防护'} WebRTC {'Edge WebRTC 防护'} IPv6 {'代理内 IPv6'} }
-                Send-PvProgress $ProgressPath $item $label 'running' '检查选定保护项'
+                $label=switch ($item) { DNS {(Get-PvText 'Item.DNS')} WebRTC {(Get-PvText 'Item.WebRTC')} IPv6 {(Get-PvText 'Item.IPv6')} }
+                Send-PvProgress $ProgressPath $item $label 'running' (Get-PvText 'Progress.CheckItem')
                 $names=switch ($item) { DNS {@($plan.Policies.Keys | Where-Object { $_ -like 'Dns*' })} WebRTC {@($plan.Policies.Keys | Where-Object { $_ -like 'WebRtc*' })} IPv6 {@()} }
                 $skipped=[Collections.Generic.List[string]]::new()
                 foreach ($name in $names) {
                     $target=$plan.Policies[$name]; $machine=Get-PvPolicy $name $FixtureRoot -Machine
-                    if ($machine.Exists -and -not (Test-PvPolicyEqual $machine $target)) { $skipped.Add('组织策略冲突'); continue }
+                    if ($machine.Exists -and -not (Test-PvPolicyEqual $machine $target)) { $skipped.Add((Get-PvText 'Error.OrganizationPolicy')); continue }
                     $before=Get-PvPolicy $name $FixtureRoot
                     $record=@{name=$name;before=$before;after=$target}
                     $manifest.policies+=@($record); Save-PvManifest $manifest $stateDir
                     try {
                         Set-PvPolicy $name $target $FixtureRoot
-                        if (-not (Test-PvPolicyEqual (Get-PvPolicy $name $FixtureRoot) $target)) { throw '策略读回失败。' }
+                        if (-not (Test-PvPolicyEqual (Get-PvPolicy $name $FixtureRoot) $target)) { throw (Get-PvText 'Error.PolicyReadback') }
                     } catch [UnauthorizedAccessException] {
                         $manifest.policies=@($manifest.policies | Where-Object { $_ -ne $record }); Save-PvManifest $manifest $stateDir
-                        $skipped.Add('策略写入权限不足'); continue
+                        $skipped.Add((Get-PvText 'Error.PolicyPermission')); continue
                     } catch [Security.SecurityException] {
                         $manifest.policies=@($manifest.policies | Where-Object { $_ -ne $record }); Save-PvManifest $manifest $stateDir
-                        $skipped.Add('策略写入权限不足'); continue
+                        $skipped.Add((Get-PvText 'Error.PolicyPermission')); continue
                     }
                 }
                 $status=if ($skipped.Count) { 'skipped' } else { 'applied' }
-                $detail=if ($skipped.Count) { ($skipped | Select-Object -Unique) -join '；' } else { switch ($item) { DNS { if ($Request.Mode -eq 'Proxy') {'已配置 Edge 加密 DNS；其他应用需单独检查'} else {'已配置 DNS 接管；节点引导解析单独处理'} } WebRTC {'已写入策略；重启 Edge 后检查策略是否生效'} IPv6 {'FlClash IPv6 关闭；物理网卡保持原设置'} } }
+                $detail=if ($skipped.Count) { ($skipped | Select-Object -Unique) -join (Get-PvText 'Text.Separator') } else { switch ($item) { DNS { if ($Request.Mode -eq 'Proxy') {(Get-PvText 'Detail.DnsProxy')} else {(Get-PvText 'Detail.DnsTun')} } WebRTC {(Get-PvText 'Detail.WebRTC')} IPv6 {(Get-PvText 'Detail.IPv6')} } }
                 Send-PvProgress $ProgressPath $item $label $status $detail
                 $results.Add(@{id=$item;status=$status;detail=$detail})
             }
@@ -331,17 +332,26 @@ function Invoke-PvOperation {
             }
             if ($rollback) { Remove-Item -LiteralPath (Join-Path $stateDir 'active.json') }
             else { $manifest.status='recovery-required'; Save-PvManifest $manifest $stateDir }
-            throw "$cause；$(if ($rollback) { '已回退本次改动' } else { '部分回退受阻，请从快照还原' })"
+            throw (Get-PvText 'Error.RollbackCause' -Arguments @($cause,$(if ($rollback) { Get-PvText 'Result.RolledBack' } else { Get-PvText 'Result.RollbackBlocked' })))
         }
         $active=$manifest.files.Count -gt 0 -or $manifest.policies.Count -gt 0
         if (-not $active) { Remove-Item -LiteralPath (Join-Path $stateDir 'active.json') }
         $partial=@($results | Where-Object { $_.status -eq 'skipped' }).Count -gt 0
         if ($changedFiles -and $Request.Restart -and -not $FixtureRoot) { $resume=$true }
-        $restartMessage=if ($changedFiles -and -not $resume) { '；打开 FlClash 后生效' } else { '' }
-        @{status=$(if ($partial) {'Partial'} else {'Configured'});active=$active;items=$results.ToArray();message="配置已处理$restartMessage。请重启 Edge 并复测。"}
+        $restartMessage=if ($changedFiles -and -not $resume) { (Get-PvText 'Result.OpenFlClash') } else { '' }
+        @{status=$(if ($partial) {'Partial'} else {'Configured'});active=$active;items=$results.ToArray();message=(Get-PvText 'Result.Configured' -Arguments @($restartMessage))}
     } finally {
-        try { if ($resume -and $exe) { Start-PvFlClash $exe $FixtureRoot; Send-PvProgress $ProgressPath 'restart' '重启 FlClash' 'applied' '已启动；请检查连接与泄露测试' } }
+        try { if ($resume -and $exe) { Start-PvFlClash $exe $FixtureRoot; Send-PvProgress $ProgressPath 'restart' (Get-PvText 'Progress.Restart') 'applied' (Get-PvText 'Progress.Restarted') } }
         finally { $lock.Dispose() }
     }
 }
-Export-ModuleMember -Function Get-PvContext,Get-PvIdentity,Test-PvAdministrator,Get-PvDefaultStateDirectory,Get-PvActiveSnapshot,Invoke-PvOperation,New-PvConfiguration,Read-PvJson,Save-PvJson,Get-PvPolicy,Set-PvPolicy,Test-PvPolicyEqual,Read-PvProgressLines
+function Invoke-PvOperation {
+    [CmdletBinding()]
+    param([Collections.IDictionary]$Request,[string]$ProgressPath,[string]$FixtureRoot)
+    $previousLanguage=Get-PvLanguage
+    try {
+        if ($Request.Contains('Language') -and $Request.Language) { Set-PvLanguage $Request.Language }
+        Invoke-PvOperationCore $Request $ProgressPath $FixtureRoot
+    } finally { Set-PvLanguage $previousLanguage }
+}
+Export-ModuleMember -Function Get-PvContext,Get-PvIdentity,Test-PvAdministrator,Get-PvDefaultStateDirectory,Get-PvActiveSnapshot,Invoke-PvOperation,New-PvConfiguration,Read-PvJson,Save-PvJson,Get-PvPolicy,Set-PvPolicy,Test-PvPolicyEqual,Read-PvProgressLines,Resolve-PvLanguage,Get-PvDisplayCulture,Set-PvLanguage,Get-PvLanguage,Get-PvStrings,Get-PvText

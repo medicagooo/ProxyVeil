@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 Import-Module "$root/src/ProxyVeil.Core.psm1" -Force
+Set-PvLanguage 'zh-CN' # Keep legacy message assertions independent of the host display language.
 . "$root/tests/WindowsHost.Assertions.ps1"
 $os = Get-CimInstance Win32_OperatingSystem
 $report = [ordered]@{

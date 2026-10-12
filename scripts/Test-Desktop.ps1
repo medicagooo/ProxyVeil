@@ -1,10 +1,12 @@
 #requires -Version 7.0
 [CmdletBinding()]
-param([string]$PowerShellPath = (Get-Process -Id $PID).Path)
+param([string]$PowerShellPath = (Get-Process -Id $PID).Path,[ValidateSet('Auto','en','zh-CN')][string]$Language='Auto')
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows -or -not [Environment]::UserInteractive) { throw 'An interactive Windows desktop is required.' }
 $root = Split-Path $PSScriptRoot
 Import-Module "$root/src/ProxyVeil.Core.psm1" -Force
+Set-PvLanguage $Language
+$Language=Get-PvLanguage
 . "$root/tests/Fixtures.ps1"
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Drawing, System.Windows.Forms
 Add-Type -TypeDefinition @'
@@ -30,7 +32,7 @@ $reportPath = Join-Path $root 'docs/validation/windows-desktop.json'
 $report = [ordered]@{
     at = [DateTimeOffset]::UtcNow.ToOffset([TimeSpan]::FromHours(-4)).ToString('o')
     result = 'failed'; scope = 'Displayed native WPF window with isolated fixture and UI Automation'
-    powerShell = $PSVersionTable.PSVersion.ToString(); fixture = $true
+    powerShell = $PSVersionTable.PSVersion.ToString(); language=$Language; fixture = $true
     liveConfigurationModified = $false; realUacTest = $false; actualNetworkTest = $false
     checks = @(); screenshots = @(); captureWarnings = @(); visualCapture = 'pending'
 }
@@ -93,7 +95,7 @@ try {
     $psi = [Diagnostics.ProcessStartInfo]::new()
     $psi.FileName = $PowerShellPath; $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
     $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
-    foreach ($arg in @('-NoProfile','-STA','-File',"$root/src/Start-ProxyVeil.ps1",'-FixtureRoot',$suite,'-StateDirectory',$request.StateDirectory)) { $psi.ArgumentList.Add($arg) }
+    foreach ($arg in @('-NoProfile','-STA','-File',"$root/src/Start-ProxyVeil.ps1",'-FixtureRoot',$suite,'-StateDirectory',$request.StateDirectory,'-Language',$Language)) { $psi.ArgumentList.Add($arg) }
     $process = [Diagnostics.Process]::Start($psi)
     $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync()
     Wait-PvDesktop { $process.Refresh(); $process.MainWindowHandle -ne [IntPtr]::Zero } 'Displayed window'
@@ -101,7 +103,7 @@ try {
     $script:windowElement = [Windows.Automation.AutomationElement]::FromHandle($script:hwnd)
     Wait-PvDesktop { [PvDesktopNative]::IsWindowVisible($script:hwnd) -and -not $script:windowElement.Current.IsOffscreen } 'Window visible on desktop'
     $checks.Add('Native window displayed')
-    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.Name -eq '检查并修复' } 'Idle action button'
+    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.Name -eq (Get-PvText 'UI.Repair') } 'Idle action button'
     Save-PvDesktopImage 'windows-desktop-idle'
     $backdrop = 0
     $hr = [PvDesktopNative]::DwmGetWindowAttribute($script:hwnd, 38, [ref]$backdrop, 4)
@@ -131,14 +133,14 @@ try {
     Wait-PvDesktop { -not [PvDesktopNative]::IsIconic($script:hwnd) } 'Restored window'
     $checks.Add('Minimize control and native window restore')
     Invoke-PvControl 'ActionButton'
-    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.IsEnabled -and (Find-PvControl 'ActionButton').Current.Name -eq '还原上次修改' } 'Fixture repair complete' 45
+    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.IsEnabled -and (Find-PvControl 'ActionButton').Current.Name -eq (Get-PvText 'UI.Restore') } 'Fixture repair complete' 45
     $runs = @(Get-ChildItem -LiteralPath $request.StateDirectory -Directory -Filter 'run-*')
     $repair = @(foreach ($run in $runs) { if (Test-Path -LiteralPath "$($run.FullName)/result.json") { Read-PvJson "$($run.FullName)/result.json" } })
     if ($repair.Count -ne 1 -or $repair[0].status -ne 'Configured') { throw 'Fixture repair result was not Configured.' }
     $checks.Add('Displayed action button invokes isolated worker repair')
     Save-PvDesktopImage 'windows-desktop-configured'
     Invoke-PvControl 'ActionButton'
-    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.IsEnabled -and (Find-PvControl 'ActionButton').Current.Name -eq '检查并修复' } 'Fixture restore complete' 45
+    Wait-PvDesktop { (Find-PvControl 'ActionButton').Current.IsEnabled -and (Find-PvControl 'ActionButton').Current.Name -eq (Get-PvText 'UI.Repair') } 'Fixture restore complete' 45
     if (Get-PvActiveSnapshot $request.StateDirectory) { throw 'Fixture restore left active snapshot.' }
     $runs = @(Get-ChildItem -LiteralPath $request.StateDirectory -Directory -Filter 'run-*')
     $results = @(foreach ($run in $runs) { Read-PvJson "$($run.FullName)/result.json" })

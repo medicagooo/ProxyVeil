@@ -7,7 +7,8 @@ set "PV_PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe"
 if exist "%PV_PWSH%" goto launch
 set "PV_PWSH=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.exe"
 if exist "%PV_PWSH%" goto launch
-echo PowerShell 7 is required. Install it and add pwsh.exe to PATH.
+powershell.exe -NoProfile -NonInteractive -File "%~dp0scripts\Show-RuntimeRequirement.ps1"
+if errorlevel 1 echo PowerShell 7 is required. Install it and add pwsh.exe to PATH.
 pause
 exit /b 1
 :launch

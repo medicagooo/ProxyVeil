@@ -4,6 +4,7 @@ param()
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 Import-Module "$root\src\ProxyVeil.Core.psm1" -Force
+Set-PvLanguage 'zh-CN' # Keep legacy message assertions independent of the host display language.
 . "$root\tests\Fixtures.ps1"
 $suite=Join-Path $root ('work\tests-'+[guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $suite -Force

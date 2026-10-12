@@ -7,10 +7,6 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
-    },
-    {
-      "event": "push-readme-main",
-      "task": "readme-publication-1012"
     }
   ],
   "changes": [
@@ -156,6 +152,35 @@
       "integratedAt": null,
       "status": "implemented",
       "before": "New macOS layout rejected; legacy restore only understood whole JSON files"
+    },
+    {
+      "affected": [
+        "Windows Standard/Administrator users",
+        "src/Localization.ps1",
+        "src/Start-ProxyVeil.ps1",
+        "src/Invoke-Worker.ps1",
+        "ProxyVeil.Core Invoke-PvOperation",
+        "README.md",
+        "README.zh-CN.md"
+      ],
+      "business": "System-language English/Chinese UI and worker; remove slogan; English-default bilingual README",
+      "rules": "Presentation only; status IDs/profile values/snapshot schema unchanged; cross-language restore; no live writes or Mac changes",
+      "id": "windows-system-language",
+      "evidence": [
+        "docs/i18n-plan.md",
+        "docs/validation/i18n-implementation.md",
+        "docs/validation/i18n.json"
+      ],
+      "domain": "Windows presentation and documentation",
+      "after": "Current user display language resolves zh variants to zh-CN, otherwise English; explicit launch locale propagates to UAC/UI/worker; bilingual keyed text; English README plus linked Chinese document",
+      "request": "request-implement-review-push-i18n",
+      "before": "Chinese hardcoded UI/progress/errors; Chinese-only README and slogan",
+      "deployedAt": null,
+      "status": "implemented",
+      "integratedAt": null,
+      "implementedAt": "2026-10-12T17:11:32.3515806-04:00",
+      "reason": "Implement accepted localization plan",
+      "date": "2026-10-12"
     }
   ],
   "records": [
@@ -203,6 +228,11 @@
       "id": "readme-publication-1012",
       "state": ".branch-records/readme-publication-1012/state.json",
       "events": ".branch-records/readme-publication-1012/events.jsonl"
+    },
+    {
+      "state": ".branch-records/windows-i18n-1012/state.json",
+      "events": ".branch-records/windows-i18n-1012/events.jsonl",
+      "id": "windows-i18n-1012"
     }
   ],
   "read": [
@@ -211,6 +241,6 @@
   "schema": 1,
   "timezone": "America/Halifax",
   "active": [
-    "readme-publication-1012"
+    "windows-i18n-1012"
   ]
 }

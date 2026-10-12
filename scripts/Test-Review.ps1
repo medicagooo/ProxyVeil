@@ -3,6 +3,7 @@ param([switch]$ExpectFailure)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 Import-Module "$root\src\ProxyVeil.Core.psm1" -Force
+Set-PvLanguage 'zh-CN' # Keep legacy message assertions independent of the host display language.
 . "$root\tests\Fixtures.ps1"
 $suite=Join-Path $root ('work\review-'+[guid]::NewGuid().ToString('N'))
 $script:passed=0; $script:failures=[Collections.Generic.List[string]]::new()

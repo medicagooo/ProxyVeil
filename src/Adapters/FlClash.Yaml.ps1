@@ -6,7 +6,7 @@ function Get-YamlSection {
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match $pattern) { $found += $i }
     }
-    if ($found.Count -gt 1) { throw "重复的 YAML 顶层字段：$Name" }
+    if ($found.Count -gt 1) { throw (Get-PvText 'Error.YamlDuplicateTop' -Arguments @($Name)) }
     if ($found.Count -eq 0) { return $null }
     $start = $found[0]
     $tail = ([regex]::Match($lines[$start], $pattern)).Groups['tail'].Value
@@ -28,18 +28,18 @@ function ConvertFrom-YamlScalar {
     param([string]$Value)
     $v = $Value.Trim()
     if ($v.StartsWith('"')) {
-        if ($v -notmatch '^("(?:[^"\\]|\\.)*")\s*(?:#.*)?$') { throw '不支持的 YAML 双引号标量。' }
+        if ($v -notmatch '^("(?:[^"\\]|\\.)*")\s*(?:#.*)?$') { throw (Get-PvText 'Error.YamlDoubleScalar') }
         $v = $Matches[1]
-        try { return [string]($v | ConvertFrom-Json) } catch { throw '不支持的 YAML 双引号转义。' }
+        try { return [string]($v | ConvertFrom-Json) } catch { throw (Get-PvText 'Error.YamlDoubleEscape') }
     }
     if ($v.StartsWith("'")) {
-        if ($v -notmatch "^('(?:[^']|'')*')\s*(?:#.*)?$" ) { throw '不支持的 YAML 单引号。' }
+        if ($v -notmatch "^('(?:[^']|'')*')\s*(?:#.*)?$" ) { throw (Get-PvText 'Error.YamlSingleQuote') }
         $v = $Matches[1]
         return $v.Substring(1, $v.Length - 2).Replace("''", "'")
     }
     $v = ($v -replace '\s+#.*$', '').Trim()
     if ($v -in @('[]','{}')) { return $v }
-    if ($v -match '^[\[\{&*!>|]') { throw '不支持的 YAML 标量格式。' }
+    if ($v -match '^[\[\{&*!>|]') { throw (Get-PvText 'Error.YamlScalar') }
     return $v
 }
 
@@ -56,7 +56,7 @@ function Set-YamlField {
         $s = Get-YamlSection $Text $Section
     }
     if ($s.Tail -notmatch '^(?:#.*|\{\s*\}|null|~)?$') {
-        throw "不支持 $Section 的内联映射/锚点，未写入配置。"
+        throw (Get-PvText 'Error.YamlInline' -Arguments @($Section))
     }
     $body = [System.Collections.Generic.List[string]]::new()
     for ($i = $s.Start + 1; $i -lt $s.End; $i++) { $body.Add($s.Lines[$i]) }
@@ -66,7 +66,7 @@ function Set-YamlField {
             $n = $Matches[1].Length
             if ($null -eq $indent -or $n -lt $indent) { $indent = $n }
         }
-        if ($line.Contains("`t")) { throw "${Section} 存在 Tab 缩进，未写入配置。" }
+        if ($line.Contains("`t")) { throw (Get-PvText 'Error.YamlTab' -Arguments @($Section)) }
     }
     if ($null -eq $indent) { $indent = 2 }
     $padding = ' ' * $indent
@@ -76,12 +76,12 @@ function Set-YamlField {
     for ($i = 0; $i -lt $body.Count; $i++) {
         if ($body[$i] -match $keyPattern) {
             $key = $Matches.key
-            if ($seen.ContainsKey($key)) { throw "重复 YAML 字段：${Section}.${key}" }
+            if ($seen.ContainsKey($key)) { throw (Get-PvText 'Error.YamlDuplicateField' -Arguments @($Section,$key)) }
             $seen[$key] = $true
             if ($key -eq $Field) { $at = $i }
         }
         if ($body[$i] -match ('^' + $padding + '(?:<<\s*:|["'']|[&*!])')) {
-            throw "${Section} 包含复杂映射键/合并键，未写入配置。"
+            throw (Get-PvText 'Error.YamlComplexKey' -Arguments @($Section))
         }
     }
     if ($at -lt 0) { $at = $body.Count }
@@ -144,7 +144,7 @@ function Get-YamlField {
 function Get-ProxyGroupNames {
     param([string]$Text)
     $s = Get-YamlSection $Text 'proxy-groups'
-    if (-not $s -or $s.Tail -notmatch '^(#.*)?$') { throw '需要块格式的 proxy-groups。' }
+    if (-not $s -or $s.Tail -notmatch '^(#.*)?$') { throw (Get-PvText 'Error.GroupBlock') }
     $names = [System.Collections.Generic.List[string]]::new()
     $itemIndent = $null
     for ($i = $s.Start + 1; $i -lt $s.End; $i++) {
@@ -153,12 +153,12 @@ function Get-ProxyGroupNames {
             if ($null -eq $itemIndent -or $n -lt $itemIndent) { $itemIndent = $n }
         }
     }
-    if ($null -eq $itemIndent) { throw '无法识别 proxy-groups 列表。' }
+    if ($null -eq $itemIndent) { throw (Get-PvText 'Error.GroupList') }
     for ($i = $s.Start + 1; $i -lt $s.End; $i++) {
         $p = '^(?:' + (' ' * $itemIndent) + '-\s+|' + (' ' * ($itemIndent + 2)) + ')name:\s*(.+)$'
         if ($s.Lines[$i] -match $p) { $names.Add((ConvertFrom-YamlScalar $Matches[1])) }
     }
-    if ($names.Count -eq 0) { throw '未检测到代理组名称。' }
+    if ($names.Count -eq 0) { throw (Get-PvText 'Error.GroupNames') }
     return $names.ToArray()
 }
 
@@ -166,7 +166,7 @@ function Select-DnsProxyGroup {
     param([string]$Text, [string]$Requested)
     $names = @(Get-ProxyGroupNames $Text)
     if ($Requested) {
-        if ($Requested -cnotin $names -or $Requested -in @('DIRECT','REJECT','PASS')) { throw '指定代理组不存在或不是代理组。' }
+        if ($Requested -cnotin $names -or $Requested -in @('DIRECT','REJECT','PASS')) { throw (Get-PvText 'Error.GroupMissing') }
         return $Requested
     }
     $rules = Get-YamlSectionText $Text 'rules'
@@ -178,7 +178,7 @@ function Select-DnsProxyGroup {
     }
     $usable = @($names | Where-Object { $_ -notin @('DIRECT','REJECT','PASS') })
     if ($usable.Count -eq 1) { return $usable[0] }
-    throw '无法自动选定 DNS 代理组。请用 -ProxyGroup 指定现有代理组。'
+    throw (Get-PvText 'Error.GroupAmbiguous')
 }
 
 function Resolve-FlClashExecutable {
@@ -194,7 +194,7 @@ function Resolve-FlClashExecutable {
     }
     if ($Hint) {
         $resolved = Resolve-Exe $Hint
-        if (-not $resolved) { throw 'InstallPath 必须是 FlClash.exe 或其安装目录。' }
+        if (-not $resolved) { throw (Get-PvText 'Error.InstallPath') }
         return $resolved
     }
     $candidates = [System.Collections.Generic.List[string]]::new()
@@ -227,8 +227,8 @@ function Resolve-FlClashExecutable {
         }
     } catch {}
     foreach ($candidate in $candidates) { $resolved = Resolve-Exe $candidate; if ($resolved) { return $resolved } }
-    if ($Quiet) { throw '未找到 FlClash；请传入 -InstallPath。' }
-    $manual = Read-Host '未找到 FlClash，请输入 FlClash.exe 的完整路径或安装目录'
+    if ($Quiet) { throw (Get-PvText 'Error.InstallMissing') }
+    $manual = Read-Host (Get-PvText 'Prompt.InstallPath')
     return Resolve-FlClashExecutable -Hint $manual -Quiet
 }
 
@@ -241,8 +241,8 @@ function Resolve-FlClashConfigDirectory {
         $expanded = [Environment]::ExpandEnvironmentVariables($p.Trim().Trim('"'))
         if (Test-Path -LiteralPath (Join-Path $expanded 'shared_preferences.json') -PathType Leaf) { return (Get-Item -LiteralPath $expanded).FullName }
     }
-    if ($Hint -or $Quiet) { throw '未找到 FlClash 配置目录；请传入 -ConfigDirectory。' }
-    return Resolve-FlClashConfigDirectory -Hint (Read-Host '请输入包含 shared_preferences.json 的 FlClash 配置目录') -Exe $Exe -Quiet
+    if ($Hint -or $Quiet) { throw (Get-PvText 'Error.ConfigDirectoryMissing') }
+    return Resolve-FlClashConfigDirectory -Hint (Read-Host (Get-PvText 'Prompt.ConfigDirectory')) -Exe $Exe -Quiet
 }
 
 function Write-AtomicText {
@@ -276,7 +276,7 @@ function New-PvConfiguration {
     if ('DNS' -notin $Items -and 'IPv6' -notin $Items) {
         return @{Profile=$text;Preferences=(ConvertTo-Json -InputObject $Context.Outer -Depth 100 -Compress);Policies=$targets}
     }
-    if ($text -match '(?m)^---\s*$|^\.\.\.\s*$|^\s*["''](?:dns|tun|rules|proxy-groups)["'']\s*:|^\s*(?:[\w-]+:\s*|-\s*)[&*][\w-]+') { throw '复杂 YAML 或多文档配置需要手动编辑，未修改。' }
+    if ($text -match '(?m)^---\s*$|^\.\.\.\s*$|^\s*["''](?:dns|tun|rules|proxy-groups)["'']\s*:|^\s*(?:[\w-]+:\s*|-\s*)[&*][\w-]+') { throw (Get-PvText 'Error.YamlComplex') }
     $inner = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Inner -Depth 100) -AsHashtable
     if ('DNS' -in $Items) {
         foreach ($v in @(@('enable','true'),@('respect-rules','true'))) { $text = Set-YamlField $text dns $v[0] @($v[1]) }
@@ -301,15 +301,15 @@ function New-PvConfiguration {
             $inner.patchClashConfig.tun['dns-hijack'] = @('any:53','tcp://any:53')
             $targets.DnsOverHttpsMode = @{Exists=$true;Value='off';Type='String'}
         } else {
-            if ($Context.Group.Contains(',')) { throw 'Proxy DNS 的代理组名称不能包含逗号，未修改。' }
+            if ($Context.Group.Contains(',')) { throw (Get-PvText 'Error.GroupComma') }
             $rules = Get-YamlSection $text rules
-            if (-not $rules -or $rules.Tail -notmatch '^(#.*)?$') { throw 'Proxy 模式需要块格式 rules。' }
+            if (-not $rules -or $rules.Tail -notmatch '^(#.*)?$') { throw (Get-PvText 'Error.RulesBlock') }
             $ruleIndent=$null
             for ($i=$rules.Start+1;$i -lt $rules.End;$i++) {
                 if ($rules.Lines[$i] -match '^( *)-\s+') {
                     if ($null -eq $ruleIndent) { $ruleIndent=$Matches[1] }
-                    elseif ($ruleIndent.Length -ne $Matches[1].Length) { throw 'rules 列表缩进不一致，未修改。' }
-                } elseif ($rules.Lines[$i] -notmatch '^\s*(?:#.*)?$') { throw '需要单行块格式 rules，未修改。' }
+                    elseif ($ruleIndent.Length -ne $Matches[1].Length) { throw (Get-PvText 'Error.RulesIndent') }
+                } elseif ($rules.Lines[$i] -notmatch '^\s*(?:#.*)?$') { throw (Get-PvText 'Error.RulesLine') }
             }
             if ($null -eq $ruleIndent) { $ruleIndent='  ' }
             $extra = @((ConvertTo-YamlString "IP-CIDR,1.1.1.1/32,$($Context.Group),no-resolve"),(ConvertTo-YamlString "IP-CIDR,8.8.8.8/32,$($Context.Group),no-resolve"))
@@ -329,7 +329,7 @@ function New-PvConfiguration {
         else { $text = "ipv6: false`n" + $text }
     }
     foreach ($section in @('proxies','proxy-groups','proxy-providers','rule-providers')) {
-        if ((Get-YamlSectionText $text $section) -cne (Get-YamlSectionText $Context.Text $section)) { throw "保护检查失败：$section" }
+        if ((Get-YamlSectionText $text $section) -cne (Get-YamlSectionText $Context.Text $section)) { throw (Get-PvText 'Error.SectionProtection' -Arguments @($section)) }
     }
     $originalRules = Get-YamlSectionText $Context.Text rules
     $resultRules = Get-YamlSectionText $text rules
@@ -340,7 +340,7 @@ function New-PvConfiguration {
         $ruleLines.RemoveRange(1,$extra.Count)
         $resultRules=$ruleLines -join "`n"
     }
-    if ($resultRules -cne $originalRules) { throw '原有分流规则保护检查失败。' }
+    if ($resultRules -cne $originalRules) { throw (Get-PvText 'Error.RoutingProtection') }
     $outer = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $Context.Outer -Depth 100) -AsHashtable
     $outer['flutter.config'] = ConvertTo-Json -InputObject $inner -Depth 100 -Compress
     @{Profile=$text;Preferences=(ConvertTo-Json -InputObject $outer -Depth 100 -Compress);Policies=$targets}

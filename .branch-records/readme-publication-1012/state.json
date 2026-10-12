@@ -16,8 +16,8 @@
     "Fix reproduced defects, validate affected Windows paths and both packages",
     "Registry validates; commit task changes and verify remote main after push"
   ],
-  "status": "active",
-  "integration": "unmerged",
+  "status": "complete",
+  "integration": "verified",
   "evidence": [
     "README.md",
     "STATE.md",
@@ -27,7 +27,7 @@
     "docs/validation/windows-012.json",
     "docs/validation/package-smoke.json"
   ],
-  "next": "Commit verified task files with push predeclaration; normal push main to origin/main, then verify matching local/remote SHA and clean worktree",
+  "next": "Prior push verified c61eea4; continue current i18n task",
   "baseCommit": "055302e840ab08085a9b9d62623bfd36a83536b7",
   "phase": "Windows validation passed; publication pending"
 }

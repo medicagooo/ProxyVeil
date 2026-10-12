@@ -1,0 +1,30 @@
+{
+  "integration": "unmerged",
+  "next": "Review implementation against task-start commit; fix findings; full Windows isolated/bilingual/package verification; predeclare and push main",
+  "requirements": [
+    "AGENTS.md",
+    ".branch-records/FORMAT.md",
+    "docs/i18n-plan.md"
+  ],
+  "status": "active",
+  "constraints": [
+    "Windows scope recommended in accepted plan; no Mac code/retests",
+    "Isolated tests only; real FlClash/Edge read-only; no real Repair/Restore/UAC/restart",
+    "Offline build; preserve status/config/snapshot contracts",
+    "Normal push main explicitly requested"
+  ],
+  "baseCommit": "c61eea4c4a07a30a1f568b09cee38f60252d9744",
+  "evidence": [
+    "STATE.md",
+    "docs/validation/i18n-implementation.md",
+    "docs/validation/i18n.json"
+  ],
+  "acceptance": [
+    "Removed slogan and corrected screenshots",
+    "Windows display language zh-* selects simplified Chinese; otherwise English; language stable across UI/worker/UAC",
+    "All user-facing Windows controls, progress, result and application errors translated",
+    "README.md English default; linked Chinese README; both packaged with images",
+    "Bilingual isolated flows/failures/layout pass; Standards/Spec review and fixes; verify remote main"
+  ],
+  "purpose": "Remove UI slogan; system-language English/Chinese Windows UI and worker; English-default bilingual README; review, repair, push main"
+}

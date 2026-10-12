@@ -17,6 +17,8 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'UI failure recovery failed' }
     & "$PSScriptRoot\Test-Progress.ps1"
     & "$PSScriptRoot\Test-HostReport.ps1"
+    & (Get-Process -Id $PID).Path -NoProfile -STA -File "$PSScriptRoot\Test-I18n.ps1"
+    if ($LASTEXITCODE -ne 0) { throw 'Localization verification failed' }
 }
 & "$PSScriptRoot\Validate-Registry.ps1"
 $dist=Join-Path $root 'dist'; $null=New-Item -ItemType Directory -Path $dist -Force
@@ -26,7 +28,9 @@ foreach ($edition in @('Standard','Administrator')) {
     $null=New-Item -ItemType Directory -Path "$package\scripts" -Force
     Copy-Item -LiteralPath "$root\src" -Destination $package -Recurse
     Copy-Item -LiteralPath "$PSScriptRoot\Launch.ps1" -Destination "$package\scripts\Launch.ps1"
+    Copy-Item -LiteralPath "$PSScriptRoot\Show-RuntimeRequirement.ps1" -Destination "$package\scripts\Show-RuntimeRequirement.ps1"
     Copy-Item -LiteralPath "$root\README.md" -Destination "$package\README.md"
+    Copy-Item -LiteralPath "$root\README.zh-CN.md" -Destination "$package\README.zh-CN.md"
     # The README uses fixture screenshots. Copy only these PNG assets, never
     # validation reports, live configuration, or recovery state into the ZIP.
     $imageDirectory=Join-Path $package 'docs/images'
