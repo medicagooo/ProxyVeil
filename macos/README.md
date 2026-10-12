@@ -34,5 +34,14 @@ Test offline with:
 python3 scripts/Test-macOS.py
 ```
 
+For Windows-hosted development, run `python scripts/Test-macOS-Portable.py`
+with the available Python runtime. It calls the same adapter functions on
+generated temporary fixtures and tests the host's native file lock. Windows
+uses msvcrt; macOS uses flock. The production CLI remains macOS-only.
+Results are saved separately in `docs/validation/macos-portable.json`; these
+tests do not validate macOS preferences, permissions or network behavior.
+The follow-up storage and acceptance plan is in
+[local-development-plan.md](../docs/local-development-plan.md).
+
 The Windows follow-up acceptance checklist is in
 [windows-stage2.md](../docs/validation/windows-stage2.md).

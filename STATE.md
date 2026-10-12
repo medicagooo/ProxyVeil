@@ -8,7 +8,7 @@
 
 ## Repository and authoritative records
 
-- 仓库及唯一工作区：D:/proj/ProxyVeil，分支 main；当前执行记录为 .branch-records/windows-stage2/。本次测试基线 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；开始时工作区干净，本次仅生成验证证据与修正状态记录，随本地任务提交保存。后续以 live Git 查询最终 HEAD 与脏状态。review-repair-v1、initial-v1 与 macos-support-v1 保留历史。
+- 仓库及唯一工作区：D:/proj/ProxyVeil；当前分支 1012-local-development，当前执行记录 .branch-records/local-development-v1/。本轮起点为 Windows 回归提交 59bd396951fe48cfaf06ecde26c5defffb883155，开始时工作区干净；分支声明提交 c10f79ff597bc29600105c17daa4489faf886a5d 在 main，随后创建任务分支。本轮代码与方案在任务分支本地提交，尚未集成 main 或推送；最终 HEAD 与脏状态以 live Git 核对。review-repair-v1、initial-v1、macos-support-v1 和 windows-stage2 保留历史。
 - 固定审查基线 b36d439f19c2cc0b7cbaa800d5cbe2f9c8f1a1e2；完整 Windows 报告 docs/review-0.1.1.md。Windows 身份更正已完成；本次 macOS 变更直接在 main 上提交，推送前仍查询 live Git，不由待提交文档自报。无部署或 Release。忽略 dist/ 与 work/；包哈希记录在 docs/validation/packages.json。
 - 需求权威：docs/spec-v1.md；Windows 决策：docs/adr/0001-desktop-and-recovery.md；macOS 决策：docs/adr/0002-macos-flclash.md；边界与调用：docs/agents/domain.md；场景：docs/scenario.md。
 - tracker：docs/agents/issue-tracker.md；首版任务 .scratch/v1/spec.md、map.md、issues/01..05；业务登记 BRANCHES.md 与 .branch-records/initial-v1/、review-repair-v1/。
@@ -19,6 +19,8 @@
 首版流程与复盘保留于 docs/retro.md。Windows 版本已完成独立 Standards/Spec 审查、修复与离线验证。2026-10-13 完成 macOS MVP 的代码审查、隔离验证和当前 Mac 只读实测；补充记录见 `docs/validation/macos.json` 与 `docs/validation/macos-host.json`。
 
 2026-10-12（UTC-04:00）在当前 Windows 11 主机完成第二阶段本地回归：PowerShell 7.6.5 与 7.6.6 各通过 8 项测试。两个便携包内源码与当前源码一致，未重建 ZIP；结果及各运行时证据见 `docs/validation/windows-stage2.json` 与 `docs/validation/windows-stage2/`。真实配置未修改，阶段整体仍为 partial。本次没有推送、部署或 Release。登记预检查发现 macos-support-v1 的 completed/merged 不符合现有 schema，已按既有完成及发布证据改为 complete/verified，校验通过。
+
+同日用户要求继续执行并尽量在本机开发。本轮完成 Windows 上的 macOS 测试基础与 [后续方案](docs/local-development-plan.md)：fcntl 延迟导入，Windows 夹具用 msvcrt 原生锁，macOS 保留 flock，生产 CLI 仍只接受 macOS。12 个 portable 场景、Windows 核心 117 条断言和 WPF UI 修复/还原通过。没有实现新偏好布局的生产修复；方案将此开发列为下一步。
 
 验收证据：
 
@@ -31,6 +33,7 @@
 - macos/proxyveil.py、scripts/Launch-macOS.sh、macos/README.md；macOS 不依赖第三方 Python 包，快照默认位于 `~/Library/Application Support/ProxyVeil`，隔离验证见 docs/validation/macos.json。
 - docs/validation/macos-host.json：当前 Mac 为 macOS 27.0.1、FlClash 0.8.99；隔离回归通过，真实配置使用 config.yaml/SQLite 布局，inspect 安全拒绝，未执行 repair。
 - docs/validation/windows-stage2.md、docs/validation/windows-stage2.json：Windows 11 的双运行时回归、UI 与包测试已通过；Windows 10、手工桌面 UI 和真实网络/UAC/TUN 待验收，整体状态 partial。
+- scripts/Test-macOS-Portable.py 与 docs/validation/macos-portable.json：Windows/Python 3.12.14 的 12 个隔离场景，覆盖文件恢复、跨进程锁及生产平台拒绝；不代表 macOS flock、原生偏好、权限或网络验收。docs/research/local-development.md 保存固定源码、存储事实与本机 VM 就绪情况。
 - README.md 说明启动、修复边界、还原及网络复测；docs/research/platforms.md 保存官方依据与检索日期；docs/review-v1.md 保存自审结论。
 
 ## Locked decisions and compatibility
@@ -39,7 +42,7 @@ PowerShell 7/WPF，源码与 ZIP 分发。Windows 启动器依次找 PATH、Prog
 
 安装地址可自动探测或手填；配置需 shared_preferences.json 的 flutter.config 字符串、数字 currentProfileId、patchClashConfig.tun/networkProps。DNS/IPv6 修改需要受支持的块式 YAML；仅 WebRTC 不解析 YAML 或选择 DNS 组。FlClash 0.8.99 结构已核验，其他版本遇不兼容时拒绝修改。复杂 YAML/锚点/多文档的 DNS 修改需要手工处理。
 
-当前 Mac 实测的 FlClash 0.8.99 使用 `config.yaml`、`database.sqlite` 与 `profiles/*.yaml`，不满足上述 shared_preferences 契约；该布局暂不写入，后续需单独设计适配与迁移测试。
+Mac 实测的 FlClash 0.8.99 使用 `config.yaml`、`database.sqlite` 与 `profiles/*.yaml`，不满足上述 shared_preferences.json 契约。后续源码核查表明，config.yaml 是已应用的核心配置，应用偏好通过 SharedPreferences 保存，macOS 使用 NSUserDefaults；SQLite 保存 profile、订阅及节点选择数据。适配应优先覆盖偏好存储和原始 profile，数据库仅只读核验。目标 Mac 的应用域、实际键与缓存/重启行为尚未核验；当前生产仍安全拒绝新布局。
 
 TUN DNS 使用 Mihomo 加密解析、严格路由及 UDP/TCP 53 接管；普通 TUN 要求 FlClashHelperService 已运行。Proxy 开系统代理、关 TUN，并设置 Edge secure DoH 和固定 DoH IP 的组路由；其他应用 DNS 需另验。节点引导走独立直连加密 DNS，避免代理解析循环。清空自定义解析策略可能影响内网站点。
 
@@ -53,31 +56,26 @@ macOS 不写 Windows 注册表，也不宣称可通过普通用户 plist 修改 
 
 | 优先级 | 项目/状态 | 前置与阻塞 | 就绪与结果 | 验证 |
 |---|---|---|---|---|
-| 1 | 当前 FlClash config.yaml/SQLite 适配；后续，未执行 | 需要确认 config.yaml 与数据库的写入契约及安全回滚方案 | 当前入口已安全拒绝，未修改真实配置 | docs/validation/macos-host.json |
+| 1 | NSUserDefaults/profile 布局适配；本机测试基础完成，适配待执行 | 固定源码已核实；需目标 Mac 只读确认偏好域/键，原生写入最后验证 | 本机可先做生成夹具、存储接口和恢复测试；生产新布局仍拒绝 | docs/local-development-plan.md；docs/validation/macos-portable.json |
 | 2 | Windows 第二阶段；本地回归完成，兼容性验收待补 | 需要 Windows 10 测试机或 VM 与手工桌面检查 | Windows 11 + PowerShell 7.6.5/7.6.6 全部自动回归通过；整体 partial | docs/validation/windows-stage2.json |
 | 3 | 真实网络/UAC/TUN 权限验收；后续，未执行 | 一次性 Windows/macOS 用户或 VM、FlClash 与可用节点 | 可在兼容布局和目标环境就绪后执行 | README 复测清单；保存无凭据结果 |
 | 4 | 新代理、其他浏览器；延期 | 新需求与适配规格 | 不启动；保持现有范围 | 新工单和 fixture |
 
-当前范围没有未解决的实现阻塞或未决产品选择。真实连接、代理组节点可用性、组织策略和用户账户类型由目标机决定，不能从夹具推断。
+当前本机测试基础已完成。新布局的原生偏好域和键仍需目标机只读确认；Windows 10 验收等待 VM 环境。本机的偏好夹具和接口开发可先推进。真实连接、代理组节点可用性、组织策略和用户账户类型由目标机决定，不能从夹具推断。
 
 ## Next executable action
 
-本次 Windows 本地回归已完成。下一项验收需要 Windows 10 测试机或 VM：将同一源码与两个 ZIP 放到隔离工作区，记录 OS 和 PowerShell 版本，执行以下命令，再检查启动与半透明回退界面，将新主机结果追加到 `docs/validation/windows-stage2.json`，保留当前 Windows 11 证据。当前主机无法补齐 Windows 10 实测；macOS config.yaml/SQLite 适配可另行推进，但本次未实施。真实 repair 仍需明确授权。
+继续在当前 Windows 工作区和 1012-local-development 分支执行。先核对下列测试与固定源码，再从 `macos/proxyveil.py/context` 和 `plan` 的偏好读写边界引入存储接口及生成的 XML/binary plist 夹具，验证 JSON 布局兼容与受管字段合并。依据 `work/flclash-contract/lib/common/preferences.dart`、`lib/common/constant.dart`、`lib/models/config.dart` 和 `lib/database/profiles.dart`；忽略目录丢失时从 docs/research/local-development.md 的固定链接重新读取。实际 Mac 域/键确认前，不启用新布局生产 repair。Windows 10 VM 等待环境时不阻塞本机开发。
 
 ```powershell
 Set-Location D:/proj/ProxyVeil
 git status --short
 if ($LASTEXITCODE -ne 0) { throw 'git status failed' }
-$PSVersionTable.PSVersion
-[System.Environment]::OSVersion.Version
-pwsh -NoProfile -File scripts/Test.ps1
-if ($LASTEXITCODE -ne 0) { throw 'engine test failed' }
-pwsh -NoProfile -STA -File scripts/Test-UI.ps1
-if ($LASTEXITCODE -ne 0) { throw 'UI test failed' }
-pwsh -NoProfile -STA -File scripts/Test-UI-Failure.ps1
-if ($LASTEXITCODE -ne 0) { throw 'UI failure test failed' }
-pwsh -NoProfile -File scripts/Test-Package.ps1
-if ($LASTEXITCODE -ne 0) { throw 'package test failed' }
+& 'C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' -X utf8 scripts/Test-macOS-Portable.py
+if ($LASTEXITCODE -ne 0) { throw 'portable fixture test failed' }
+pwsh -NoProfile -File scripts/Validate-Registry.ps1
+if ($LASTEXITCODE -ne 0) { throw 'registry validation failed' }
+Get-Content -LiteralPath docs/local-development-plan.md,docs/research/local-development.md
 ```
 
 重建使用 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Build.ps1`，成功后 `pwsh -NoProfile -File D:/proj/ProxyVeil/scripts/Test-Package.ps1`。这会写隔离测试、验证记录与本地包，不修改当前 FlClash/Edge。实际修复必须由用户点击修复按钮或明确授权对应机器；包路径和 SHA 每次构建重新核对。

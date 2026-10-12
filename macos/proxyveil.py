@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import fcntl
 import hashlib
 import json
 import os
@@ -352,10 +351,34 @@ def plan(ctx: dict[str, Any], mode: str, items: list[str], group: str | None) ->
 
 @contextlib.contextmanager
 def operation_lock(state: Path):
+    """Serialize fixture and production operations using the host's native lock.
+
+    Windows-hosted tests call the same repair/restore functions in temporary
+    directories. The production CLI still rejects hosts other than macOS;
+    macOS retains flock. See docs/local-development-plan.md for coverage.
+    """
     state.mkdir(parents=True, exist_ok=True, mode=0o700)
     with contextlib.suppress(OSError):
         os.chmod(state, 0o700)
     path = state / "operation.lock"
+    if sys.platform == "win32":
+        import msvcrt
+
+        with path.open("a+b") as stream:
+            stream.seek(0)
+            try:
+                msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+            except OSError as exc:
+                raise ProxyVeilError("已有操作正在执行，或无法获取操作锁。") from exc
+            try:
+                yield
+            finally:
+                stream.seek(0)
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+        return
+
+    import fcntl
+
     with path.open("a+") as stream:
         try:
             fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)

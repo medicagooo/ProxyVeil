@@ -8,6 +8,8 @@
 
 引擎先持久化 before/after manifest，再写文件或 HKCU Edge 策略；配置文本、字节恢复和失败回退均先写同目录临时文件再替换。每个还原目标接受记录的 before/after；外部偏好仅合并受管字段，YAML 漂移停止覆盖。此契约由 Test.ps1、Test-Progress.ps1 与 Test-UI-Recovery.ps1 覆盖。夹具用模拟注册表；生产路径修改真实用户策略，不能混用。
 
+`macos/proxyveil.py/operation_lock` 按宿主平台选择 flock 或 Windows msvcrt 单字节锁；平台模块在获取锁时导入。`main` 仍拒绝非 macOS，Windows 仅通过 `scripts/Test-macOS-Portable.py` 在临时夹具调用同一 context/plan/repair/restore，覆盖恢复和跨进程互斥。此测试不验证 macOS 原生偏好或网络效果；旧 CLI 集成入口 `scripts/Test-macOS.py` 保留。新布局的数据流和待验证偏好契约见 `docs/local-development-plan.md`。
+
 `Core/Test-PvPolicyEqual` 比较存在性、RegistryValueKind 与 JSON 结构值，保持 MultiString/Binary 的元素边界。UI 的 `Start-PvWork` 同时捕获请求准备与启动失败；快照 JSON 损坏时依据 active.json 的存在性保留还原入口。worker 失败返回相同存在性，不删除快照。回归入口：`scripts/Test-Review.ps1`、`scripts/Test-UI-Failure.ps1`，由 Build.ps1 一并执行。
 
 `Core/Get-PvRegistryValue` 保存未展开的 ExpandString 原文；`Set-PvRegistryValue` 将 JSON 数组恢复为 string[]/byte[]，保留空数组及单元素数组。Get/Set-PvPolicy 生产路径调用这两个内部函数；Test-Registry.ps1 在随机 HKCU Software/ProxyVeil.Test-* 临时键验证同一路径并清理，覆盖 11 个原生类型序列化还原场景，不修改 Edge 策略。

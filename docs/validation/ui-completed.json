@@ -1,8 +1,8 @@
 {
-  "nativeAcrylicAccepted": true,
   "fixture": true,
-  "width": 620.0,
+  "nativeAcrylicAccepted": true,
   "height": 790.0,
+  "width": 620.0,
   "actualNetworkTest": false,
   "state": "Completed"
 }

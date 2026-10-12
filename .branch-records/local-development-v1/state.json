@@ -14,9 +14,11 @@
     "Windows product regression passes after development changes",
     "Save a concrete local-development plan with primary sources, host readiness and next executable steps"
   ],
-  "status": "active",
+  "status": "complete",
   "integration": "unmerged",
-  "evidence": ["STATE.md"],
+  "evidence": ["STATE.md", "docs/local-development-plan.md", "docs/research/local-development.md", "docs/validation/macos-portable.json", "docs/validation/engine.json", "docs/validation/ui.json"],
   "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
-  "next": "Create the declared 1012-local-development branch, enable portable fixture testing and document the verified FlClash layout contract"
+  "completedAt": "2026-10-12T14:23:14-04:00",
+  "result": "Local development foundation and sourced plan complete; 12 portable tests plus Windows core/UI pass. NSUserDefaults/new-layout implementation and native acceptance remain future work",
+  "next": "On this Windows host implement generated preference/plist fixtures and a storage interface around macos/proxyveil.py context/plan; confirm the actual Mac preference domain/key by read-only inspection before enabling new-layout production repair"
 }

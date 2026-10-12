@@ -1,10 +1,6 @@
 {
   "pending": [
     {
-      "task": "local-development-v1",
-      "event": "create-local-development-branch"
-    },
-    {
       "task": "review-repair-v1",
       "event": "rewrite-identity"
     },
@@ -14,6 +10,23 @@
     }
   ],
   "changes": [
+    {
+      "id": "macos-portable-development",
+      "request": "request-local-development",
+      "date": "2026-10-12",
+      "implementedAt": "2026-10-12T14:23:14-04:00",
+      "integratedAt": null,
+      "deployedAt": null,
+      "status": "implemented",
+      "domain": "desktop privacy development",
+      "business": "Develop and verify macOS configuration recovery on the Windows host",
+      "before": "Top-level fcntl import prevented Windows from loading the macOS adapter or running its recovery tests",
+      "after": "Platform lock imports occur on use; Windows fixture tests exercise the same repair/restore functions using a native msvcrt lock; macOS retains flock",
+      "reason": "Keep follow-up development on the current computer where practical",
+      "affected": ["macOS adapter developers", "macos/proxyveil.py operation_lock/main", "isolated file recovery tests"],
+      "rules": "Production CLI remains macOS-only; no live settings or database writes; fixture success does not establish macOS native or network acceptance; new-layout adapter remains planned",
+      "evidence": ["macos/proxyveil.py", "scripts/Test-macOS-Portable.py", "docs/validation/macos-portable.json", "docs/local-development-plan.md"]
+    },
     {
       "status": "implemented",
       "deployedAt": null,
@@ -135,5 +148,5 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": ["local-development-v1"]
+  "active": []
 }
