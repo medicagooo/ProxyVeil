@@ -28,7 +28,7 @@
       "domain": "desktop privacy",
       "id": "privacy-v1",
       "implementedAt": "2026-10-10T16:05:22.4086128-04:00",
-      "integratedAt": null,
+      "integratedAt": "2026-10-13T00:51:06+08:00",
       "before": "CLI script",
       "reason": "Reuse privacy configuration on other Windows machines through an application instead of a standalone script",
       "affected": [
@@ -121,7 +121,5 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": [
-    "macos-support-v1"
-  ]
+  "active": []
 }

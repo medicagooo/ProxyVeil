@@ -55,7 +55,7 @@ macOS 不写 Windows 注册表，也不宣称可通过普通用户 plist 修改 
 
 ## Next executable action
 
-本次已完成 macOS 变更 review、隔离测试与静态检查；下一步是提交并推送 main，然后核验远端 SHA。不修改用户真实 FlClash/Edge 配置。推送前查询远端 SHA，若远端发生变化先停止，不扩大覆盖范围。只读入口：
+本次 macOS 变更已完成 review、隔离测试、bug repair、提交与推送；远端 `origin/main` 已核验为 `a120acb6d5ce83f2e3a4d83b0156dee72df583b3`。未修改用户真实 FlClash/Edge 配置。后续只剩真实 macOS FlClash、Network Extension 与网络环境验收。
 
 ```powershell
 Set-Location D:/proj/ProxyVeil
