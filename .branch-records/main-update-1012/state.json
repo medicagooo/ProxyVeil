@@ -20,5 +20,6 @@
     "docs/validation/macos-host.json",
     "docs/validation/windows-012.md"
   ],
-  "next": "Merge pinned remote main, reconcile STATE.md, validate registry and commit locally"
+  "next": "Verify final local main contains both source commits and is clean; reconcile this operation pending pointer at the next otherwise-required registry update",
+  "result": "Merge index resolved; both local cleanup and remote Mac acceptance records retained. Registry and report JSON validation passed; final commit/ref verification follows."
 }

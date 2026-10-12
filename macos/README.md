@@ -9,8 +9,10 @@ Only the current-user/any-host `flutter.config` string is changed through
 CoreFoundation. SQLite is read-only; applied `config.yaml` is never replaced.
 Unknown schemas, types, inconsistent profile IDs and pending WAL fail before
 writes. Exit FlClash completely before new-layout repair/restore so its cached
-preferences cannot overwrite changes. Native acceptance on the actual Mac is
-still pending; the earlier host validation predates this adapter.
+preferences cannot overwrite changes. Native repair/restore and application
+restart have been accepted on the actual Mac; the remaining network result is
+partial because Google HTTPS timed out. See
+[`macos-host.json`](../docs/validation/macos-host.json) for the recorded runs.
 
 ```sh
 ./scripts/Launch-macOS.sh inspect --install-path /Applications/FlClash.app --config-directory "$HOME/Library/Application Support/com.follow.clash"

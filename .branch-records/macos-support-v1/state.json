@@ -24,5 +24,5 @@
   "commit": "a120acb6d5ce83f2e3a4d83b0156dee72df583b3",
   "remote": "origin/main",
   "remoteSha": "a120acb6d5ce83f2e3a4d83b0156dee72df583b3",
-  "next": "No further action in this task; real macOS FlClash and Network Extension acceptance remains environment-dependent."
+  "next": "Native macOS repair/restore and app restart are verified; network acceptance remains pending because HTTPS probes timed out."
 }

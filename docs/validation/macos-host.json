@@ -4,19 +4,40 @@
   "platform": "macOS 27.0.1",
   "python": "3.14.6",
   "commands": [
-    "python3 scripts/Test-macOS.py",
-    "./scripts/Launch-macOS.sh inspect"
+    "python3 -X utf8 scripts/Test-macOS.py",
+    "python3 -X utf8 scripts/Test-macOS-Portable.py",
+    "python3 -X utf8 scripts/Test-macOS-Preferences.py",
+    "./scripts/Launch-macOS.sh inspect --install-path /Applications/FlClash.app --config-directory ~/Library/Application Support/com.follow.clash"
   ],
   "isolatedRegression": "passed",
-  "liveInspect": "unsupported-config-layout",
+  "liveInspect": "passed",
   "flclash": {
     "version": "0.8.99",
     "application": "/Applications/FlClash.app",
     "dataDirectory": "~/Library/Application Support/com.follow.clash",
     "observedFiles": ["config.yaml", "database.sqlite", "profiles/*.yaml"],
-    "expectedSharedPreferences": false
+    "preferencesDomain": "com.follow.clash",
+    "preferencesKey": "flutter.config",
+    "preferencesType": "string",
+    "databaseSchema": 10,
+    "selectedProfileVerified": true
   },
   "liveConfigurationModified": false,
-  "repairExecuted": false,
-  "message": "当前安装没有 shared_preferences.json；MVP 安全拒绝 inspect/repair，需要后续适配 config.yaml/SQLite 数据布局。"
+  "liveConfigurationChangedDuringTest": true,
+  "liveConfigurationRestored": true,
+  "repairExecuted": true,
+  "restoreExecuted": true,
+  "runtimeRestart": "passed",
+  "network": {
+    "domesticHttps": "passed",
+    "proxyHttps": "timeout",
+    "dnsAndIpv6": "not_confirmed_from_network",
+    "observations": [
+      "TUN repair run: 百度与 Google HTTPS 均超时。",
+      "restore 后基线: 百度返回 HTTP 200，Google HTTPS 超时。",
+      "Proxy 模式: 百度返回 HTTP 200，Google HTTPS 超时。"
+    ],
+    "message": "百度 HTTPS 在 restore 后基线与 Proxy 模式通过；Google HTTPS 仍超时，DNS/IPv6 未由网络结果确认。"
+  },
+  "message": "真实 repair/restore 与应用重启通过，快照已清除；配置当前已恢复。WebRTC 仍由 macOS 配置描述文件或 MDM 管理。"
 }
