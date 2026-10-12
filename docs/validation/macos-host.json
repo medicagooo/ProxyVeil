@@ -29,10 +29,15 @@
   "restoreExecuted": true,
   "runtimeRestart": "passed",
   "network": {
-    "domesticHttps": "timeout",
+    "domesticHttps": "passed",
     "proxyHttps": "timeout",
     "dnsAndIpv6": "not_confirmed_from_network",
-    "message": "两次 HTTPS 探测均超时；未将网络结果判定为通过。"
+    "observations": [
+      "TUN repair run: 百度与 Google HTTPS 均超时。",
+      "restore 后基线: 百度返回 HTTP 200，Google HTTPS 超时。",
+      "Proxy 模式: 百度返回 HTTP 200，Google HTTPS 超时。"
+    ],
+    "message": "百度 HTTPS 在 restore 后基线与 Proxy 模式通过；Google HTTPS 仍超时，DNS/IPv6 未由网络结果确认。"
   },
   "message": "真实 repair/restore 与应用重启通过，快照已清除；配置当前已恢复。WebRTC 仍由 macOS 配置描述文件或 MDM 管理。"
 }
