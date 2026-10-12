@@ -1,10 +1,10 @@
 {
-  "actualNetworkTest": false,
-  "state": "Idle",
-  "forcedOpaque": false,
-  "height": 790.0,
-  "nativeAcrylicAccepted": true,
   "fixture": true,
+  "height": 790.0,
+  "width": 620.0,
+  "actualNetworkTest": false,
+  "nativeAcrylicAccepted": true,
   "background": "#D4E9F1F7",
-  "width": 620.0
+  "forcedOpaque": false,
+  "state": "Idle"
 }

@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-12T16:46:16.8361492-04:00",
+  "powerShell": "7.6.6",
+  "results": [
+    {
+      "case": "complete inspection with separate HTTPS failure",
+      "result": "passed",
+      "expectedRejection": false
+    },
+    {
+      "case": "late IOException after successful Inspect",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "missing completion marker",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "FlClash file drift",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "missing file hash result",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "Edge policy drift",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "missing policy comparison",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "failed Proxy plan",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "missing TUN plan",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "failed SID guard",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "missing unelevated guard",
+      "result": "passed",
+      "expectedRejection": true
+    },
+    {
+      "case": "elevated host needs only SID guard",
+      "result": "passed",
+      "expectedRejection": false
+    }
+  ],
+  "scope": "Synthetic reports; no host configuration or network access"
+}

@@ -7,6 +7,10 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
+    },
+    {
+      "event": "push-readme-main",
+      "task": "readme-publication-1012"
     }
   ],
   "changes": [
@@ -194,6 +198,11 @@
       "id": "windows-tests-1012",
       "events": ".branch-records/windows-tests-1012/events.jsonl",
       "state": ".branch-records/windows-tests-1012/state.json"
+    },
+    {
+      "id": "readme-publication-1012",
+      "state": ".branch-records/readme-publication-1012/state.json",
+      "events": ".branch-records/readme-publication-1012/events.jsonl"
     }
   ],
   "read": [
@@ -201,5 +210,7 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": []
+  "active": [
+    "readme-publication-1012"
+  ]
 }

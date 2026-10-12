@@ -1,7 +1,7 @@
 {
-  "liveConfigurationModified": false,
   "result": "passed",
-  "reads": 603,
   "scope": "Concurrent shared-read UI seam / actual worker append",
-  "at": "2026-10-12T16:18:16.8347581-04:00"
+  "at": "2026-10-12T16:45:31.7889124-04:00",
+  "liveConfigurationModified": false,
+  "reads": 592
 }

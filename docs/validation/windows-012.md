@@ -1,5 +1,7 @@
 # Windows 0.1.2 验收
 
+README 发布任务的最新验证见 [readme-publication.json](readme-publication.json)：两个运行时各执行 9 项 suite，核心输出 122 条断言，新增 12 个宿主报告判断回归场景。两个 ZIP 增加 README 的三张隔离截图，解压后的图片引用与修复 / 还原均通过。下文的 8 项 suite 是此前测试批次记录，桌面交互证据继续保留；本次未执行 Mac 或真实 Repair / Restore。
+
 2026-10-12，Windows 11 Pro N build 26300。本轮自动验收通过，整体状态仍为 partial。用户随后明确取消 Windows 10 单独验收，以 Windows 11 验收为准；不再需要准备 Windows 10 VM 或 ISO。
 
 PowerShell 7.6.5 与 7.6.6 各执行 8 项 suite：核心 118 条断言、review 7 场景、原生注册表 11 个往返、WPF 修复/还原、窗口故障、进度恢复、并发进度读取，以及两个解压包。所有测试通过。原生注册表只用随机 HKCU Software/ProxyVeil.Test-*，剩余键为 0；未修改真实 FlClash 或 Edge。

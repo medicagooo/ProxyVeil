@@ -1,0 +1,147 @@
+{
+  "at": "2026-10-12T16:47:04.9435604-04:00",
+  "os": "Microsoft Windows 11 Pro N",
+  "build": "26300",
+  "powerShell": "7.6.6",
+  "scope": "Read-only live FlClash/Edge inspection and existing-network baseline",
+  "administrator": false,
+  "liveConfigurationModified": false,
+  "repairExecuted": false,
+  "restoreExecuted": false,
+  "realUacTest": false,
+  "postRepairLeakAcceptance": "not_executed",
+  "networkBaseline": [
+    {
+      "transport": "HttpClient_default_proxy",
+      "httpStatus": 200,
+      "target": "domestic_https",
+      "result": "passed",
+      "elapsedMs": 1220
+    },
+    {
+      "transport": "explicit_loopback_proxy",
+      "httpStatus": 200,
+      "target": "domestic_https",
+      "result": "passed",
+      "elapsedMs": 748
+    },
+    {
+      "transport": "HttpClient_default_proxy",
+      "httpStatus": 200,
+      "target": "proxy_site_https",
+      "result": "passed",
+      "elapsedMs": 1282
+    },
+    {
+      "transport": "explicit_loopback_proxy",
+      "httpStatus": 200,
+      "target": "proxy_site_https",
+      "result": "passed",
+      "elapsedMs": 1044
+    }
+  ],
+  "flclash": {
+    "running": true,
+    "mode": "TUN",
+    "preferencesStructure": "recognized",
+    "installPath": "C:\\Users\\medic\\OneDrive\\Documents\\APP\\FlClash-0.8.99-windows-amd64\\FlClash.exe",
+    "version": "0.8.99+2026100301",
+    "configDirectory": "C:\\Users\\medic\\AppData\\Roaming\\com.follow\\clash",
+    "selectedProfileVerified": true
+  },
+  "inMemoryPlans": [
+    {
+      "plannedFileTargets": [
+        "Selected profile YAML",
+        "shared_preferences.json"
+      ],
+      "policyNames": [
+        "DnsOverHttpsMode",
+        "WebRtcIPHandlingUrl",
+        "WebRtcLocalhostIpHandling",
+        "WebRtcRespectOsRoutingTableEnabled"
+      ],
+      "result": "passed",
+      "mode": "TUN",
+      "valuesSaved": false
+    },
+    {
+      "plannedFileTargets": [
+        "Selected profile YAML",
+        "shared_preferences.json"
+      ],
+      "policyNames": [
+        "DnsOverHttpsMode",
+        "DnsOverHttpsTemplates",
+        "WebRtcIPHandlingUrl",
+        "WebRtcLocalhostIpHandling",
+        "WebRtcRespectOsRoutingTableEnabled"
+      ],
+      "result": "passed",
+      "mode": "Proxy",
+      "valuesSaved": false
+    }
+  ],
+  "liveInspect": {
+    "proxyGroupCount": 27,
+    "result": "Inspected",
+    "activeSnapshot": false
+  },
+  "permissionGuards": [
+    {
+      "result": "passed",
+      "case": "different_user_sid"
+    },
+    {
+      "result": "passed",
+      "case": "administrator_without_elevated_token"
+    }
+  ],
+  "helperService": "Running",
+  "localProxy": {
+    "port": 7890,
+    "portSource": "applied config.yaml mixed-port",
+    "tcpConnect": "passed"
+  },
+  "flclashFilesUnchangedDuringProbe": true,
+  "inspectionResult": "passed",
+  "edgePolicies": [
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "WebRtcLocalhostIpHandling"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "WebRtcRespectOsRoutingTableEnabled"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "WebRtcIPHandlingUrl"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "DnsOverHttpsMode"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "DnsOverHttpsTemplates"
+    }
+  ],
+  "edgePoliciesUnchangedDuringProbe": true,
+  "activeSnapshotExists": false
+}

@@ -16,6 +16,7 @@ if (-not $SkipTests) {
     & (Get-Process -Id $PID).Path -NoProfile -STA -File "$PSScriptRoot\Test-UI-Failure.ps1"
     if ($LASTEXITCODE -ne 0) { throw 'UI failure recovery failed' }
     & "$PSScriptRoot\Test-Progress.ps1"
+    & "$PSScriptRoot\Test-HostReport.ps1"
 }
 & "$PSScriptRoot\Validate-Registry.ps1"
 $dist=Join-Path $root 'dist'; $null=New-Item -ItemType Directory -Path $dist -Force
@@ -26,6 +27,13 @@ foreach ($edition in @('Standard','Administrator')) {
     Copy-Item -LiteralPath "$root\src" -Destination $package -Recurse
     Copy-Item -LiteralPath "$PSScriptRoot\Launch.ps1" -Destination "$package\scripts\Launch.ps1"
     Copy-Item -LiteralPath "$root\README.md" -Destination "$package\README.md"
+    # The README uses fixture screenshots. Copy only these PNG assets, never
+    # validation reports, live configuration, or recovery state into the ZIP.
+    $imageDirectory=Join-Path $package 'docs/images'
+    $null=New-Item -ItemType Directory -Path $imageDirectory -Force
+    foreach ($image in Get-ChildItem -LiteralPath "$root\docs\images" -Filter '*.png' -File) {
+        Copy-Item -LiteralPath $image.FullName -Destination $imageDirectory
+    }
     $launcher=if ($edition -eq 'Standard') { 'ProxyVeil.cmd' } else { 'ProxyVeil.Admin.cmd' }
     Copy-Item -LiteralPath (Join-Path $root $launcher) -Destination (Join-Path $package $launcher)
     $zip=Join-Path $dist "$name.zip"

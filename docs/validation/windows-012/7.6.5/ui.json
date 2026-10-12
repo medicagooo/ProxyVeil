@@ -1,7 +1,7 @@
 {
-  "nativeAcrylicVisual": "not captured by offscreen render",
   "scope": "WPF render, button repair and restore with real isolated worker",
-  "liveConfigurationModified": false,
+  "at": "2026-10-12T16:45:18.1887077-04:00",
+  "nativeAcrylicVisual": "not captured by offscreen render",
   "result": "passed",
-  "at": "2026-10-12T16:18:03.1394631-04:00"
+  "liveConfigurationModified": false
 }

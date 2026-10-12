@@ -1,0 +1,95 @@
+{
+  "regressions": {
+    "readmeImagesPerPackage": 3,
+    "hostReportCases": 12,
+    "originalLateErrorBugReproduced": true,
+    "oldPackageIllustrationsMissingReproduced": true
+  },
+  "readOnlyHost": [
+    {
+      "filesUnchanged": true,
+      "policiesUnchanged": true,
+      "report": "docs/validation/windows-012/7.6.5/windows-host.json",
+      "hostResult": "passed",
+      "powerShell": "7.6.5"
+    },
+    {
+      "filesUnchanged": true,
+      "policiesUnchanged": true,
+      "report": "docs/validation/windows-012/7.6.6/windows-host.json",
+      "hostResult": "passed",
+      "powerShell": "7.6.6"
+    }
+  ],
+  "isolatedWindowsRuntimes": [
+    {
+      "result": "passed",
+      "powerShell": "7.6.5",
+      "suites": 9,
+      "evidence": "docs/validation/windows-012/7.6.5",
+      "runtime": "C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "desktopResult": "passed",
+      "desktopEvidence": "docs/validation/windows-012/7.6.5/windows-desktop.json"
+    },
+    {
+      "result": "passed",
+      "powerShell": "7.6.6",
+      "suites": 9,
+      "evidence": "docs/validation/windows-012/7.6.6",
+      "runtime": "C:/Users/medic/AppData/Local/Microsoft/WindowsApps/pwsh.exe",
+      "desktopResult": "passed",
+      "desktopEvidence": "docs/validation/windows-012/7.6.6/windows-desktop.json"
+    }
+  ],
+  "macOSRetested": false,
+  "liveConfigurationModified": false,
+  "imagesProvenance": "docs/images/README.md",
+  "published": false,
+  "postRepairLeakTest": false,
+  "publicationNote": "Evidence generated before commit/push; verify actual origin/main SHA after predeclared push. No Release upload.",
+  "packages": [
+    {
+      "bytes": 190680,
+      "path": "dist/ProxyVeil-0.1.2-Standard.zip",
+      "edition": "Standard",
+      "sha256": "385BC91982C9C7FEAEF8429B3D62EED770F781E3E3383FBDBB38793F20703053"
+    },
+    {
+      "bytes": 190835,
+      "path": "dist/ProxyVeil-0.1.2-Administrator.zip",
+      "edition": "Administrator",
+      "sha256": "70CE2FD1DE6714E2A54C9216401B98285C8753BF175491CA1BCE3A2E52C17E32"
+    }
+  ],
+  "baseCommit": "055302e840ab08085a9b9d62623bfd36a83536b7",
+  "at": "2026-10-12T16:47:10.6876489-04:00",
+  "realUacTest": false,
+  "status": "passed",
+  "testedFileHashes": [
+    {
+      "path": "scripts/Test-WindowsHost.ps1",
+      "sha256": "71A0310DE5E608AEB13F93C2813D445180217D46BE60F8DE5C84F36677E5A90A"
+    },
+    {
+      "path": "tests/WindowsHost.Assertions.ps1",
+      "sha256": "DB8CF2E5727D4E480670896B61AB057C3E96E0D8C8BB0984C0C40C52C9A7E0F6"
+    },
+    {
+      "path": "scripts/Test-HostReport.ps1",
+      "sha256": "14C8DEB01846717FA1078D7A17D2038E564CD20CD44CA64977C3E4E77CB3C23B"
+    },
+    {
+      "path": "scripts/Test-WindowsAcceptance.ps1",
+      "sha256": "52A5FD594975C0AD4BC25920B5DF2157F592CA1965FA3970903626B53362B42A"
+    },
+    {
+      "path": "scripts/Build.ps1",
+      "sha256": "D5546B49872F0AC8C8A99B43597285DFCCBD8EEC66174F192F3EC133451440A3"
+    },
+    {
+      "path": "scripts/Test-Package.ps1",
+      "sha256": "655782FD403342346E999AE80BA7A9D4EC8F67B794E9AA9999C976F42B519DD1"
+    }
+  ],
+  "readmeSha256": "C4782CC652981E769D8DBCBD72953C4E8449AB151C15F609E93CAD85FA11A4AD"
+}

@@ -13,11 +13,19 @@ foreach ($edition in @('Standard','Administrator')) {
     $dir=Join-Path $suite $edition
     [IO.Compression.ZipFile]::ExtractToDirectory($zip,$dir)
     $package=Join-Path $dir $name
+    $readme=Get-Content -LiteralPath (Join-Path $package 'README.md') -Raw
+    $images=@([regex]::Matches($readme, '!\[[^\]]*\]\(([^)]+)\)') | ForEach-Object { $_.Groups[1].Value })
+    if (-not $images.Count) { throw "$edition README has no illustrated usage" }
+    foreach ($image in $images) {
+        if ($image -notmatch '^docs/images/[a-z0-9-]+\.png$' -or -not (Test-Path -LiteralPath (Join-Path $package $image) -PathType Leaf)) {
+            throw "$edition README image missing or outside packaged image directory: $image"
+        }
+    }
     $fixture=Join-Path $dir 'fixture'; $req=New-PvTestFixture $fixture
     & (Get-Process -Id $PID).Path -NoProfile -STA -File "$package\src\Start-ProxyVeil.ps1" -Edition $edition -FixtureRoot $fixture -StateDirectory $req.StateDirectory -SmokeTest
     if ($LASTEXITCODE -ne 0) { throw "Extracted $edition package failed" }
     if (Get-PvActiveSnapshot $req.StateDirectory) { throw 'Package restore left an active snapshot' }
-    $results+=@(@{edition=$edition;repairRestore='passed';sha256=(Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash;realUacTest=$false})
+    $results+=@(@{edition=$edition;repairRestore='passed';readmeImages=$images;sha256=(Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash;realUacTest=$false})
 }
 Save-PvJson "$root\docs\validation\package-smoke.json" @{at=(Get-Date).ToString('o');scope='Extracted portable UI -> worker -> repair -> restore';liveConfigurationModified=$false;results=$results}
 'PASS: both extracted packages'

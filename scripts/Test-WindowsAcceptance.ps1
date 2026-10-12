@@ -4,13 +4,13 @@ param([Parameter(Mandatory)][string[]]$PowerShellPaths)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $results=@()
-$reports=@('engine','review-regressions','registry','ui','ui-recovery','ui-failure','progress')
+$reports=@('engine','review-regressions','registry','ui','ui-recovery','ui-failure','progress','host-report')
 foreach ($runtime in $PowerShellPaths) {
     $version=& $runtime -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
     if ($LASTEXITCODE -ne 0) { throw "Cannot query runtime: $runtime" }
     $destination=Join-Path $root "docs/validation/windows-012/$version"
     $null=New-Item -ItemType Directory -Path $destination -Force
-    foreach ($suite in @('Test','Test-Review','Test-Registry','Test-UI','Test-UI-Recovery','Test-UI-Failure','Test-Progress')) {
+    foreach ($suite in @('Test','Test-Review','Test-Registry','Test-UI','Test-UI-Recovery','Test-UI-Failure','Test-Progress','Test-HostReport')) {
         & $runtime -NoProfile -STA -File (Join-Path $PSScriptRoot "$suite.ps1")
         if ($LASTEXITCODE -ne 0) { throw "$suite failed on $version" }
     }
@@ -20,7 +20,7 @@ foreach ($runtime in $PowerShellPaths) {
     foreach ($name in @('ui-idle','ui-settings','ui-completed','ui-opaque')) {
         Copy-Item -LiteralPath (Join-Path $root "docs/validation/$name.json") -Destination $destination -Force
     }
-    $results+=@{powerShell=$version;runtime=$runtime;result='passed';suites=7;evidence="docs/validation/windows-012/$version"}
+    $results+=@{powerShell=$version;runtime=$runtime;result='passed';suites=$reports.Count;evidence="docs/validation/windows-012/$version"}
 }
 # All source suites have passed; rebuild once, then verify each runtime against
 # the same packages. Package tests use fixtures and do not exercise real UAC.
@@ -30,7 +30,7 @@ foreach ($run in $results) {
     & $run.runtime -NoProfile -STA -File (Join-Path $PSScriptRoot 'Test-Package.ps1')
     if ($LASTEXITCODE -ne 0) { throw "Packages failed on $($run.powerShell)" }
     Copy-Item -LiteralPath (Join-Path $root 'docs/validation/package-smoke.json') -Destination (Join-Path $root $run.evidence) -Force
-    $run.suites=8
+    $run.suites=$reports.Count+1
 }
 $keys=@(Get-ChildItem -LiteralPath 'HKCU:\Software' | Where-Object PSChildName -Like 'ProxyVeil.Test-*')
 if ($keys.Count) { throw 'Native registry test keys remain' }

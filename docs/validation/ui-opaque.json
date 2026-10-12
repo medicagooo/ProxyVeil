@@ -1,10 +1,10 @@
 {
+  "background": "#E6E9F1F7",
+  "state": "Settings",
+  "height": 790.0,
+  "forcedOpaque": true,
   "width": 620.0,
   "fixture": true,
-  "background": "#E6E9F1F7",
-  "height": 790.0,
-  "actualNetworkTest": false,
-  "forcedOpaque": true,
   "nativeAcrylicAccepted": false,
-  "state": "Settings"
+  "actualNetworkTest": false
 }

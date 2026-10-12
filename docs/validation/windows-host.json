@@ -1,8 +1,8 @@
 {
-  "at": "2026-10-12T16:26:47.1400704-04:00",
+  "at": "2026-10-12T16:47:04.9435604-04:00",
   "os": "Microsoft Windows 11 Pro N",
   "build": "26300",
-  "powerShell": "7.6.5",
+  "powerShell": "7.6.6",
   "scope": "Read-only live FlClash/Edge inspection and existing-network baseline",
   "administrator": false,
   "liveConfigurationModified": false,
@@ -12,63 +12,64 @@
   "postRepairLeakAcceptance": "not_executed",
   "networkBaseline": [
     {
-      "elapsedMs": 1111,
-      "result": "passed",
       "transport": "HttpClient_default_proxy",
       "httpStatus": 200,
-      "target": "domestic_https"
+      "target": "domestic_https",
+      "result": "passed",
+      "elapsedMs": 1220
     },
     {
-      "elapsedMs": 7160,
-      "result": "passed",
       "transport": "explicit_loopback_proxy",
       "httpStatus": 200,
-      "target": "domestic_https"
+      "target": "domestic_https",
+      "result": "passed",
+      "elapsedMs": 748
     },
     {
-      "elapsedMs": 1076,
-      "result": "passed",
       "transport": "HttpClient_default_proxy",
       "httpStatus": 200,
-      "target": "proxy_site_https"
+      "target": "proxy_site_https",
+      "result": "passed",
+      "elapsedMs": 1282
     },
     {
-      "elapsedMs": 1281,
-      "result": "passed",
       "transport": "explicit_loopback_proxy",
       "httpStatus": 200,
-      "target": "proxy_site_https"
+      "target": "proxy_site_https",
+      "result": "passed",
+      "elapsedMs": 1044
     }
   ],
   "flclash": {
-    "configDirectory": "C:\\Users\\medic\\AppData\\Roaming\\com.follow\\clash",
     "running": true,
-    "version": "0.8.99+2026100301",
-    "selectedProfileVerified": true,
+    "mode": "TUN",
     "preferencesStructure": "recognized",
     "installPath": "C:\\Users\\medic\\OneDrive\\Documents\\APP\\FlClash-0.8.99-windows-amd64\\FlClash.exe",
-    "mode": "TUN"
+    "version": "0.8.99+2026100301",
+    "configDirectory": "C:\\Users\\medic\\AppData\\Roaming\\com.follow\\clash",
+    "selectedProfileVerified": true
   },
   "inMemoryPlans": [
     {
-      "mode": "TUN",
-      "valuesSaved": false,
-      "result": "passed",
+      "plannedFileTargets": [
+        "Selected profile YAML",
+        "shared_preferences.json"
+      ],
       "policyNames": [
         "DnsOverHttpsMode",
         "WebRtcIPHandlingUrl",
         "WebRtcLocalhostIpHandling",
         "WebRtcRespectOsRoutingTableEnabled"
       ],
+      "result": "passed",
+      "mode": "TUN",
+      "valuesSaved": false
+    },
+    {
       "plannedFileTargets": [
         "Selected profile YAML",
         "shared_preferences.json"
-      ]
-    },
-    {
-      "mode": "Proxy",
-      "valuesSaved": false,
-      "result": "passed",
+      ],
       "policyNames": [
         "DnsOverHttpsMode",
         "DnsOverHttpsTemplates",
@@ -76,69 +77,69 @@
         "WebRtcLocalhostIpHandling",
         "WebRtcRespectOsRoutingTableEnabled"
       ],
-      "plannedFileTargets": [
-        "Selected profile YAML",
-        "shared_preferences.json"
-      ]
+      "result": "passed",
+      "mode": "Proxy",
+      "valuesSaved": false
     }
   ],
   "liveInspect": {
-    "result": "Inspected",
     "proxyGroupCount": 27,
+    "result": "Inspected",
     "activeSnapshot": false
   },
   "permissionGuards": [
     {
-      "case": "different_user_sid",
-      "result": "passed"
+      "result": "passed",
+      "case": "different_user_sid"
     },
     {
-      "case": "administrator_without_elevated_token",
-      "result": "passed"
+      "result": "passed",
+      "case": "administrator_without_elevated_token"
     }
   ],
   "helperService": "Running",
   "localProxy": {
+    "port": 7890,
     "portSource": "applied config.yaml mixed-port",
-    "tcpConnect": "passed",
-    "port": 7890
+    "tcpConnect": "passed"
   },
   "flclashFilesUnchangedDuringProbe": true,
+  "inspectionResult": "passed",
   "edgePolicies": [
     {
-      "userExists": true,
       "machineExists": false,
-      "machineType": null,
-      "name": "WebRtcLocalhostIpHandling",
-      "userType": "String"
-    },
-    {
-      "userExists": true,
-      "machineExists": false,
-      "machineType": null,
-      "name": "WebRtcRespectOsRoutingTableEnabled",
-      "userType": "DWord"
-    },
-    {
-      "userExists": true,
-      "machineExists": false,
-      "machineType": null,
-      "name": "WebRtcIPHandlingUrl",
-      "userType": "String"
-    },
-    {
-      "userExists": true,
-      "machineExists": false,
-      "machineType": null,
-      "name": "DnsOverHttpsMode",
-      "userType": "String"
-    },
-    {
+      "userType": null,
       "userExists": false,
-      "machineExists": false,
       "machineType": null,
-      "name": "DnsOverHttpsTemplates",
-      "userType": null
+      "name": "WebRtcLocalhostIpHandling"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "WebRtcRespectOsRoutingTableEnabled"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "WebRtcIPHandlingUrl"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "DnsOverHttpsMode"
+    },
+    {
+      "machineExists": false,
+      "userType": null,
+      "userExists": false,
+      "machineType": null,
+      "name": "DnsOverHttpsTemplates"
     }
   ],
   "edgePoliciesUnchangedDuringProbe": true,

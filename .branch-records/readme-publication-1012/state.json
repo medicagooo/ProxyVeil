@@ -1,0 +1,33 @@
+{
+  "purpose": "Fix evidenced Windows validation defects and write an illustrated project README, then push main",
+  "requirements": [
+    "README.md",
+    "AGENTS.md",
+    ".branch-records/FORMAT.md"
+  ],
+  "constraints": [
+    "Preserve user choice: isolated tests and read-only real configuration; no macOS retesting",
+    "Use captured fixture screenshots; no secrets, profiles or snapshots in repository or packages",
+    "Offline Windows build; normal push to origin/main explicitly authorized"
+  ],
+  "acceptance": [
+    "README explains purpose, requirements, entrypoints, workflow and recovery with images",
+    "Correct stale statements against implementation and recorded Mac evidence without retesting Mac",
+    "Fix reproduced defects, validate affected Windows paths and both packages",
+    "Registry validates; commit task changes and verify remote main after push"
+  ],
+  "status": "active",
+  "integration": "unmerged",
+  "evidence": [
+    "README.md",
+    "STATE.md",
+    "docs/images/README.md",
+    "docs/validation/readme-publication.md",
+    "docs/validation/readme-publication.json",
+    "docs/validation/windows-012.json",
+    "docs/validation/package-smoke.json"
+  ],
+  "next": "Commit verified task files with push predeclaration; normal push main to origin/main, then verify matching local/remote SHA and clean worktree",
+  "baseCommit": "055302e840ab08085a9b9d62623bfd36a83536b7",
+  "phase": "Windows validation passed; publication pending"
+}

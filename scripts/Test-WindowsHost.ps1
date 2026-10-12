@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 Import-Module "$root/src/ProxyVeil.Core.psm1" -Force
+. "$root/tests/WindowsHost.Assertions.ps1"
 $os = Get-CimInstance Win32_OperatingSystem
 $report = [ordered]@{
     at = [DateTimeOffset]::UtcNow.ToOffset([TimeSpan]::FromHours(-4)).ToString('o')
@@ -90,6 +91,7 @@ try {
         if ($port -and $report.localProxy.tcpConnect -eq 'passed') { $report.networkBaseline += Test-PvHostHttps $site.label $site.url $port }
     }
     $report.flclashFilesUnchangedDuringProbe = ((Get-FileHash -LiteralPath $context.Preferences -Algorithm SHA256).Hash -eq $preferencesBefore -and (Get-FileHash -LiteralPath $context.Profile -Algorithm SHA256).Hash -eq $profileBefore)
+    $report.inspectionResult = 'passed'
 } catch {
     $report.inspectionErrorType = $_.Exception.GetBaseException().GetType().Name
     $report.inspectionResult = 'failed'
@@ -100,6 +102,5 @@ try {
     $report.activeSnapshotExists = Test-Path -LiteralPath (Join-Path (Get-PvDefaultStateDirectory) 'active.json')
     Save-PvJson "$root/docs/validation/windows-host.json" $report
 }
-if (-not $report.flclash -or $report.liveInspect.result -ne 'Inspected') { throw 'Live configuration inspection incomplete; see sanitized windows-host.json.' }
-if (@($report.inMemoryPlans | Where-Object result -ne 'passed').Count -or @($report.permissionGuards | Where-Object result -ne 'passed').Count) { throw 'Read-only plan/permission checks failed.' }
+Assert-PvWindowsHostReport $report
 'PASS: read-only Windows host inspection; network baseline recorded separately'
