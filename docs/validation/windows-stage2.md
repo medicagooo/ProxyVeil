@@ -1,6 +1,12 @@
 # Windows 第二阶段：回归与兼容性验收
 
-本阶段由 Windows 测试机或 VM 执行，目标是确认 macOS 适配提交没有破坏既有 PowerShell 7/WPF 产品，并补齐 Windows 10 与不同 PowerShell 7 运行时的证据。当前 Mac 没有 `pwsh`，本阶段尚未执行。
+本阶段确认 macOS 适配提交没有破坏既有 PowerShell 7/WPF 产品，并补齐 Windows 10 与不同 PowerShell 7 运行时的证据。
+
+2026-10-12 在 Windows 11 Pro N build 26300 上完成本地自动回归。PowerShell 7.6.5 与 7.6.6 分别通过核心、历史缺陷、原生注册表类型、UI、窗口错误、进度读取恢复、并发进度读取及便携包测试，每个版本共 8 项。核心各有 117 条断言，历史缺陷各 7 个场景，注册表各 11 个类型往返；普通版和管理员版 ZIP 均完成隔离修复与还原。
+
+结果见 [windows-stage2.json](windows-stage2.json)，两个运行时的独立证据位于 `windows-stage2/7.6.5/` 和 `windows-stage2/7.6.6/`。验证基线为 `8f3e9e40d690e9a6d63779ff3a4c6d4e90287134`；包内 `src/` 与该工作区源码一致，本次保留已有 ZIP 及哈希。随机注册表测试键已清理，真实 FlClash/Edge 配置未修改。
+
+阶段状态为 `partial`：Windows 10 启动与回退界面、目标桌面手工 UI 检查、真实 UAC/TUN 和浏览器网络验收仍待执行。离屏截图已检查，但不验证真实背景模糊。
 
 ## 运行顺序
 
@@ -13,6 +19,8 @@ pwsh -NoProfile -STA -File scripts\Test-UI.ps1
 pwsh -NoProfile -STA -File scripts\Test-UI-Failure.ps1
 pwsh -NoProfile -File scripts\Test-Package.ps1
 ```
+
+本次还执行了 `Test-Review.ps1`、`Test-Registry.ps1`、`Test-UI-Recovery.ps1` 和 `Test-Progress.ps1`。复测时使用目标 PowerShell 的绝对路径，每个外部命令结束后立即检查 `$LASTEXITCODE`；失败时保留输出，查明原因后再继续。第二个运行时使用 WindowsApps 中的 PowerShell 7.6.6，未安装或更新依赖。
 
 若测试机使用系统默认的 PowerShell 7，也要记录：
 

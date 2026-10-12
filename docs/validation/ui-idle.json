@@ -1,8 +1,8 @@
 {
-  "actualNetworkTest": false,
-  "state": "Idle",
-  "width": 620.0,
   "fixture": true,
+  "height": 790.0,
+  "width": 620.0,
   "nativeAcrylicAccepted": true,
-  "height": 790.2857142857142
+  "state": "Idle",
+  "actualNetworkTest": false
 }

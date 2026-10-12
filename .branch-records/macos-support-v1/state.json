@@ -1,7 +1,7 @@
 {
   "purpose": "Implement, review, repair and publish the macOS FlClash MVP",
-  "status": "completed",
-  "integration": "merged",
+  "status": "complete",
+  "integration": "verified",
   "requirements": ["docs/adr/0002-macos-flclash.md", "README.md"],
   "constraints": [
     "macOS 12+; Python 3 standard library; offline fixture tests",

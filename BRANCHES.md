@@ -114,6 +114,11 @@
       "id": "macos-support-v1",
       "events": ".branch-records/macos-support-v1/events.jsonl",
       "state": ".branch-records/macos-support-v1/state.json"
+    },
+    {
+      "id": "windows-stage2",
+      "events": ".branch-records/windows-stage2/events.jsonl",
+      "state": ".branch-records/windows-stage2/state.json"
     }
   ],
   "read": [
