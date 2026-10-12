@@ -1,0 +1,36 @@
+{
+  "purpose": "Run Windows acceptance on the updated local main and capture desktop evidence",
+  "requirements": [
+    "STATE.md",
+    "docs/validation/windows-012.md",
+    ".branch-records/FORMAT.md"
+  ],
+  "constraints": [
+    "No macOS tests or modifications",
+    "Windows 11 only; offline build",
+    "Repair and restore use isolated fixtures; real FlClash and Edge read-only",
+    "No push or release publication"
+  ],
+  "acceptance": [
+    "Run installed PowerShell 7 runtimes against all eight Windows suites",
+    "Rebuild and verify both portable packages",
+    "Check a displayed WPF window, control interaction and native backdrop",
+    "Record honest limits for UAC, TUN and network; preserve real configuration"
+  ],
+  "status": "complete",
+  "integration": "not_applicable",
+  "evidence": [
+    "STATE.md",
+    "docs/validation/windows-012.md",
+    "docs/validation/windows-012.json",
+    "docs/validation/windows-desktop.json",
+    "docs/validation/windows-host.json",
+    "docs/validation/windows-live-plan.md",
+    "scripts/Test-Desktop.ps1",
+    "scripts/Test-WindowsHost.ps1"
+  ],
+  "testedCommit": "23c56ae7def65502c37fec19e8eb6f7416320839",
+  "next": "Obtain explicit authorization for the exact live Repair/Restore plan in docs/validation/windows-live-plan.md; actual UAC and Edge restart require user interaction",
+  "result": "Both PowerShell runtimes passed all 8 automated suites plus displayed desktop controls; packages rebuilt/verified; live read-only Inspect and in-memory TUN/Proxy plans passed; 4 HTTPS baseline probes passed; no live configuration writes or Mac tests. Native acceptance remains partial.",
+  "completedAt": "2026-10-12T16:32:22.9064571-04:00"
+}

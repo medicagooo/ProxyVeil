@@ -19,3 +19,7 @@
 `preferences.py/NativePreferences` 每次通过 `_helper_main` 创建新的 CoreFoundation 子进程客户端，避免进程内缓存掩盖外部偏好漂移。域是唯一应用参数，偏好值仅走 stdin/stdout 管道；错误响应不包含异常详情或凭据。读取不调用 Synchronize；写入同步后退出，再由新客户端读回永久存储。Mac 上的实际缓存/同步行为仍需原生验收。
 
 `Core/Get-PvRegistryValue` 保存未展开的 ExpandString 原文；`Set-PvRegistryValue` 将 JSON 数组恢复为 string[]/byte[]，保留空数组及单元素数组。Get/Set-PvPolicy 生产路径调用这两个内部函数；Test-Registry.ps1 在随机 HKCU Software/ProxyVeil.Test-* 临时键验证同一路径并清理，覆盖 11 个原生类型序列化还原场景，不修改 Edge 策略。
+
+`scripts/Test-Desktop.ps1` 用独立 pwsh -STA 运行 `Start-ProxyVeil.ps1 -FixtureRoot -StateDirectory` 的实际 ShowDialog；UI Automation 调用设置、复选框、最小化、修复、还原和关闭控件。配置和 worker 写入均在 work/ 夹具，截图仅限该窗口且先核对遮挡；截图缺失单独记录，不能把控件成功当成模糊效果通过。DWM 属性读回只证明背景类型配置。测试临时调整自身线程 DPI 和夹具窗口层级，退出时还原线程并关闭子进程；不调用真实 UAC。
+
+`scripts/Test-WindowsHost.ps1` 调用 Core 的真实 `Get-PvContext`、`Invoke-PvOperation -Action Inspect`、`New-PvConfiguration` 和 `Get-PvPolicy`，TUN/Proxy 计划只在内存生成，不保存原始 profile 或偏好。相同生产入口验证跨用户 SID 和未提权 Administrator 请求在 Inspect 前被拒绝。HttpClient 仅探测当前网络 HTTPS 和从 applied config.yaml 读出的本地 mixed-port；报告无原始策略值、订阅或 IP。文件哈希和策略快照在内存比较，基线连通性不证明修复后的 DNS/WebRTC/IPv6 效果。真实 Repair 的确切目标和授权边界见 docs/validation/windows-live-plan.md。

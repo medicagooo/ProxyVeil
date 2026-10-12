@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-12T16:27:44.5903944-04:00",
+  "result": "passed",
+  "scope": "Displayed native WPF window with isolated fixture and UI Automation",
+  "powerShell": "7.6.6",
+  "fixture": true,
+  "liveConfigurationModified": false,
+  "realUacTest": false,
+  "actualNetworkTest": false,
+  "checks": [
+    "Native window displayed",
+    "DWM backdrop attribute reads back as 3",
+    "Settings expand and DNS checkbox toggles",
+    "Window repositioned and bounds read back",
+    "Minimize control and native window restore",
+    "Displayed action button invokes isolated worker repair",
+    "Displayed action button restores fixture and clears active snapshot",
+    "Close control exits window"
+  ],
+  "screenshots": [
+    "docs/validation/windows-desktop-settings.png",
+    "docs/validation/windows-desktop-configured.png",
+    "docs/validation/windows-desktop-restored.png"
+  ],
+  "captureWarnings": [
+    "windows-desktop-idle: fixture window does not own capture point 1000,182; no screenshot saved"
+  ],
+  "visualCapture": "partial",
+  "captureBounds": {
+    "y": 174,
+    "height": 1580,
+    "width": 1240,
+    "x": 996
+  },
+  "automationBounds": "996,174,1240,1580",
+  "nativeBackdrop": {
+    "visualBlur": "Requires screenshot observation; attribute alone does not prove blur",
+    "hresult": 0,
+    "acrylicConfigured": true,
+    "value": 3
+  },
+  "childExitCode": 0
+}

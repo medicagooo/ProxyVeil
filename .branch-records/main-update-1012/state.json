@@ -13,13 +13,13 @@
     "Registry validates; worktree clean",
     "Remaining work reflects recorded native Mac results"
   ],
-  "status": "active",
-  "integration": "unmerged",
+  "status": "complete",
+  "integration": "verified",
   "evidence": [
     "STATE.md",
     "docs/validation/macos-host.json",
     "docs/validation/windows-012.md"
   ],
-  "next": "Verify final local main contains both source commits and is clean; reconcile this operation pending pointer at the next otherwise-required registry update",
-  "result": "Merge index resolved; both local cleanup and remote Mac acceptance records retained. Registry and report JSON validation passed; final commit/ref verification follows."
+  "next": "Local main update complete; follow windows-tests-1012 for Windows acceptance",
+  "result": "Local main 23c56ae7def65502c37fec19e8eb6f7416320839 contains remote 1e96ff59d294e677f67026bb688d54c07f3c6514 and cleanup 4d133554dbd4b4ec006131c93a5eb509ef82f7d1; verified clean; no push"
 }

@@ -7,10 +7,6 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
-    },
-    {
-      "event": "merge-remote-main",
-      "task": "main-update-1012"
     }
   ],
   "changes": [
@@ -193,6 +189,11 @@
       "events": ".branch-records/main-update-1012/events.jsonl",
       "state": ".branch-records/main-update-1012/state.json",
       "id": "main-update-1012"
+    },
+    {
+      "id": "windows-tests-1012",
+      "events": ".branch-records/windows-tests-1012/events.jsonl",
+      "state": ".branch-records/windows-tests-1012/state.json"
     }
   ],
   "read": [
@@ -200,7 +201,5 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": [
-    "main-update-1012"
-  ]
+  "active": []
 }

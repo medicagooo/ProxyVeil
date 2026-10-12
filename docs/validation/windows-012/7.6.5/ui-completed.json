@@ -1,10 +1,10 @@
 {
-  "state": "Completed",
-  "height": 790.0,
   "width": 620.0,
-  "background": "#D4E9F1F7",
-  "fixture": true,
   "actualNetworkTest": false,
+  "background": "#D4E9F1F7",
+  "height": 790.0,
+  "forcedOpaque": false,
+  "state": "Completed",
   "nativeAcrylicAccepted": true,
-  "forcedOpaque": false
+  "fixture": true
 }

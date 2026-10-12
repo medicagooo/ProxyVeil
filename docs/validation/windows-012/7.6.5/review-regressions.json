@@ -1,7 +1,7 @@
 {
-  "at": "2026-10-12T14:43:12.2432163-04:00",
-  "scope": "actual Repair/Restore with isolated configurations",
-  "liveConfigurationModified": false,
   "passed": 7,
-  "result": "passed"
+  "result": "passed",
+  "scope": "actual Repair/Restore with isolated configurations",
+  "at": "2026-10-12T16:17:38.2822395-04:00",
+  "liveConfigurationModified": false
 }
