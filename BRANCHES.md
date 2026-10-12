@@ -7,14 +7,6 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
-    },
-    {
-      "event": "merge-win11-scope",
-      "task": "local-development-v1"
-    },
-    {
-      "event": "push-win11-scope",
-      "task": "local-development-v1"
     }
   ],
   "changes": [
@@ -187,6 +179,11 @@
       "id": "local-development-v1",
       "events": ".branch-records/local-development-v1/events.jsonl",
       "state": ".branch-records/local-development-v1/state.json"
+    },
+    {
+      "events": ".branch-records\\branch-cleanup-1012/events.jsonl",
+      "state": ".branch-records\\branch-cleanup-1012/state.json",
+      "id": "branch-cleanup-1012"
     }
   ],
   "read": [

@@ -1,0 +1,23 @@
+{
+  "acceptance": [
+    "Removed branch had same head and tree as main before deletion",
+    "Only main remains locally, worktree content preserved",
+    "Registry validates and task changes committed locally"
+  ],
+  "integration": "not_applicable",
+  "requirements": [
+    ".branch-records/FORMAT.md"
+  ],
+  "constraints": [
+    "Keep main and branches with independent work or attached worktrees",
+    "Use normal git branch -d; no force deletion, remote deletion or push",
+    "Keep business ledger and task history"
+  ],
+  "purpose": "Delete local branches fully covered by main",
+  "evidence": [
+    "STATE.md"
+  ],
+  "next": "No further local branch cleanup; user proceeds with Mac native acceptance from main",
+  "status": "complete",
+  "result": "Removed only 1012-local-development using normal deletion; head/tree matched main; main is the sole local branch; no remote changes"
+}

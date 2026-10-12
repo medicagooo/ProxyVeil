@@ -19,7 +19,7 @@
     "Push verified main and provide reproducible Mac acceptance commands"
   ],
   "status": "complete",
-  "integration": "unmerged",
+  "integration": "verified",
   "evidence": [
     "STATE.md",
     "docs/review-0.1.2.md",
@@ -31,7 +31,7 @@
   ],
   "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
   "result": "Implementation and independent review fixes verified; 32 Python fixture tests, two Windows runtimes each 8 suites, rebuilt 0.1.2 packages passed. No live repair. Windows overall partial and Mac native pending.",
-  "next": "Publish declared acceptance-scope update; user then performs Mac native acceptance. Remaining Windows desktop/UAC/TUN/network checks exclude separate Windows 10 validation.",
+  "next": "Implementation and Windows scope update are on main; local task branch removed after verification. User performs native Mac acceptance; remaining Windows native checks exclude Windows 10.",
   "completedAt": "2026-10-12T14:53:41.7727452-04:00",
   "testedCommit": "4989bae38e77215c1f282ce1cd5cfe7a3cdd3755"
 }

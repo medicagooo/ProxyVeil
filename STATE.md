@@ -8,8 +8,8 @@ Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与
 
 ## Repository and authoritative records
 
-- 唯一工作区 D:/proj/ProxyVeil。本轮使用 1012-local-development，登记 .branch-records/local-development-v1/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录已提交 4989bae38e77215c1f282ce1cd5cfe7a3cdd3755；其后仅有发布声明元数据。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
-- 0.1.2 已发布：本机 main、任务分支与远端 main 核对为 ece53c8f9f0b5fab55a4cd51dc314e690083b89a，工作区干净。当前仅更新 Windows 验收范围，merge-win11-scope/push-win11-scope 是待执行声明；最终 SHA 用 live Git 核对，operation.after 仅为意图。不得仅为回填成功再提交或推送。
+- 唯一工作区 D:/proj/ProxyVeil。本轮实现使用过 1012-local-development，已核实内容与 main 完全一致并按用户要求删除该本地分支；当前仅保留 main。实现登记 .branch-records/local-development-v1/，清理记录 .branch-records/branch-cleanup-1012/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录已提交 4989bae38e77215c1f282ce1cd5cfe7a3cdd3755；其后仅有发布声明元数据。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
+- 0.1.2 已发布：Windows 验收范围更新已发布，删除分支前本机 main、任务分支与远端 main 核对为 8f73106632f1191860e458f8ed842fdbff4c1ee7，工作区干净。当前只有本地分支清理登记待提交，不推送、不修改远端分支。最终 HEAD 用 live Git 核对。不得仅为回填成功再提交或推送。
 - 当前有效要求 docs/implementation-0.1.2.md；早期方案 docs/local-development-plan.md；原 Windows 规格 docs/spec-v1.md；架构 docs/adr/0001-desktop-and-recovery.md 与 0002-macos-flclash.md；调用/数据边界 docs/agents/domain.md；业务账本 BRANCHES.md。
 - 历史身份更正与 Windows/macOS 首版保留于旧记录和 docs/review-0.1.1.md。历史 pending 不得直接重试，需核对远端结果。无 Release 或部署。
 
@@ -36,7 +36,7 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 | 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
 |---|---|---|---|
-| 1 | 验收范围更新发布；待执行 | 已登记 merge-win11-scope/push-win11-scope；确认远端 main 未变化 | 正常快进与 push；远端 SHA 与本机 main 相同 |
+| 1 | 本地清理登记提交；待执行 | 冗余分支已删除，记录待提交 | registry 校验和本地 commit；不推送 |
 | 2 | Mac 原生验收；交给用户，尚未执行 | Mac、FlClash、Python，干净工作区更新 main；实际偏好域/类型/schema 尚待核实 | 先隔离测试和只读 inspect，再明确 repair/restore，重启及网络验证；docs/validation/macos-acceptance.md |
 | 3 | Windows 真实桌面；未执行 | Windows 11 桌面观察 | Acrylic 与操作实测，追加证据；windows-012.md。Windows 10 单独验收按用户要求取消 |
 | 4 | Windows 真实 UAC/TUN/网络；未执行 | 测试用户、FlClash/节点、明确对应真实配置操作授权 | 实际启动提权、配置采用、国内/代理/DNS/WebRTC/IPv6复测与恢复，无凭据摘要 |
@@ -44,7 +44,7 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 ## Next executable action
 
-核对验收范围声明已推送；若 main 和远端已包含本次声明提交，操作已完成，不重跑。下一步由用户在 Mac 按下列交接执行。Windows 10 不再需要 VM/ISO 或独立验收。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
+验收范围声明已推送，本地冗余分支清理已完成；若清理记录也已提交，则跳过已完成维护。下一步由用户在 Mac 按下列交接执行。Windows 10 不再需要 VM/ISO 或独立验收。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
 
 本机复现：
 
