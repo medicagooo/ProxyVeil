@@ -1,8 +1,8 @@
 {
-  "assertions": 124,
-  "fixtureDirectory": "D:\\proj\\ProxyVeil\\work\\tests-22ae36b3182d409db49cf55f825fa3db",
-  "result": "passed",
-  "scope": "isolated fixture engine, parser and worker",
   "liveConfigurationModified": false,
-  "at": "2026-10-12T17:06:53.5106842-04:00"
+  "at": "2026-10-12T17:14:43.1612836-04:00",
+  "scope": "isolated fixture engine, parser and worker",
+  "fixtureDirectory": "D:\\proj\\ProxyVeil\\work\\tests-a9c7f7286950476ca128bfd2825fb544",
+  "result": "passed",
+  "assertions": 125
 }

@@ -1,11 +1,11 @@
 {
-  "nativeAcrylicAccepted": true,
-  "state": "Idle",
-  "actualNetworkTest": false,
-  "background": "#D4E9F1F7",
-  "fixture": true,
-  "forcedOpaque": false,
   "height": 790.0,
+  "fixture": true,
+  "state": "Idle",
+  "background": "#D4E9F1F7",
+  "width": 620.0,
+  "forcedOpaque": false,
+  "nativeAcrylicAccepted": true,
   "language": "zh-CN",
-  "width": 620.0
+  "actualNetworkTest": false
 }

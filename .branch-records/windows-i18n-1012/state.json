@@ -1,6 +1,6 @@
 {
   "integration": "unmerged",
-  "next": "Review implementation against task-start commit; fix findings; full Windows isolated/bilingual/package verification; predeclare and push main",
+  "next": "Commit final task repair/evidence and this predeclaration; normal push main; verify remote main SHA. On continuation first compare live Git; do not repeat resolved pending operation.",
   "requirements": [
     "AGENTS.md",
     ".branch-records/FORMAT.md",
@@ -17,7 +17,11 @@
   "evidence": [
     "STATE.md",
     "docs/validation/i18n-implementation.md",
-    "docs/validation/i18n.json"
+    "docs/validation/i18n.json",
+    "docs/review-i18n.md",
+    "docs/validation/windows-i18n.json",
+    "docs/validation/windows-012/7.6.5/windows-desktop.json",
+    "docs/validation/windows-012/7.6.6/windows-desktop.json"
   ],
   "acceptance": [
     "Removed slogan and corrected screenshots",

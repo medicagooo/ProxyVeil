@@ -1,0 +1,86 @@
+{
+  "postRepairLeakTest": false,
+  "publication": "Reports generated before push; verify remote SHA from Git",
+  "at": "2026-10-12T17:17:39.3905937-04:00",
+  "realUacTest": false,
+  "desktop": [
+    {
+      "language": "en",
+      "powerShell": "7.6.5",
+      "result": "passed",
+      "visualCapture": "captured",
+      "evidence": "docs/validation/windows-012/7.6.5/windows-desktop.json"
+    },
+    {
+      "language": "zh-CN",
+      "powerShell": "7.6.6",
+      "result": "passed",
+      "visualCapture": "captured",
+      "evidence": "docs/validation/windows-012/7.6.6/windows-desktop.json"
+    }
+  ],
+  "liveConfigurationModified": false,
+  "macOSRetested": false,
+  "result": "passed",
+  "review": "Review findings and repairs recorded separately in docs/review-i18n.md",
+  "baseCommit": "c61eea4c4a07a30a1f568b09cee38f60252d9744",
+  "liveFilesUnchanged": true,
+  "hostInspection": "passed",
+  "runtimes": [
+    {
+      "runtime": "C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "result": "passed",
+      "evidence": "docs/validation/windows-012/7.6.5",
+      "powerShell": "7.6.5",
+      "suites": 10,
+      "desktopResult": "passed",
+      "desktopLanguage": "en",
+      "desktopEvidence": "docs/validation/windows-012/7.6.5/windows-desktop.json"
+    },
+    {
+      "runtime": "C:/Users/medic/AppData/Local/Microsoft/WindowsApps/pwsh.exe",
+      "result": "passed",
+      "evidence": "docs/validation/windows-012/7.6.6",
+      "powerShell": "7.6.6",
+      "suites": 10,
+      "desktopResult": "passed",
+      "desktopLanguage": "zh-CN",
+      "desktopEvidence": "docs/validation/windows-012/7.6.6/windows-desktop.json"
+    }
+  ],
+  "packages": [
+    {
+      "bytes": 331834,
+      "edition": "Standard",
+      "sha256": "8B200B0BDFBBCAC8F29D7108E5500EBF256C7310471F1DA5B1955FBC123E00EF",
+      "path": "dist/ProxyVeil-0.1.2-Standard.zip"
+    },
+    {
+      "bytes": 332071,
+      "edition": "Administrator",
+      "sha256": "3781CAB47661E5942B7BECDE749DC8D6AEB3E8397F0B45FEF2FCEFC7B8DA38A4",
+      "path": "dist/ProxyVeil-0.1.2-Administrator.zip"
+    }
+  ],
+  "edgePoliciesUnchanged": true,
+  "renderFixVerification": {
+    "rerun": [
+      "UI",
+      "UI-Recovery",
+      "UI-Failure",
+      "I18n",
+      "Desktop",
+      "Package"
+    ],
+    "result": "passed",
+    "at": "2026-10-12T17:29:56.7934368-04:00",
+    "visualReview": "English and Chinese settings/completed/restored desktop captures inspected; controls and text readable; no conclusion about blur strength",
+    "runtimes": [
+      "7.6.5",
+      "7.6.6"
+    ],
+    "untouchedSuites": "Earlier complete run retained for unchanged core, registry, progress and host-report paths",
+    "regression": "Actual old hardware path failed desktop content gate with dark=0 and accent=0; per-window software rendering passes",
+    "captureRegressionChecks": 11
+  }
+}

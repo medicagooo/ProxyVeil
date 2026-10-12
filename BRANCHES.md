@@ -7,6 +7,10 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
+    },
+    {
+      "event": "push-i18n-main",
+      "task": "windows-i18n-1012"
     }
   ],
   "changes": [
@@ -164,15 +168,18 @@
         "README.zh-CN.md"
       ],
       "business": "System-language English/Chinese UI and worker; remove slogan; English-default bilingual README",
-      "rules": "Presentation only; status IDs/profile values/snapshot schema unchanged; cross-language restore; no live writes or Mac changes",
+      "rules": "Presentation only; status IDs/profile values/snapshot schema unchanged; cross-language restore; no live writes or Mac changes; per-window rendering only, DWM Acrylic retained; screenshots prove readable content, not blur strength",
       "id": "windows-system-language",
       "evidence": [
         "docs/i18n-plan.md",
         "docs/validation/i18n-implementation.md",
-        "docs/validation/i18n.json"
+        "docs/validation/i18n.json",
+        "docs/review-i18n.md",
+        "docs/validation/windows-i18n.json",
+        "tests/DesktopCapture.Assertions.ps1"
       ],
       "domain": "Windows presentation and documentation",
-      "after": "Current user display language resolves zh variants to zh-CN, otherwise English; explicit launch locale propagates to UAC/UI/worker; bilingual keyed text; English README plus linked Chinese document",
+      "after": "Current user display language resolves zh variants to zh-CN, otherwise English; explicit launch locale propagates to UAC/UI/worker; bilingual keyed text; English README plus linked Chinese document; window renders in software to recover blank hardware content; native capture rejects missing controls",
       "request": "request-implement-review-push-i18n",
       "before": "Chinese hardcoded UI/progress/errors; Chinese-only README and slogan",
       "deployedAt": null,

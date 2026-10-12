@@ -1,67 +1,67 @@
 {
-  "at": "2026-10-12T16:46:16.8361492-04:00",
-  "powerShell": "7.6.6",
   "results": [
     {
-      "case": "complete inspection with separate HTTPS failure",
       "result": "passed",
-      "expectedRejection": false
+      "expectedRejection": false,
+      "case": "complete inspection with separate HTTPS failure"
     },
     {
-      "case": "late IOException after successful Inspect",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "late IOException after successful Inspect"
     },
     {
-      "case": "missing completion marker",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "missing completion marker"
     },
     {
-      "case": "FlClash file drift",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "FlClash file drift"
     },
     {
-      "case": "missing file hash result",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "missing file hash result"
     },
     {
-      "case": "Edge policy drift",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "Edge policy drift"
     },
     {
-      "case": "missing policy comparison",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "missing policy comparison"
     },
     {
-      "case": "failed Proxy plan",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "failed Proxy plan"
     },
     {
-      "case": "missing TUN plan",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "missing TUN plan"
     },
     {
-      "case": "failed SID guard",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "failed SID guard"
     },
     {
-      "case": "missing unelevated guard",
       "result": "passed",
-      "expectedRejection": true
+      "expectedRejection": true,
+      "case": "missing unelevated guard"
     },
     {
-      "case": "elevated host needs only SID guard",
       "result": "passed",
-      "expectedRejection": false
+      "expectedRejection": false,
+      "case": "elevated host needs only SID guard"
     }
   ],
-  "scope": "Synthetic reports; no host configuration or network access"
+  "at": "2026-10-12T17:15:24.1548741-04:00",
+  "scope": "Synthetic reports; no host configuration or network access",
+  "powerShell": "7.6.6"
 }

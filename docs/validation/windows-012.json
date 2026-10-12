@@ -1,61 +1,56 @@
 {
-  "runtimes": [
+  "packages": [
     {
-      "result": "passed",
-      "powerShell": "7.6.5",
-      "suites": 9,
-      "evidence": "docs/validation/windows-012/7.6.5",
-      "runtime": "C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
-      "desktopResult": "passed",
-      "desktopEvidence": "docs/validation/windows-012/7.6.5/windows-desktop.json"
+      "bytes": 331834,
+      "edition": "Standard",
+      "sha256": "8B200B0BDFBBCAC8F29D7108E5500EBF256C7310471F1DA5B1955FBC123E00EF",
+      "path": "dist/ProxyVeil-0.1.2-Standard.zip"
     },
     {
-      "result": "passed",
-      "powerShell": "7.6.6",
-      "suites": 9,
-      "evidence": "docs/validation/windows-012/7.6.6",
-      "runtime": "C:/Users/medic/AppData/Local/Microsoft/WindowsApps/pwsh.exe",
-      "desktopResult": "passed",
-      "desktopEvidence": "docs/validation/windows-012/7.6.6/windows-desktop.json"
+      "bytes": 332071,
+      "edition": "Administrator",
+      "sha256": "3781CAB47661E5942B7BECDE749DC8D6AEB3E8397F0B45FEF2FCEFC7B8DA38A4",
+      "path": "dist/ProxyVeil-0.1.2-Administrator.zip"
     }
   ],
-  "macOSNativeAcceptance": "Excluded by user; no macOS tests executed; existing evidence retained",
-  "automatedResult": "passed",
+  "at": "2026-10-12T17:17:04.8202049-04:00",
+  "registryTestKeysRemaining": 0,
   "liveConfigurationModified": false,
+  "macOSNativeAcceptance": "Excluded by user; no Mac tests executed; Mac code unchanged",
+  "automatedResult": "passed",
   "excludedAcceptance": [
     "Separate Windows 10 acceptance waived by user on 2026-10-12",
     "macOS retesting excluded by user for this Windows task",
     "User declined live Repair/Restore; actual UAC and post-repair leakage acceptance not performed"
   ],
-  "packages": [
-    {
-      "bytes": 190680,
-      "path": "dist/ProxyVeil-0.1.2-Standard.zip",
-      "edition": "Standard",
-      "sha256": "385BC91982C9C7FEAEF8429B3D62EED770F781E3E3383FBDBB38793F20703053"
-    },
-    {
-      "bytes": 190835,
-      "path": "dist/ProxyVeil-0.1.2-Administrator.zip",
-      "edition": "Administrator",
-      "sha256": "70CE2FD1DE6714E2A54C9216401B98285C8753BF175491CA1BCE3A2E52C17E32"
-    }
-  ],
-  "os": "Microsoft Windows 11 Pro N",
-  "build": "26300",
-  "version": "0.1.2",
-  "at": "2026-10-12T16:46:44.2433492-04:00",
   "outstanding": [],
   "fallback": "Forced DWM fallback rendered and background checked on Windows 11",
-  "registryTestKeysRemaining": 0,
+  "runtimes": [
+    {
+      "runtime": "C:/Users/medic/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "result": "passed",
+      "evidence": "docs/validation/windows-012/7.6.5",
+      "powerShell": "7.6.5",
+      "suites": 10,
+      "desktopResult": "passed",
+      "desktopLanguage": "en",
+      "desktopEvidence": "docs/validation/windows-012/7.6.5/windows-desktop.json"
+    },
+    {
+      "runtime": "C:/Users/medic/AppData/Local/Microsoft/WindowsApps/pwsh.exe",
+      "result": "passed",
+      "evidence": "docs/validation/windows-012/7.6.6",
+      "powerShell": "7.6.6",
+      "suites": 10,
+      "desktopResult": "passed",
+      "desktopLanguage": "zh-CN",
+      "desktopEvidence": "docs/validation/windows-012/7.6.6/windows-desktop.json"
+    }
+  ],
   "status": "partial",
-  "desktopEvidence": "docs/validation/windows-desktop.json",
-  "desktopInteraction": "passed on both runtimes",
-  "actualBlur": "not_established",
-  "realUacTest": false,
-  "liveHostEvidence": "docs/validation/windows-host.json",
-  "liveHostResult": "Inspected",
-  "updatedAt": "2026-10-12T16:47:10.6834359-04:00",
+  "build": "26300",
+  "os": "Microsoft Windows 11 Pro N",
+  "version": "0.1.2",
   "acceptedScope": "Isolated Windows tests and read-only live checks only",
   "acceptedScopeResult": "passed",
   "scopeConfirmedAt": "2026-10-12T16:34:37.4660632-04:00",
@@ -64,32 +59,33 @@
     "Real UAC success",
     "Explicitly authorized live Repair/Restore and post-repair Edge/DNS/WebRTC/IPv6 acceptance"
   ],
-  "testedBaseCommit": "055302e840ab08085a9b9d62623bfd36a83536b7",
-  "networkBaseline": "Both runtimes: Baidu and Google HTTP 200 on default and explicit loopback proxy; no post-repair leakage conclusion",
-  "testHarnessSha256": [
-    {
-      "path": "scripts/Test-WindowsHost.ps1",
-      "sha256": "71A0310DE5E608AEB13F93C2813D445180217D46BE60F8DE5C84F36677E5A90A"
-    },
-    {
-      "path": "tests/WindowsHost.Assertions.ps1",
-      "sha256": "DB8CF2E5727D4E480670896B61AB057C3E96E0D8C8BB0984C0C40C52C9A7E0F6"
-    },
-    {
-      "path": "scripts/Test-HostReport.ps1",
-      "sha256": "14C8DEB01846717FA1078D7A17D2038E564CD20CD44CA64977C3E4E77CB3C23B"
-    },
-    {
-      "path": "scripts/Test-WindowsAcceptance.ps1",
-      "sha256": "52A5FD594975C0AD4BC25920B5DF2157F592CA1965FA3970903626B53362B42A"
-    },
-    {
-      "path": "scripts/Build.ps1",
-      "sha256": "D5546B49872F0AC8C8A99B43597285DFCCBD8EEC66174F192F3EC133451440A3"
-    },
-    {
-      "path": "scripts/Test-Package.ps1",
-      "sha256": "655782FD403342346E999AE80BA7A9D4EC8F67B794E9AA9999C976F42B519DD1"
-    }
-  ]
+  "testedBaseCommit": "c61eea4c4a07a30a1f568b09cee38f60252d9744",
+  "desktopEvidence": "docs/validation/windows-desktop.json",
+  "desktopInteraction": "English and Chinese displayed controls passed",
+  "actualBlur": "not_established",
+  "realUacTest": false,
+  "liveHostEvidence": "docs/validation/windows-host.json",
+  "liveHostResult": "Inspected",
+  "networkBaseline": "Current network connectivity only; no post-repair leakage conclusion",
+  "updatedAt": "2026-10-12T17:17:39.3905937-04:00",
+  "renderFixVerification": {
+    "rerun": [
+      "UI",
+      "UI-Recovery",
+      "UI-Failure",
+      "I18n",
+      "Desktop",
+      "Package"
+    ],
+    "result": "passed",
+    "at": "2026-10-12T17:29:56.7934368-04:00",
+    "visualReview": "English and Chinese settings/completed/restored desktop captures inspected; controls and text readable; no conclusion about blur strength",
+    "runtimes": [
+      "7.6.5",
+      "7.6.6"
+    ],
+    "untouchedSuites": "Earlier complete run retained for unchanged core, registry, progress and host-report paths",
+    "regression": "Actual old hardware path failed desktop content gate with dark=0 and accent=0; per-window software rendering passes",
+    "captureRegressionChecks": 11
+  }
 }

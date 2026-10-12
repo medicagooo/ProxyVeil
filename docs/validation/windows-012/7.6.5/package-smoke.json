@@ -1,29 +1,43 @@
 {
   "results": [
     {
-      "sha256": "385BC91982C9C7FEAEF8429B3D62EED770F781E3E3383FBDBB38793F20703053",
+      "languages": [
+        "en",
+        "zh-CN"
+      ],
       "edition": "Standard",
-      "realUacTest": false,
+      "sha256": "8B200B0BDFBBCAC8F29D7108E5500EBF256C7310471F1DA5B1955FBC123E00EF",
       "repairRestore": "passed",
       "readmeImages": [
         "docs/images/windows-home.png",
         "docs/images/windows-settings.png",
-        "docs/images/windows-completed.png"
-      ]
+        "docs/images/windows-completed.png",
+        "docs/images/windows-zh-cn-home.png",
+        "docs/images/windows-zh-cn-settings.png",
+        "docs/images/windows-zh-cn-completed.png"
+      ],
+      "realUacTest": false
     },
     {
-      "sha256": "70CE2FD1DE6714E2A54C9216401B98285C8753BF175491CA1BCE3A2E52C17E32",
+      "languages": [
+        "en",
+        "zh-CN"
+      ],
       "edition": "Administrator",
-      "realUacTest": false,
+      "sha256": "3781CAB47661E5942B7BECDE749DC8D6AEB3E8397F0B45FEF2FCEFC7B8DA38A4",
       "repairRestore": "passed",
       "readmeImages": [
         "docs/images/windows-home.png",
         "docs/images/windows-settings.png",
-        "docs/images/windows-completed.png"
-      ]
+        "docs/images/windows-completed.png",
+        "docs/images/windows-zh-cn-home.png",
+        "docs/images/windows-zh-cn-settings.png",
+        "docs/images/windows-zh-cn-completed.png"
+      ],
+      "realUacTest": false
     }
   ],
-  "at": "2026-10-12T16:46:30.6187496-04:00",
   "scope": "Extracted portable UI -> worker -> repair -> restore",
-  "liveConfigurationModified": false
+  "liveConfigurationModified": false,
+  "at": "2026-10-12T17:29:29.8731847-04:00"
 }

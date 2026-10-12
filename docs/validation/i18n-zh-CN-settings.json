@@ -1,11 +1,11 @@
 {
-  "actualNetworkTest": false,
-  "nativeAcrylicAccepted": true,
+  "fixture": true,
   "forcedOpaque": false,
+  "language": "zh-CN",
+  "height": 790.0,
+  "nativeAcrylicAccepted": true,
   "state": "Settings",
   "width": 620.0,
-  "height": 790.0,
-  "language": "zh-CN",
   "background": "#D4E9F1F7",
-  "fixture": true
+  "actualNetworkTest": false
 }

@@ -9,6 +9,8 @@ Set-PvLanguage $Language
 $Language=Get-PvLanguage
 . "$root/tests/Fixtures.ps1"
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Drawing, System.Windows.Forms
+. "$root/tests/DesktopCapture.Assertions.ps1"
+& "$root/scripts/Test-DesktopCapture.ps1"
 Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
@@ -84,6 +86,7 @@ function Save-PvDesktopImage([string]$Name) {
     $graphics = [Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.CopyFromScreen($bounds.Location, [Drawing.Point]::Empty, $bounds.Size)
+        try { Assert-PvDesktopContent $bitmap } catch { $report.visualCapture='failed'; throw }
         $bitmap.Save((Join-Path $root "docs/validation/$Name.png"), [Drawing.Imaging.ImageFormat]::Png)
     } finally { $graphics.Dispose(); $bitmap.Dispose() }
     $report.screenshots += "docs/validation/$Name.png"

@@ -146,6 +146,9 @@ $window.Add_SourceInitialized({
     if (-not ('ProxyVeilGlass' -as [type])) { Add-Type -TypeDefinition ([IO.File]::ReadAllText("$PSScriptRoot\UI\Glass.cs")) }
     $hwnd=[Windows.Interop.WindowInteropHelper]::new($window).Handle
     $source=[Windows.Interop.HwndSource]::FromHwnd($hwnd); $source.CompositionTarget.BackgroundColor=[Windows.Media.Colors]::Transparent
+    # Hardware composition can expose only the DWM backdrop while automation
+    # still sees controls. Render this window in software; keep DWM Acrylic.
+    $source.CompositionTarget.RenderMode=[Windows.Interop.RenderMode]::SoftwareOnly
     # Fixture coverage forces the same fallback used when DWM rejects Acrylic.
     $script:glassApplied=if ($ForceOpaque) { $false } else { [ProxyVeilGlass]::Apply($hwnd) }
     if (-not $script:glassApplied) { $window.Background=[Windows.Media.BrushConverter]::new().ConvertFromString('#E6E9F1F7') }

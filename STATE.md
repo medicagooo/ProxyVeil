@@ -4,19 +4,23 @@
 
 Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与管理员入口，TUN/Proxy，可选 DNS/WebRTC/FlClash IPv6，显式修复和可恢复快照；保留国内直连、订阅与节点选择。macOS 使用独立 Python CLI，显式 inspect/repair/restore，WebRTC 与浏览器 DoH 不配置。
 
-当前任务：2026-10-12 用户要求修复发现的错误，编写介绍用途、入口、用法并附图的 README，完成后 push main。登记 `.branch-records/readme-publication-1012/`，开始时 HEAD 为 `055302e840ab08085a9b9d62623bfd36a83536b7`，工作区干净。真实配置仍只读，不执行 Mac 复测。README、图片打包和 Windows 只读检查误报已修正；验证与推送完成状态须结合 `readme-publication.json`、任务事件及 live Git 核对，不从预声明推断成功。
+当前任务：2026-10-12 用户要求删除“收好你的网络出口”，加入随系统显示语言选择的中英文支持，README 默认英文并保留中文；确认方案后明确要求实施、review、bug repair、push main。登记 `.branch-records/windows-i18n-1012/`，任务起点为已验证远端发布的 `c61eea4c4a07a30a1f568b09cee38f60252d9744`，起始工作区干净。按推荐方案仅覆盖 Windows，不修改 / 复测 Mac，真实配置继续只读。有效需求为 `docs/i18n-plan.md`；实现边界为 `docs/validation/i18n-implementation.md`。主要实现已本地提交 5e183561b8326bed73f7e6c294f6e1abd8ba1634；完整验证、双轴 review 和随后发现的渲染问题修复已完成，最后提交包含修复、验证证据及推送声明。最终发布状态须用 live Git 核对，不能从该声明推断成功。
 
 2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；Mac 原生修复/还原已有历史证据。当前用户要求执行 Windows 测试，并明确无需再次测试 Mac；Windows 10 单独验收已取消。用户随后选择“只完成隔离测试及只读检查”，本轮范围已完成：两套运行时自动测试、实际显示窗口的控件/隔离修复还原和本机只读检查通过。真实 UAC 成功、实际修复后的网络泄露及 Acrylic 模糊效果未完整验收，完整实机状态仍为 partial；这些缺口保留记录，不继续执行或重复询问本机 Repair 授权。未授权部署或 GitHub Release。
 
 ## Repository and authoritative records
 
 - 唯一工作区 D:/proj/ProxyVeil。本轮实现使用过 1012-local-development，已核实内容与 main 完全一致并按用户要求删除该本地分支；当前仅保留 main。实现登记 .branch-records/local-development-v1/，清理记录 .branch-records/branch-cleanup-1012/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录已提交 4989bae38e77215c1f282ce1cd5cfe7a3cdd3755；其后仅有发布声明元数据。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
-- 0.1.2 代码、Windows 验收范围声明和 Mac 原生修复/恢复证据已在远端 main；前次本地 main 更新纳入远端 1e96ff59d294e677f67026bb688d54c07f3c6514，并保留本地清理提交 4d133554dbd4b4ec006131c93a5eb509ef82f7d1。本地同步登记 .branch-records/main-update-1012/；该次仅更新本地。当前 README 任务已获明确 push main 授权，将连同已完成的本地 Windows 测试提交正常推送。最终 HEAD、远端和工作区干净状态用 live Git 核对。不得仅为回填成功再提交或推送。
+- 0.1.2 代码、Windows 验收范围声明和 Mac 原生修复/恢复证据已在远端 main；此前本地 main 更新纳入 1e96ff59d294e677f67026bb688d54c07f3c6514。README 发布任务已正常推送并核对 c61eea4，本轮登记更新清除该任务的已解决 pending。当前 i18n 任务也已获明确 push main 授权。最终 HEAD、远端和工作区干净状态用 live Git 核对；不得仅为回填成功再提交或推送。
 - 当前有效要求 docs/implementation-0.1.2.md；早期方案 docs/local-development-plan.md；原 Windows 规格 docs/spec-v1.md；架构 docs/adr/0001-desktop-and-recovery.md 与 0002-macos-flclash.md；调用/数据边界 docs/agents/domain.md；业务账本 BRANCHES.md。
 - 历史身份更正与 Windows/macOS 首版保留于旧记录和 docs/review-0.1.1.md。历史 pending 不得直接重试，需核对远端结果。无 Release 或部署。
 - 前次 Windows 测试基线为本地 main 23c56ae7def65502c37fec19e8eb6f7416320839，初始工作区干净；登记 .branch-records/windows-tests-1012/。该次测试和证据仅在本地 main 提交；本次用户已要求推送。前次本地同步已验证并在此前登记更新时清除其 pending。
 
 ## Verified work and evidence
+
+- Windows 文案集中到 src/Locales/en.psd1 与 zh-CN.psd1；Localization 读取当前用户显示语言，zh 变体使用简体中文，其余使用英文。Launch 的同用户 UAC、UI 请求和 worker 参数传递同一 Language；worker 在请求读取前设定语言，损坏请求错误也可翻译。Core 的 Invoke-PvOperation 包装层按请求临时切换并在 finally 恢复，状态 / 配置 / 快照契约保留。标题删除；双语 README 与六张隔离截图已更新。
+- 两套 PowerShell 7.6.5 / 7.6.6 各 10 项自动 suite 全通过：核心 125 断言、双语 253 检查、UI / 故障恢复 / 进度、原生临时键、宿主报告门禁和两个权限包。覆盖 TUN / Proxy 双语修复、跨语言还原、失败回退、UI / worker 及损坏请求。缺少 PowerShell 7 时的只读提示在 Windows PowerShell 5.1 读取同一资源；中文资源初次编码不兼容，改为 UTF-8 BOM 后英文 / 中文读回通过。证据 docs/validation/windows-i18n.json 与 docs/review-i18n.md。
+- 桌面截图复核发现硬件渲染只显示 DWM 背景但 Automation 仍通过；延迟 2.5 秒仍失败，软件渲染恢复内容。当前窗口 HwndTarget 改为 SoftwareOnly，DWM Acrylic 保留，不改进程级设置或注册表。截图门禁在实际旧路径先失败；补充 review 发现纯深蓝检测误报，增加互斥阈值及 11 项 bitmap 回归后修复。双轴补充审查无未解决问题。修复后两运行时重新通过 UI / 故障 / 双语 / 桌面 / 包测试，中英文实际截图控件可读。此结果不证明模糊强度，也未测性能。
 
 - README 任务修复了 `Test-WindowsHost.ps1` 在 Inspect 成功后遇到后续异常仍可 PASS 的问题，以及文件 / 策略变化未计入失败的缺口。`tests/WindowsHost.Assertions.ps1::Assert-PvWindowsHostReport` 是最终报告判断，`scripts/Test-HostReport.ps1` 覆盖 12 个合成报告场景；网络失败单独保留为基线结果。两个运行时各 9 项 suite 通过，本轮核心实际输出为 122 断言。原始错误复现与任务验证见 docs/validation/readme-publication.md/json。
 - README 已介绍用途、Windows 普通 / 管理员入口、配置与还原、Mac CLI 和开发构建，修正新版 Mac 布局被拒绝的旧描述。docs/images/ 的三张图片来自隔离夹具；Build 仅打包 PNG，Test-Package 核对引用并验证隔离修复 / 还原。两个 ZIP 本地重建，不上传 Release。
@@ -46,14 +50,14 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 | 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
 |---|---|---|---|
-| 1 | README 与验证修复；两个运行时回归、包及只读宿主检查通过，当前待发布 | 当前用户明确要求 push main；真实配置只读、Mac 不复测 | 登记推送、提交并正常推送 origin/main，再核对 SHA |
+| 1 | Windows i18n、默认英文 README、review 和发布 | 实现、完整验证、渲染修复与复审完成；已有 push main 授权；发布须核对 live Git | 提交已登记的任务修复 / 证据，正常推送 origin/main，再核对 SHA；若已一致则完成，不重复推送 |
 | 2 | Windows 实机 UAC、Repair/Restore 后泄露与完整 Acrylic 视觉验收；未覆盖，不在本轮继续执行 | 用户明确选择仅隔离测试及只读检查；docs/validation/windows-live-plan.md 仅保留备选计划 | 完整实机状态保持 partial，不记为通过；不再索取本轮真实修复授权 |
 | 3 | Mac 复测；按用户要求不再执行 | 保留既有 Mac 验收证据和历史网络限制 | 无需重复测试，不修改 macos/ 与 Mac 报告 |
 | 4 | 其他代理/浏览器；延期 | 新需求 | 不在本轮启动 |
 
 ## Next executable action
 
-继续会话时先执行 `git -C D:/proj/ProxyVeil status --short --branch`，读取 `docs/validation/readme-publication.json` 与当前任务事件，并用 `git ls-remote origin refs/heads/main` 核对发布状态。若已与本地 HEAD 一致，不重复推送，不为回填成功再提交。若尚未发布且验证通过，先按 Git 策略登记精确推送操作、提交登记与任务内容，再执行 `git push origin refs/heads/main:refs/heads/main` 并核对远端 SHA。不执行真实 Repair/Restore、UAC 提权或自动重启 FlClash/Edge；Mac 与 Windows 10 都不再测试。
+继续会话时先执行 `git -C D:/proj/ProxyVeil status --short --branch`，读取当前 i18n 任务 state/events、docs/validation/windows-i18n.json 与 docs/review-i18n.md，再执行 `git ls-remote origin refs/heads/main` 核对发布状态。完整验证脚本 `.git/codex-operation-records/validate-windows-i18n.ps1` 及修复后针对性复测 `.git/codex-operation-records/verify-render-fix.ps1` 均已完成；无需重复通过项。若远端与本地 HEAD 一致，不重复推送，不为回填成功再提交。若尚未发布，先核对 pending 推送声明、前置提交与远端 c61eea4 起点，再执行 `git push origin refs/heads/main:refs/heads/main` 并核对远端 SHA；远端发生其他变化时重新分析，不强推。不执行真实 Repair/Restore、UAC 提权或自动重启 FlClash/Edge；Mac 与 Windows 10 都不再测试。
 
 本机复现：
 

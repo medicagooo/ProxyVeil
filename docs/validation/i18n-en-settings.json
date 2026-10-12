@@ -1,11 +1,11 @@
 {
-  "actualNetworkTest": false,
   "nativeAcrylicAccepted": true,
   "state": "Settings",
-  "height": 790.0,
-  "forcedOpaque": false,
-  "fixture": true,
   "width": 620.0,
+  "fixture": true,
+  "actualNetworkTest": false,
+  "language": "en",
+  "forcedOpaque": false,
   "background": "#D4E9F1F7",
-  "language": "en"
+  "height": 790.0
 }

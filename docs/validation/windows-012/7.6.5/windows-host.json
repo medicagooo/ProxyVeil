@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-12T16:46:44.9847527-04:00",
+  "at": "2026-10-12T17:17:28.3505212-04:00",
   "os": "Microsoft Windows 11 Pro N",
   "build": "26300",
   "powerShell": "7.6.5",
@@ -12,52 +12,51 @@
   "postRepairLeakAcceptance": "not_executed",
   "networkBaseline": [
     {
-      "result": "failed",
+      "httpStatus": 200,
       "target": "domestic_https",
-      "errorType": "TaskCanceledException",
-      "httpStatus": null,
-      "elapsedMs": 15020,
-      "transport": "HttpClient_default_proxy"
-    },
-    {
-      "transport": "explicit_loopback_proxy",
-      "result": "passed",
-      "elapsedMs": 1047,
-      "httpStatus": 200,
-      "target": "domestic_https"
-    },
-    {
+      "elapsedMs": 1082,
       "transport": "HttpClient_default_proxy",
-      "result": "passed",
-      "elapsedMs": 665,
-      "httpStatus": 200,
-      "target": "proxy_site_https"
+      "result": "passed"
     },
     {
-      "transport": "explicit_loopback_proxy",
-      "result": "passed",
-      "elapsedMs": 1073,
       "httpStatus": 200,
-      "target": "proxy_site_https"
+      "target": "domestic_https",
+      "elapsedMs": 7470,
+      "transport": "explicit_loopback_proxy",
+      "result": "passed"
+    },
+    {
+      "httpStatus": 200,
+      "target": "proxy_site_https",
+      "elapsedMs": 577,
+      "transport": "HttpClient_default_proxy",
+      "result": "passed"
+    },
+    {
+      "httpStatus": 200,
+      "target": "proxy_site_https",
+      "elapsedMs": 552,
+      "transport": "explicit_loopback_proxy",
+      "result": "passed"
     }
   ],
   "flclash": {
-    "installPath": "C:\\Users\\medic\\OneDrive\\Documents\\APP\\FlClash-0.8.99-windows-amd64\\FlClash.exe",
-    "configDirectory": "C:\\Users\\medic\\AppData\\Roaming\\com.follow\\clash",
     "running": true,
+    "preferencesStructure": "recognized",
     "selectedProfileVerified": true,
-    "mode": "TUN",
+    "installPath": "C:\\Users\\medic\\OneDrive\\Documents\\APP\\FlClash-0.8.99-windows-amd64\\FlClash.exe",
     "version": "0.8.99+2026100301",
-    "preferencesStructure": "recognized"
+    "mode": "TUN",
+    "configDirectory": "C:\\Users\\medic\\AppData\\Roaming\\com.follow\\clash"
   },
   "inMemoryPlans": [
     {
       "result": "passed",
-      "valuesSaved": false,
       "plannedFileTargets": [
         "Selected profile YAML",
         "shared_preferences.json"
       ],
+      "valuesSaved": false,
       "policyNames": [
         "DnsOverHttpsMode",
         "WebRtcIPHandlingUrl",
@@ -68,11 +67,11 @@
     },
     {
       "result": "passed",
-      "valuesSaved": false,
       "plannedFileTargets": [
         "Selected profile YAML",
         "shared_preferences.json"
       ],
+      "valuesSaved": false,
       "policyNames": [
         "DnsOverHttpsMode",
         "DnsOverHttpsTemplates",
@@ -84,9 +83,9 @@
     }
   ],
   "liveInspect": {
-    "result": "Inspected",
+    "activeSnapshot": false,
     "proxyGroupCount": 27,
-    "activeSnapshot": false
+    "result": "Inspected"
   },
   "permissionGuards": [
     {
@@ -100,46 +99,46 @@
   ],
   "helperService": "Running",
   "localProxy": {
+    "portSource": "applied config.yaml mixed-port",
     "tcpConnect": "passed",
-    "port": 7890,
-    "portSource": "applied config.yaml mixed-port"
+    "port": 7890
   },
   "flclashFilesUnchangedDuringProbe": true,
   "inspectionResult": "passed",
   "edgePolicies": [
     {
-      "machineExists": false,
-      "machineType": null,
       "name": "WebRtcLocalhostIpHandling",
       "userType": "String",
+      "machineExists": false,
+      "machineType": null,
       "userExists": true
     },
     {
-      "machineExists": false,
-      "machineType": null,
       "name": "WebRtcRespectOsRoutingTableEnabled",
       "userType": "DWord",
+      "machineExists": false,
+      "machineType": null,
       "userExists": true
     },
     {
-      "machineExists": false,
-      "machineType": null,
       "name": "WebRtcIPHandlingUrl",
       "userType": "String",
+      "machineExists": false,
+      "machineType": null,
       "userExists": true
     },
     {
-      "machineExists": false,
-      "machineType": null,
       "name": "DnsOverHttpsMode",
       "userType": "String",
+      "machineExists": false,
+      "machineType": null,
       "userExists": true
     },
     {
-      "machineExists": false,
-      "machineType": null,
       "name": "DnsOverHttpsTemplates",
       "userType": null,
+      "machineExists": false,
+      "machineType": null,
       "userExists": false
     }
   ],

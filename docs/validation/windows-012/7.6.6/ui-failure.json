@@ -1,11 +1,11 @@
 {
+  "at": "2026-10-12T17:27:59.7112921-04:00",
   "result": "passed",
+  "scope": "actual WPF action event; local worker where applicable",
+  "liveConfigurationModified": false,
   "scenarios": [
     "blocked-directory",
     "blocked-settings",
     "corrupt-snapshot"
-  ],
-  "at": "2026-10-12T16:46:14.7498170-04:00",
-  "scope": "actual WPF action event; local worker where applicable",
-  "liveConfigurationModified": false
+  ]
 }

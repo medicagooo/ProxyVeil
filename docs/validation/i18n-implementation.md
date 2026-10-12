@@ -12,4 +12,10 @@ README.md defaults to English and links README.zh-CN.md. Both use current isolat
 
 Test-I18n checks language mapping, regional independence, resource keys/arguments, XAML keys, request locale lifetime, TUN/Proxy repair, cross-language restore, rollback, bilingual UI/worker flows and malformed worker requests. Existing Chinese-message tests explicitly choose zh-CN to keep assertions independent of host locale. Test-Desktop now resolves the chosen language for Automation names and child launch. Actual UAC is not executed; locale propagation there is reviewed from code.
 
-Validation reports and review findings will be recorded with this task. Real FlClash/Edge writes and macOS retesting remain out of scope.
+Desktop screenshot review exposed a separate rendering defect: UI Automation could operate the window, but hardware rendering produced only the DWM background. A 2.5-second capture delay did not help; software rendering restored visible controls. `Start-ProxyVeil.ps1` now sets `HwndSource.CompositionTarget.RenderMode` to SoftwareOnly in SourceInitialized for this window. DWM Acrylic remains enabled; no process-wide or registry setting changes. Software rendering trades hardware acceleration for reliable content drawing in this small desktop window; performance was not benchmarked.
+
+[HwndTarget.RenderMode](https://learn.microsoft.com/en-us/dotnet/api/system.windows.interop.hwndtarget.rendermode?view=windowsdesktop-9.0) documents the per-window setting. Microsoft's [WPF rendering guidance](https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.renderoptions.processrendermode?view=windowsdesktop-7.0) describes software rendering for external rendering problems. Both retrieved 2026-10-12. The specific hardware failure cause below WPF was not established.
+
+`tests/DesktopCapture.Assertions.ps1::Assert-PvDesktopContent` is called by Test-Desktop before saving screenshots. It requires sampled dark text and blue/green action-button pixels inside the window; the existing hardware path failed with both counts zero before the fix. This gate detects blank content, not complete layout correctness or blur strength. Screenshot observation remains necessary.
+
+Validation reports and review findings are in windows-i18n.json and docs/review-i18n.md. Real FlClash/Edge writes and macOS retesting remain out of scope.

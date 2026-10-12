@@ -1,21 +1,21 @@
 {
+  "version": "0.1.2",
+  "offline": true,
+  "builtAt": "2026-10-12T17:29:03.0710777-04:00",
+  "runtime": "PowerShell 7 on Windows / WPF",
   "bundledRuntime": false,
-  "builtAt": "2026-10-12T17:10:33.5853427-04:00",
   "artifacts": [
     {
-      "sha256": "C3D775481912B12D6D0F9E2C5B593AE3D4805067676DFD62F0F5EAB4D9274427",
-      "path": "dist/ProxyVeil-0.1.2-Standard.zip",
+      "bytes": 331834,
       "edition": "Standard",
-      "bytes": 331671
+      "sha256": "8B200B0BDFBBCAC8F29D7108E5500EBF256C7310471F1DA5B1955FBC123E00EF",
+      "path": "dist/ProxyVeil-0.1.2-Standard.zip"
     },
     {
-      "sha256": "8C8E4D2BCFFE4406CD65F05FD9D4F085A7C4A0095130A2BCC09C15B71DC898FF",
-      "path": "dist/ProxyVeil-0.1.2-Administrator.zip",
+      "bytes": 332071,
       "edition": "Administrator",
-      "bytes": 331908
+      "sha256": "3781CAB47661E5942B7BECDE749DC8D6AEB3E8397F0B45FEF2FCEFC7B8DA38A4",
+      "path": "dist/ProxyVeil-0.1.2-Administrator.zip"
     }
-  ],
-  "version": "0.1.2",
-  "runtime": "PowerShell 7 on Windows / WPF",
-  "offline": true
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "scope": "native HKCU temporary key; persisted snapshot roundtrip",
-  "liveConfigurationModified": false,
-  "at": "2026-10-12T16:44:56.7513386-04:00",
   "result": "passed",
-  "passed": 11
+  "at": "2026-10-12T17:13:17.2714737-04:00",
+  "passed": 11,
+  "liveConfigurationModified": false
 }

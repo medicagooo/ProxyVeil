@@ -1,8 +1,9 @@
 {
-  "at": "2026-10-12T16:27:44.5903944-04:00",
+  "at": "2026-10-12T17:28:49.2951981-04:00",
   "result": "passed",
   "scope": "Displayed native WPF window with isolated fixture and UI Automation",
   "powerShell": "7.6.6",
+  "language": "zh-CN",
   "fixture": true,
   "liveConfigurationModified": false,
   "realUacTest": false,
@@ -18,26 +19,25 @@
     "Close control exits window"
   ],
   "screenshots": [
-    "docs/validation/windows-desktop-settings.png",
-    "docs/validation/windows-desktop-configured.png",
-    "docs/validation/windows-desktop-restored.png"
+    "docs/validation/windows-012/7.6.6/windows-desktop-idle.png",
+    "docs/validation/windows-012/7.6.6/windows-desktop-settings.png",
+    "docs/validation/windows-012/7.6.6/windows-desktop-configured.png",
+    "docs/validation/windows-012/7.6.6/windows-desktop-restored.png"
   ],
-  "captureWarnings": [
-    "windows-desktop-idle: fixture window does not own capture point 1000,182; no screenshot saved"
-  ],
-  "visualCapture": "partial",
+  "captureWarnings": [],
+  "visualCapture": "captured",
   "captureBounds": {
-    "y": 174,
     "height": 1580,
+    "y": 174,
     "width": 1240,
     "x": 996
   },
   "automationBounds": "996,174,1240,1580",
   "nativeBackdrop": {
     "visualBlur": "Requires screenshot observation; attribute alone does not prove blur",
-    "hresult": 0,
+    "value": 3,
     "acrylicConfigured": true,
-    "value": 3
+    "hresult": 0
   },
   "childExitCode": 0
 }
