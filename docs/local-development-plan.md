@@ -6,6 +6,8 @@
 
 后续实施已推进到 0.1.2；当前有效要求见 [implementation-0.1.2.md](implementation-0.1.2.md)，新布局已实现，原生 Mac 验收步骤见 [macos-acceptance.md](validation/macos-acceptance.md)。以下保留本方案制定时的起点和执行顺序，完成情况以 STATE.md 及本轮验证记录为准。
 
+2026-10-12 用户取消 Windows 10 单独验收，表中第 5 步不再执行。Windows 11 的双运行时和包自动验收已通过；Mac 原生验收是下一步。
+
 已将 macOS 适配器的 fcntl 导入移入实际锁路径。Windows 测试用 msvcrt 原生锁调用同一组 context、plan、repair、restore 函数，macOS 保留 flock。生产 CLI 仍只接受 macOS，没有新增绕过平台检查的参数。
 
 `scripts/Test-macOS-Portable.py` 在临时目录生成夹具，已通过 12 个场景：只读检查与计划、TUN/Proxy 修复和字节还原、WebRTC 跳过、重复修复拒绝、外部变化、备份缺失及篡改、修复回退、还原中断续接、跨进程互斥，以及 Windows 生产入口拒绝。结果见 `docs/validation/macos-portable.json`。Python 使用本机已有的 3.12.14，无新增依赖。

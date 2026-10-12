@@ -1,6 +1,6 @@
 # Windows 0.1.2 验收
 
-2026-10-12，Windows 11 Pro N build 26300。本轮自动验收通过，整体状态仍为 partial。
+2026-10-12，Windows 11 Pro N build 26300。本轮自动验收通过，整体状态仍为 partial。用户随后明确取消 Windows 10 单独验收，以 Windows 11 验收为准；不再需要准备 Windows 10 VM 或 ISO。
 
 PowerShell 7.6.5 与 7.6.6 各执行 8 项 suite：核心 118 条断言、review 7 场景、原生注册表 11 个往返、WPF 修复/还原、窗口故障、进度恢复、并发进度读取，以及两个解压包。所有测试通过。原生注册表只用随机 HKCU Software/ProxyVeil.Test-*，剩余键为 0；未修改真实 FlClash 或 Edge。
 
@@ -16,4 +16,4 @@ pwsh -NoProfile -File scripts/Test-WindowsAcceptance.ps1 -PowerShellPaths <Power
 
 此脚本覆盖自动 suites、重建包、包验证和报告，目录由仓库位置确定，测试使用夹具。命令中的路径列表需换成目标机安装的 PowerShell 7。单运行时也可执行，但报告只能证明该运行时。
 
-未执行：Windows 10 实机/VM、真实桌面 Acrylic、实际 UAC、FlClash TUN 权限和网络。当前电脑无已确认可用的 Windows 10 VM/安装介质；本会话未得到该环境信息。真实配置修改须明确授权对应操作，不能以代码修复指令推断。下一步需目标 Windows 环境，按 README 的复测清单验收并追加无凭据结果。Mac 原生验收由用户执行 [macos-acceptance.md](macos-acceptance.md)。
+未执行：真实桌面 Acrylic、实际 UAC、FlClash TUN 权限和网络。Windows 10 独立验收已按用户要求取消，没有新增 Windows 10 实测结果。真实配置修改须明确授权对应操作，不能以代码修复指令推断。剩余 Windows 实测按 README 的复测清单追加无凭据结果。Mac 原生验收由用户执行 [macos-acceptance.md](macos-acceptance.md)。

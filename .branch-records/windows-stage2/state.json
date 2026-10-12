@@ -1,11 +1,14 @@
 {
   "purpose": "Run Windows stage two regression and record compatibility coverage",
-  "requirements": ["docs/validation/windows-stage2.md"],
+  "requirements": [
+    "docs/validation/windows-stage2.md"
+  ],
   "constraints": [
     "Offline Windows/PowerShell tests using isolated fixtures and simulated Edge policies",
     "Native registry verification uses only random HKCU Software/ProxyVeil.Test-* keys with cleanup",
     "No real FlClash or Edge repair, UAC elevation, push or release",
-    "Unavailable operating systems and manual network checks remain explicitly pending"
+    "Unavailable operating systems and manual network checks remain explicitly pending",
+    "User waived standalone Windows 10 acceptance on 2026-10-12; Windows 11 evidence defines the host scope"
   ],
   "acceptance": [
     "Core, UI, failure handling and extracted package tests pass on both locally available PowerShell versions",
@@ -14,9 +17,14 @@
   ],
   "status": "complete",
   "integration": "not_applicable",
-  "evidence": ["docs/validation/windows-stage2.json", "docs/validation/windows-stage2/7.6.5/engine.json", "docs/validation/windows-stage2/7.6.6/engine.json", "STATE.md"],
-  "completedAt": "2026-10-12T14:06:58.6371960-04:00",
-  "result": "Local execution and coverage recording complete; overall windows-stage2 remains partial pending Windows 10, manual desktop and live network/UAC/TUN acceptance",
+  "evidence": [
+    "docs/validation/windows-stage2.json",
+    "docs/validation/windows-stage2/7.6.5/engine.json",
+    "docs/validation/windows-stage2/7.6.6/engine.json",
+    "STATE.md"
+  ],
+  "completedAt": "2026-10-12T14:06:58.637196-04:00",
+  "result": "Original automated execution and coverage recording complete; Windows 10 standalone acceptance now excluded by user. Manual desktop and live network/UAC/TUN acceptance remain pending.",
   "sourceCommit": "8f3e9e40d690e9a6d63779ff3a4c6d4e90287134",
-  "next": "On an isolated Windows 10 test host run scripts/Test.ps1, Test-UI.ps1, Test-UI-Failure.ps1 and Test-Package.ps1; append that host's coverage to docs/validation/windows-stage2.json"
+  "next": "Use Windows 11 for remaining authorized desktop/network acceptance; no Windows 10 VM or separate test required. Current evidence and Mac handoff are linked from STATE.md."
 }

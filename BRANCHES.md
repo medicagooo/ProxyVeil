@@ -9,12 +9,12 @@
       "event": "push-corrected-identity"
     },
     {
-      "task": "local-development-v1",
-      "event": "merge-main-012"
+      "event": "merge-win11-scope",
+      "task": "local-development-v1"
     },
     {
-      "task": "local-development-v1",
-      "event": "push-main-012"
+      "event": "push-win11-scope",
+      "task": "local-development-v1"
     }
   ],
   "changes": [

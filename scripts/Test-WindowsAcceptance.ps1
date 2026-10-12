@@ -39,7 +39,8 @@ $os=Get-CimInstance Win32_OperatingSystem
 $report=@{at=[DateTimeOffset]::Now.ToString('o');status='partial';version=$manifest.version;os=$os.Caption;build=$os.BuildNumber;
     automatedResult='passed';runtimes=$results;packages=$manifest.artifacts;registryTestKeysRemaining=$keys.Count;liveConfigurationModified=$false;
     fallback='Forced DWM fallback rendered and background checked on Windows 11';
-    outstanding=@('Windows 10 native host','Manual desktop Acrylic and interaction','Real UAC/TUN and network acceptance');
+    excludedAcceptance=@('Separate Windows 10 acceptance waived by user on 2026-10-12');
+    outstanding=@('Manual desktop Acrylic and interaction','Real UAC/TUN and network acceptance');
     macOSNativeAcceptance='User will execute docs/validation/macos-acceptance.md'}
 $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $root 'docs/validation/windows-012.json') -Encoding utf8NoBOM
 'PASS: Windows automated acceptance and rebuilt packages; native host/network gaps remain'

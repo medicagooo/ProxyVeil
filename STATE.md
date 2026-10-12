@@ -4,12 +4,12 @@
 
 Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与管理员入口，TUN/Proxy，可选 DNS/WebRTC/FlClash IPv6，显式修复和可恢复快照；保留国内直连、订阅与节点选择。macOS 使用独立 Python CLI，显式 inspect/repair/restore，WebRTC 与浏览器 DoH 不配置。
 
-2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；用户随后在 Mac 做原生验收。本轮实现、审查修复和当前 Windows 自动验收已完成。Windows 10、真实桌面、UAC/TUN/网络仍缺环境或明确目标操作授权，整体 Windows 验收为 partial。未授权自动修复本机真实配置、部署或 GitHub Release。
+2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；用户随后在 Mac 做原生验收。本轮实现、审查修复和当前 Windows 自动验收已完成。用户随后明确不需要单独验收 Windows 10，以现有 Windows 11 证据作为自动验收范围；真实桌面、UAC/TUN/网络仍缺对应操作授权或实测结果，整体 Windows 验收为 partial。未授权自动修复本机真实配置、部署或 GitHub Release。
 
 ## Repository and authoritative records
 
 - 唯一工作区 D:/proj/ProxyVeil。本轮使用 1012-local-development，登记 .branch-records/local-development-v1/。原审查基线为当时远端 main 8f3e9e40d690e9a6d63779ff3a4c6d4e90287134；foundation f7bb594；原生适配初版 0eda71e。复审修复和验证记录已提交 4989bae38e77215c1f282ce1cd5cfe7a3cdd3755；其后仅有发布声明元数据。具体 HEAD、当前分支与脏状态必须用 live Git 核对。
-- 本交接在提交前更新；此时本轮修复、文档和验收记录已提交；merge-main-012 与 push-main-012 已登记，main 集成/push 待执行。计划快进 main，再正常 push 到 git@github.com:medicagooo/ProxyVeil.git refs/heads/main；最终是否发布和 SHA 由 live Git/远端决定，operation.after 仅为意图。不得仅为回填成功再提交或推送。
+- 0.1.2 已发布：本机 main、任务分支与远端 main 核对为 ece53c8f9f0b5fab55a4cd51dc314e690083b89a，工作区干净。当前仅更新 Windows 验收范围，merge-win11-scope/push-win11-scope 是待执行声明；最终 SHA 用 live Git 核对，operation.after 仅为意图。不得仅为回填成功再提交或推送。
 - 当前有效要求 docs/implementation-0.1.2.md；早期方案 docs/local-development-plan.md；原 Windows 规格 docs/spec-v1.md；架构 docs/adr/0001-desktop-and-recovery.md 与 0002-macos-flclash.md；调用/数据边界 docs/agents/domain.md；业务账本 BRANCHES.md。
 - 历史身份更正与 Windows/macOS 首版保留于旧记录和 docs/review-0.1.1.md。历史 pending 不得直接重试，需核对远端结果。无 Release 或部署。
 
@@ -36,15 +36,15 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 | 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
 |---|---|---|---|
-| 1 | 本轮 main 集成及发布；本交接写入时待执行 | 提交修复/记录，登记 merge/push，确认远端 main 未变化 | 正常快进与 push；ls-remote SHA 与本机 main 相同，最终报告 exact SHA |
+| 1 | 验收范围更新发布；待执行 | 已登记 merge-win11-scope/push-win11-scope；确认远端 main 未变化 | 正常快进与 push；远端 SHA 与本机 main 相同 |
 | 2 | Mac 原生验收；交给用户，尚未执行 | Mac、FlClash、Python，干净工作区更新 main；实际偏好域/类型/schema 尚待核实 | 先隔离测试和只读 inspect，再明确 repair/restore，重启及网络验证；docs/validation/macos-acceptance.md |
-| 3 | Windows 10 与桌面；未执行 | 当前未确认可用 VM/ISO，已向用户询问但未得到环境信息 | 启动/回退/操作与 suites 实机通过，追加 OS/运行时证据；windows-012.md |
+| 3 | Windows 真实桌面；未执行 | Windows 11 桌面观察 | Acrylic 与操作实测，追加证据；windows-012.md。Windows 10 单独验收按用户要求取消 |
 | 4 | Windows 真实 UAC/TUN/网络；未执行 | 测试用户、FlClash/节点、明确对应真实配置操作授权 | 实际启动提权、配置采用、国内/代理/DNS/WebRTC/IPv6复测与恢复，无凭据摘要 |
 | 5 | 其他代理/浏览器；延期 | 新需求 | 不在本轮启动 |
 
 ## Next executable action
 
-先在 Windows 核对已声明的正常 main 推送与 SHA；若 main 和远端已包含本次声明提交，操作已完成，不重跑，直接继续 Mac 验收。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
+核对验收范围声明已推送；若 main 和远端已包含本次声明提交，操作已完成，不重跑。下一步由用户在 Mac 按下列交接执行。Windows 10 不再需要 VM/ISO 或独立验收。后续 Mac 在自己的 ProxyVeil 仓库按 docs/validation/macos-acceptance.md 更新 main，执行三个隔离测试，再退出 FlClash做只读 inspect。不要把“awaiting native acceptance”改成通过，直到保存实际验收证据。
 
 本机复现：
 

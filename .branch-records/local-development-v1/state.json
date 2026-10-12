@@ -9,7 +9,8 @@
     "Windows native offline development and generated fixtures; production CLI remains macOS-only",
     "Preserve legacy JSON and schema-1 restore; SQLite read-only; never overwrite config.yaml",
     "No live FlClash/Edge repair, deployment, virtualization changes or force push",
-    "Normal main integration and push explicitly authorized; native Mac and unavailable Windows environments must be reported honestly"
+    "Normal main integration and push explicitly authorized; native Mac and unavailable Windows environments must be reported honestly",
+    "Separate Windows 10 acceptance is not required per user clarification on 2026-10-12; Windows 11 evidence is the accepted automated host scope"
   ],
   "acceptance": [
     "Native preference interface and generated XML/binary plist fixtures share production recovery logic",
@@ -30,7 +31,7 @@
   ],
   "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
   "result": "Implementation and independent review fixes verified; 32 Python fixture tests, two Windows runtimes each 8 suites, rebuilt 0.1.2 packages passed. No live repair. Windows overall partial and Mac native pending.",
-  "next": "Execute declared merge-main-012 and push-main-012; verify live refs. If already successful, do not retry; user runs native Mac acceptance, Windows native environment gaps remain.",
+  "next": "Publish declared acceptance-scope update; user then performs Mac native acceptance. Remaining Windows desktop/UAC/TUN/network checks exclude separate Windows 10 validation.",
   "completedAt": "2026-10-12T14:53:41.7727452-04:00",
   "testedCommit": "4989bae38e77215c1f282ce1cd5cfe7a3cdd3755"
 }
