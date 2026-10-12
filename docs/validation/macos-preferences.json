@@ -1,15 +1,15 @@
 {
-  "at": "2026-10-12T18:52:09.098676+00:00",
+  "at": "2026-10-12T19:46:06.309258+00:00",
   "result": "passed",
   "tests": 16,
   "failures": 0,
   "errors": 0,
-  "platform": "win32",
+  "platform": "darwin",
   "scope": "Generated XML/binary plist and SQLite fixtures, production schema-2 recovery",
   "nativeCFPreferences": "not_executed",
   "liveConfigurationModified": false,
   "sourceHashes": {
-    "proxyveil.py": "53d3e72865e5dbe3debaaac928af39c075fd70ef8173a40a84354fe5d1074437",
+    "proxyveil.py": "d9aea16fe98f51eb825a1816268b50f1fc4c9e2a3eace8260029d3585a505df4",
     "preferences.py": "cb33467c09806051a26259610707794facee96684db7dd65dc6abd9a1d4c0f2f"
   }
 }
