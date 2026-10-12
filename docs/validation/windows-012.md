@@ -29,6 +29,6 @@ pwsh -NoProfile -STA -File scripts/Test-Desktop.ps1
 pwsh -NoProfile -File scripts/Test-WindowsHost.ps1
 ```
 
-尚未执行真实 UAC 成功路径、真实 Repair/Restore 后的 Edge 策略采用和泄露复测；Acrylic 模糊效果仍待交互观察。实际写入的文件、策略、影响与恢复步骤见 [windows-live-plan.md](windows-live-plan.md)，需用户明确 Repair 授权。Windows 10 独立验收已取消。
+用户随后明确选择“只完成隔离测试及只读检查”，本轮该范围已完成。真实 UAC 成功、真实 Repair/Restore 后的 Edge 策略采用及泄露复测未执行；Acrylic 模糊效果未完整确认，完整实机状态保留 partial。这些缺口不再作为本轮待办或继续授权的问题。[windows-live-plan.md](windows-live-plan.md) 仅保留未执行的备选计划。Mac 复测和 Windows 10 独立验收均不在范围。
 
 桌面测试首次失败原因：窗口句柄有效、可见且输入桌面为 Default，SetForegroundWindow 返回 false。测试改为临时抬高夹具窗口但不取得键盘焦点；高 DPI 坐标改为物理像素，并先检查窗口遮挡再截图。官方行为依据：[SetForegroundWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow)、[SetWindowPos](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos)、[GetWindowRect](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowrect)、[SetThreadDpiAwarenessContext](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setthreaddpiawarenesscontext)，检索日期 2026-10-12。焦点限制是根据本机探测和文档的推断，不计为应用缺陷。

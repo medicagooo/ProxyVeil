@@ -9,7 +9,8 @@
     "No macOS tests or modifications",
     "Windows 11 only; offline build",
     "Repair and restore use isolated fixtures; real FlClash and Edge read-only",
-    "No push or release publication"
+    "No push or release publication",
+    "User declined live Repair/Restore on 2026-10-12; finish only isolated tests and read-only checks; no further consent requests for this run"
   ],
   "acceptance": [
     "Run installed PowerShell 7 runtimes against all eight Windows suites",
@@ -30,7 +31,7 @@
     "scripts/Test-WindowsHost.ps1"
   ],
   "testedCommit": "23c56ae7def65502c37fec19e8eb6f7416320839",
-  "next": "Obtain explicit authorization for the exact live Repair/Restore plan in docs/validation/windows-live-plan.md; actual UAC and Edge restart require user interaction",
+  "next": "Requested test scope complete; preserve evidence and await new work; do not execute live Repair/Restore, UAC or macOS tests",
   "result": "Both PowerShell runtimes passed all 8 automated suites plus displayed desktop controls; packages rebuilt/verified; live read-only Inspect and in-memory TUN/Proxy plans passed; 4 HTTPS baseline probes passed; no live configuration writes or Mac tests. Native acceptance remains partial.",
   "completedAt": "2026-10-12T16:32:22.9064571-04:00"
 }

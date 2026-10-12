@@ -4,7 +4,7 @@
 
 Windows PowerShell 7/WPF 的 FlClash + Edge 隐私配置助手，普通权限与管理员入口，TUN/Proxy，可选 DNS/WebRTC/FlClash IPv6，显式修复和可恢复快照；保留国内直连、订阅与节点选择。macOS 使用独立 Python CLI，显式 inspect/repair/restore，WebRTC 与浏览器 DoH 不配置。
 
-2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；Mac 原生修复/还原已有历史证据。当前用户要求执行 Windows 测试，并明确无需再次测试 Mac；Windows 10 单独验收已取消。本轮两套运行时自动测试、实际显示窗口的控件/隔离修复还原和本机只读检查已通过。真实 UAC 成功、实际修复后的网络泄露及 Acrylic 模糊效果未完整验收，整体 Windows 状态仍为 partial。真实 FlClash/Edge 只读边界仍有效；未授权自动 Repair、部署或 GitHub Release。
+2026-10-12 用户要求实施本机开发方案、review、bug repair、push main，完成 Windows 验收；Mac 原生修复/还原已有历史证据。当前用户要求执行 Windows 测试，并明确无需再次测试 Mac；Windows 10 单独验收已取消。用户随后选择“只完成隔离测试及只读检查”，本轮范围已完成：两套运行时自动测试、实际显示窗口的控件/隔离修复还原和本机只读检查通过。真实 UAC 成功、实际修复后的网络泄露及 Acrylic 模糊效果未完整验收，完整实机状态仍为 partial；这些缺口保留记录，不继续执行或重复询问本机 Repair 授权。未授权部署或 GitHub Release。
 
 ## Repository and authoritative records
 
@@ -40,14 +40,14 @@ Windows Native/PowerShell 7，离线构建。已有 Python 3.12.14 用于本机�
 
 | 优先级 | 工作/状态 | 前置与阻塞 | 预期与验证 |
 |---|---|---|---|
-| 1 | Windows 真实 UAC 和修复后网络；未执行，计划已可审阅 | docs/validation/windows-live-plan.md 列出确切文件/策略及短暂断网影响；需要显式 Repair 授权及用户接受 UAC、安排 Edge 重启 | 分别 TUN/Proxy 修复、配置采用、edge://policy、国内/代理/DNS/WebRTC/IPv6及 Restore；普通版不主动提权 |
-| 2 | Windows Acrylic 模糊效果；属性及控件已通过，视觉确认不完整 | 交互桌面，首个 Idle 截图遮挡；其余 3 张截图可读 | 用户观察实际背景模糊；不把 DWM 属性读回或平面截图算成视觉通过 |
+| 1 | Windows 隔离测试及只读检查；本轮已完成 | 两套运行时报告、包、桌面控件和宿主基线已验证 | 保留现有证据；没有新问题或新请求时不重复测试 |
+| 2 | Windows 实机 UAC、Repair/Restore 后泄露与完整 Acrylic 视觉验收；未覆盖，不在本轮继续执行 | 用户明确选择仅隔离测试及只读检查；docs/validation/windows-live-plan.md 仅保留备选计划 | 完整实机状态保持 partial，不记为通过；不再索取本轮真实修复授权 |
 | 3 | Mac 复测；按用户要求不再执行 | 保留既有 Mac 验收证据和历史网络限制 | 无需重复测试，不修改 macos/ 与 Mac 报告 |
 | 4 | 其他代理/浏览器；延期 | 新需求 | 不在本轮启动 |
 
 ## Next executable action
 
-Windows 自动测试、桌面控件和只读网络基线已完成。下一步审阅 docs/validation/windows-live-plan.md；只有用户明确授权所列本机 Repair/Restore 后，才可通过 Core/Invoke-PvOperation 执行真实 TUN/Proxy 修复及还原。真实 UAC 需用户接受当前用户提权，Edge 重启须由用户安排，不自动结束现有窗口。授权前不执行真实 Repair；Mac 与 Windows 10 都不再测试。
+本轮在用户指定的隔离测试及只读检查范围内已完成，无待执行测试。继续会话时先用 `git -C D:/proj/ProxyVeil status --short --branch` 核对本地状态，保留现有证据，等待新的工作要求。不执行真实 Repair/Restore、UAC 提权或自动重启 FlClash/Edge，不再次请求本轮已拒绝的授权；Mac 与 Windows 10 都不再测试。
 
 本机复现：
 

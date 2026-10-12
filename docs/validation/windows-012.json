@@ -1,7 +1,8 @@
 {
   "excludedAcceptance": [
     "Separate Windows 10 acceptance waived by user on 2026-10-12",
-    "macOS retesting excluded by user for this Windows task"
+    "macOS retesting excluded by user for this Windows task",
+    "User declined live Repair/Restore; actual UAC and post-repair leakage acceptance not performed"
   ],
   "runtimes": [
     {
@@ -44,11 +45,7 @@
   "status": "partial",
   "registryTestKeysRemaining": 0,
   "os": "Microsoft Windows 11 Pro N",
-  "outstanding": [
-    "Actual Acrylic blur observation",
-    "Real UAC success",
-    "Explicitly authorized live Repair/Restore and post-repair Edge/DNS/WebRTC/IPv6 acceptance"
-  ],
+  "outstanding": [],
   "fallback": "Forced DWM fallback rendered and background checked on Windows 11",
   "version": "0.1.2",
   "at": "2026-10-12T16:19:33.8495171-04:00",
@@ -74,5 +71,13 @@
       "path": "scripts/Test-WindowsAcceptance.ps1",
       "sha256": "4F130A116673D9FF661CAA6D7140F37B8EB0F5F5E5AF2C55519A28A66D9E5F14"
     }
+  ],
+  "acceptedScope": "Isolated Windows tests and read-only live checks only",
+  "acceptedScopeResult": "passed",
+  "scopeConfirmedAt": "2026-10-12T16:34:37.4660632-04:00",
+  "notCovered": [
+    "Actual Acrylic blur observation",
+    "Real UAC success",
+    "Explicitly authorized live Repair/Restore and post-repair Edge/DNS/WebRTC/IPv6 acceptance"
   ]
 }
