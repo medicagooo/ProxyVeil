@@ -1,0 +1,14 @@
+{
+  "status": "pending",
+  "phase": "windows-stage2",
+  "scope": "PowerShell 7, WPF UI, package smoke, Windows 10/11 compatibility",
+  "commands": [
+    "pwsh -NoProfile -File scripts/Test.ps1",
+    "pwsh -NoProfile -STA -File scripts/Test-UI.ps1",
+    "pwsh -NoProfile -STA -File scripts/Test-UI-Failure.ps1",
+    "pwsh -NoProfile -File scripts/Test-Package.ps1"
+  ],
+  "liveConfigurationModified": false,
+  "completedBy": null,
+  "completedAt": null
+}

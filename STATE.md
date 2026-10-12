@@ -16,7 +16,7 @@
 
 ## Verified phase and artifacts
 
-首版流程与复盘保留于 docs/retro.md。Windows 版本已完成独立 Standards/Spec 审查、修复与离线验证。2026-10-13 完成 macOS MVP 的代码审查与隔离验证；补充回归记录见审查报告及 `docs/validation/macos.json`。
+首版流程与复盘保留于 docs/retro.md。Windows 版本已完成独立 Standards/Spec 审查、修复与离线验证。2026-10-13 完成 macOS MVP 的代码审查、隔离验证和当前 Mac 只读实测；补充记录见 `docs/validation/macos.json` 与 `docs/validation/macos-host.json`。
 
 验收证据：
 
@@ -27,6 +27,8 @@
 - docs/validation/package-smoke.json：普通与管理员包各自解压后执行窗口修复/还原；管理员测试用隔离入口，未触发实际 UAC。
 - dist/ProxyVeil-0.1.1-Standard.zip、dist/ProxyVeil-0.1.1-Administrator.zip；dist/manifest.json；不含运行时、订阅、快照或测试目录。VERSION 为构建与包测试唯一版本源。
 - macos/proxyveil.py、scripts/Launch-macOS.sh、macos/README.md；macOS 不依赖第三方 Python 包，快照默认位于 `~/Library/Application Support/ProxyVeil`，隔离验证见 docs/validation/macos.json。
+- docs/validation/macos-host.json：当前 Mac 为 macOS 27.0.1、FlClash 0.8.99；隔离回归通过，真实配置使用 config.yaml/SQLite 布局，inspect 安全拒绝，未执行 repair。
+- docs/validation/windows-stage2.md、docs/validation/windows-stage2.json：Windows 第二阶段回归、UI、打包和 Windows 10/11 验收清单，状态 pending。
 - README.md 说明启动、修复边界、还原及网络复测；docs/research/platforms.md 保存官方依据与检索日期；docs/review-v1.md 保存自审结论。
 
 ## Locked decisions and compatibility
@@ -34,6 +36,8 @@
 PowerShell 7/WPF，源码与 ZIP 分发。Windows 启动器依次找 PATH、Program Files PowerShell 7、Codex 用户运行时；管理员版通过当前用户 UAC 启动。macOS 使用系统 Python 3 与 `scripts/Launch-macOS.sh`，不运行 sudo。当前 Windows 验收运行时 7.6.5；Windows 11 build 26300；macOS CLI 在本机 Apple Silicon 上通过隔离测试。最低运行时与其他 OS 版本未分别实机验证。
 
 安装地址可自动探测或手填；配置需 shared_preferences.json 的 flutter.config 字符串、数字 currentProfileId、patchClashConfig.tun/networkProps。DNS/IPv6 修改需要受支持的块式 YAML；仅 WebRTC 不解析 YAML 或选择 DNS 组。FlClash 0.8.99 结构已核验，其他版本遇不兼容时拒绝修改。复杂 YAML/锚点/多文档的 DNS 修改需要手工处理。
+
+当前 Mac 实测的 FlClash 0.8.99 使用 `config.yaml`、`database.sqlite` 与 `profiles/*.yaml`，不满足上述 shared_preferences 契约；该布局暂不写入，后续需单独设计适配与迁移测试。
 
 TUN DNS 使用 Mihomo 加密解析、严格路由及 UDP/TCP 53 接管；普通 TUN 要求 FlClashHelperService 已运行。Proxy 开系统代理、关 TUN，并设置 Edge secure DoH 和固定 DoH IP 的组路由；其他应用 DNS 需另验。节点引导走独立直连加密 DNS，避免代理解析循环。清空自定义解析策略可能影响内网站点。
 
@@ -47,15 +51,16 @@ macOS 不写 Windows 注册表，也不宣称可通过普通用户 plist 修改 
 
 | 优先级 | 项目/状态 | 前置与阻塞 | 就绪与结果 | 验证 |
 |---|---|---|---|---|
-| 1 | 真实网络/UAC/TUN 权限验收；后续，未执行 | 一次性 Windows/macOS 用户或 VM、FlClash 与可用节点；当前机器修改不在本次范围 | 可执行；核验 Windows 策略及 macOS Network Extension、DNS 与 WebRTC 行为 | README 复测清单；保存无凭据结果 |
-| 2 | Windows 10 / 其他 PS7 运行时；后续 | 对应测试环境 | 待环境；验证回退 UI 与兼容性 | Build.ps1 + Test-Package.ps1，再实际窗口检查 |
-| 3 | 新代理、其他浏览器；延期 | 新需求与适配规格 | 不启动；保持现有范围 | 新工单和 fixture |
+| 1 | 当前 FlClash config.yaml/SQLite 适配；后续，未执行 | 需要确认 config.yaml 与数据库的写入契约及安全回滚方案 | 当前入口已安全拒绝，未修改真实配置 | docs/validation/macos-host.json |
+| 2 | Windows 第二阶段回归；待用户在 Windows 执行 | Windows 10/11、PowerShell 7、FlClash 与可用节点 | 清单已就绪，结果文件 pending | docs/validation/windows-stage2.md |
+| 3 | 真实网络/UAC/TUN 权限验收；后续，未执行 | 一次性 Windows/macOS 用户或 VM、FlClash 与可用节点 | 可在兼容布局和目标环境就绪后执行 | README 复测清单；保存无凭据结果 |
+| 4 | 新代理、其他浏览器；延期 | 新需求与适配规格 | 不启动；保持现有范围 | 新工单和 fixture |
 
 当前范围没有未解决的实现阻塞或未决产品选择。真实连接、代理组节点可用性、组织策略和用户账户类型由目标机决定，不能从夹具推断。
 
 ## Next executable action
 
-本次 macOS 变更已完成 review、隔离测试、bug repair、提交与推送；远端 `origin/main` 已核验为 `a120acb6d5ce83f2e3a4d83b0156dee72df583b3`。未修改用户真实 FlClash/Edge 配置。后续只剩真实 macOS FlClash、Network Extension 与网络环境验收。
+本次 Mac 实机只读测试已完成：隔离回归通过，真实 FlClash 因 config.yaml/SQLite 布局被安全拒绝，未修改配置。下一步由用户在 Windows 执行 [Windows 第二阶段清单](docs/validation/windows-stage2.md)，并把结果写入 `docs/validation/windows-stage2.json`。当前 MVP 的 macOS 真实 repair 仍需先完成该布局适配。
 
 ```powershell
 Set-Location D:/proj/ProxyVeil

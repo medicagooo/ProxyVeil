@@ -4,6 +4,12 @@ The macOS entry point is an explicit command-line adapter for FlClash. It
 supports FlClash 0.8.x style `shared_preferences.json` and profile YAML files
 under the macOS Application Support directory.
 
+The adapter deliberately rejects other layouts. On the current test Mac,
+FlClash 0.8.99 stores `config.yaml`, `database.sqlite`, and profile YAML files
+under `~/Library/Application Support/com.follow.clash`; that layout is recorded
+in [macOS host validation](../docs/validation/macos-host.json) and is not yet a
+supported repair target.
+
 ```sh
 ./scripts/Launch-macOS.sh inspect
 ./scripts/Launch-macOS.sh repair --mode Proxy --items DNS IPv6 --proxy-group Proxy
@@ -27,3 +33,6 @@ Test offline with:
 ```sh
 python3 scripts/Test-macOS.py
 ```
+
+The Windows follow-up acceptance checklist is in
+[windows-stage2.md](../docs/validation/windows-stage2.md).

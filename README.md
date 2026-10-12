@@ -27,6 +27,8 @@ macOS 12+ 可使用 FlClash 的 Intel 或 Apple Silicon 版本。macOS 入口只
 
 macOS MVP 复用 FlClash 的 `shared_preferences.json` 与 `profiles/<currentProfileId>.yaml` 契约，支持 DNS、TUN/Proxy 模式和 FlClash IPv6 设置。它使用文件锁、原子替换和外部变化检查；不运行 `sudo`，不修改物理网卡、系统防火墙或系统 DNS。Windows Edge 注册表 WebRTC 策略在 macOS 显示为跳过，需要配置描述文件或 MDM 管理。详见 [macOS 说明](macos/README.md) 和 [ADR 0002](docs/adr/0002-macos-flclash.md)。
 
+当前 Mac 实测的 FlClash 0.8.99 使用 `config.yaml`、`database.sqlite` 和 `profiles/*.yaml`，没有 `shared_preferences.json`；入口会安全拒绝修改，详情见 [macOS 实机验证](docs/validation/macos-host.json)。
+
 打开设置，核对自动找到的安装位置与配置目录。未找到时填写 FlClash.exe 或安装目录，以及含 shared_preferences.json 的配置目录。选择连接方式、修复项目与 DNS 代理组。组内应已选择可用代理节点；此应用保留节点选择，不判断节点所在地。
 
 点击“检查并修复”后逐项显示结果。已写入项打勾；权限不足或组织策略冲突显示警告。有快照时按钮改为“还原上次修改”。修改配置会短暂断开 FlClash；默认自动重启，也可先退出软件再关闭此选项。Edge 由用户重启，应用不会关闭浏览器标签。
@@ -70,5 +72,9 @@ pwsh -NoProfile -File D:\proj\ProxyVeil\scripts\Test-Package.ps1
 # macOS (offline, isolated fixture)
 python3 scripts/Test-macOS.py
 ```
+
+Windows 第二阶段的回归、UI、打包和 Windows 10/11 验收清单见
+[docs/validation/windows-stage2.md](docs/validation/windows-stage2.md)，结果写入
+`docs/validation/windows-stage2.json`。
 
 测试使用 `work/` 下的隔离配置与模拟策略，不修改本机 FlClash/Edge。构建离线生成普通权限版和管理员版 ZIP，不包含 PowerShell 运行时。验证证据见 `docs/validation/`，规格见 `docs/spec-v1.md`，执行状态见 `STATE.md`。
