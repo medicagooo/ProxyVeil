@@ -1,0 +1,22 @@
+{
+  "purpose": "Enable Windows-hosted development of the macOS adapter and prepare the remaining acceptance plan",
+  "requirements": ["STATE.md", "docs/adr/0002-macos-flclash.md"],
+  "constraints": [
+    "Windows native and PowerShell; use bundled Python and standard library without installing dependencies",
+    "Tests call existing adapter functions only against generated temporary fixtures",
+    "macOS production CLI continues to reject non-macOS hosts",
+    "No live FlClash/Edge changes, SQLite mutations, hypervisor changes, system restart, push or release",
+    "New-layout repair requires an evidenced contract; macOS flock and network acceptance remain target-host checks"
+  ],
+  "acceptance": [
+    "Adapter imports on Windows and existing CLI platform guard emits JSON without creating state",
+    "Local fixture tests cover repair/restore, external drift, backup integrity, interrupted recovery and process concurrency",
+    "Windows product regression passes after development changes",
+    "Save a concrete local-development plan with primary sources, host readiness and next executable steps"
+  ],
+  "status": "active",
+  "integration": "unmerged",
+  "evidence": ["STATE.md"],
+  "sourceCommit": "59bd396951fe48cfaf06ecde26c5defffb883155",
+  "next": "Create the declared 1012-local-development branch, enable portable fixture testing and document the verified FlClash layout contract"
+}

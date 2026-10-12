@@ -1,6 +1,10 @@
 {
   "pending": [
     {
+      "task": "local-development-v1",
+      "event": "create-local-development-branch"
+    },
+    {
       "task": "review-repair-v1",
       "event": "rewrite-identity"
     },
@@ -119,6 +123,11 @@
       "id": "windows-stage2",
       "events": ".branch-records/windows-stage2/events.jsonl",
       "state": ".branch-records/windows-stage2/state.json"
+    },
+    {
+      "id": "local-development-v1",
+      "events": ".branch-records/local-development-v1/events.jsonl",
+      "state": ".branch-records/local-development-v1/state.json"
     }
   ],
   "read": [
@@ -126,5 +135,5 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": []
+  "active": ["local-development-v1"]
 }
