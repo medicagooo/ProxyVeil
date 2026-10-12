@@ -7,6 +7,10 @@
     {
       "task": "review-repair-v1",
       "event": "push-corrected-identity"
+    },
+    {
+      "event": "merge-remote-main",
+      "task": "main-update-1012"
     }
   ],
   "changes": [
@@ -184,6 +188,11 @@
       "events": ".branch-records\\branch-cleanup-1012/events.jsonl",
       "state": ".branch-records\\branch-cleanup-1012/state.json",
       "id": "branch-cleanup-1012"
+    },
+    {
+      "events": ".branch-records/main-update-1012/events.jsonl",
+      "state": ".branch-records/main-update-1012/state.json",
+      "id": "main-update-1012"
     }
   ],
   "read": [
@@ -191,5 +200,7 @@
   ],
   "schema": 1,
   "timezone": "America/Halifax",
-  "active": []
+  "active": [
+    "main-update-1012"
+  ]
 }

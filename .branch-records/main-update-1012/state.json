@@ -1,0 +1,24 @@
+{
+  "purpose": "Update local main with remote acceptance evidence and preserve local branch cleanup",
+  "requirements": [
+    "STATE.md",
+    ".branch-records/FORMAT.md"
+  ],
+  "constraints": [
+    "Keep local cleanup commit and all remote acceptance evidence",
+    "No push, reset, force operation or live configuration changes"
+  ],
+  "acceptance": [
+    "Local main contains the fetched remote commit and the original local commit",
+    "Registry validates; worktree clean",
+    "Remaining work reflects recorded native Mac results"
+  ],
+  "status": "active",
+  "integration": "unmerged",
+  "evidence": [
+    "STATE.md",
+    "docs/validation/macos-host.json",
+    "docs/validation/windows-012.md"
+  ],
+  "next": "Merge pinned remote main, reconcile STATE.md, validate registry and commit locally"
+}
